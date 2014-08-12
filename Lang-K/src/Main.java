@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import lang.Extension;
 
@@ -61,12 +62,12 @@ public class Main {
 	static class Num extends ASTList {
 		Num(Token[] ls, int offset) {
 			if (ls[offset] instanceof Token.Operator) {
-				if(!((Token.Operator)ls[offset]).op.equals("(")) return;
+				if(!((Token.Operator)ls[offset]).getValue().equals("(")) return;
 				AST s = new Sum(ls, offset + 1);
 				if(!s.ok) return;
 				if(offset + s.num_token + 1 >= ls.length) return;
 				if(!(ls[offset + s.num_token + 1] instanceof Token.Operator)) return;
-				if(!((Token.Operator)ls[offset + s.num_token + 1]).op.equals(")")) return;
+				if(!((Token.Operator)ls[offset + s.num_token + 1]).getValue().equals(")")) return;
 				num_token = 1 + s.num_token + 1;
 				children.add(s);
 				ok = true;
@@ -85,7 +86,7 @@ public class Main {
 			AST firstChild = children.get(0);
 			return firstChild instanceof Sum ?
 					firstChild.eval(k + 1):
-					((Token.Num)((ASTLeaf)firstChild).child).num;
+					((Token.Num)((ASTLeaf)firstChild).child).getValue();
 		}
 	}
 	
@@ -104,8 +105,8 @@ public class Main {
 				
 				if (!(nextToken instanceof Token.Operator)) break;
 				
-				if (!(((Token.Operator) nextToken).op.equals("+")) &&
-					!(((Token.Operator) nextToken).op.equals("-"))) break;
+				if (!(((Token.Operator) nextToken).getValue().equals("+")) &&
+					!(((Token.Operator) nextToken).getValue().equals("-"))) break;
 				
 				AST right = new Prod(ls, offset + num_token + 1);
 				if(!right.ok) break;
@@ -128,8 +129,8 @@ public class Main {
 				
 				int right = children.get(i + 1).eval(k + 1);
 				Token.Operator operator = (Token.Operator) ((ASTLeaf)children.get(i)).child;
-				if		(operator.op.equals("+")) ret += right;
-				else if (operator.op.equals("-")) ret -= right;
+				if		(operator.getValue().equals("+")) ret += right;
+				else if (operator.getValue().equals("-")) ret -= right;
 			}
 			return ret;
 		}
@@ -149,8 +150,8 @@ public class Main {
 				Token nextToken = ls[offset + num_token];
 				if (!(nextToken instanceof Token.Operator)) break;
 
-				if (!(((Token.Operator)(nextToken)).op.equals("*")) &&
-					!(((Token.Operator)(nextToken)).op.equals("/"))) break;
+				if (!(((Token.Operator)(nextToken)).getValue().equals("*")) &&
+					!(((Token.Operator)(nextToken)).getValue().equals("/"))) break;
 				
 				AST right = new Num(ls, offset + num_token + 1);
 				
@@ -177,10 +178,29 @@ public class Main {
 				int right = children.get(i + 1).eval(k + 1);
 
 				Token.Operator operator = (Token.Operator) (((ASTLeaf)children.get(i)).child);
-				if		(operator.op.equals("*")) ret *= right;
-				else if (operator.op.equals("/")) ret /= right;
+				if		(operator.getValue().equals("*")) ret *= right;
+				else if (operator.getValue().equals("/")) ret /= right;
 			}
 			return ret;
+		}
+	}
+	
+	static class Environment { 
+		HashMap<String, Integer> hashMap;
+		Environment() {
+			hashMap = new HashMap<String, Integer>();
+		}
+	}
+	
+	static class Variable extends ASTLeaf {
+		String name;
+		Variable(String name) {
+			this.name = name;
+			num_token = 1;
+		}
+		
+		int eval(int k, Environment e) {
+			return e.hashMap.get(name);
 		}
 	}
 }
