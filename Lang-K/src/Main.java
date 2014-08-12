@@ -5,14 +5,15 @@ import lang.Extension;
 
 public class Main {
 	public static void main(String args[]) {
-		String s = "(1+2)*3";
+		String s = "(1+2)*2";
 		Token[] ls = tokenizer(s);	// 字句解析
 		AST ast = new Sum(ls, 0);	// 構文解析
+		System.out.println(s);
 		System.out.println(ast.eval(0));
 	}
 
 	public static Token[] tokenizer(String s) {
-		String[][] m = Extension.matchAll(s, "\\s*(([0-9]+)|([\\(\\)+-]))\\s*");
+		String[][] m = Extension.matchAll(s, "\\s*(([0-9]+)|([\\(\\)-+*/]))\\s*");
 		Token[] ret = new Token[m.length];
 		for (int i=0; i<m.length; i++) {
 			if		(m[i][2] != null) ret[i] = new Token.Num(Integer.parseInt(m[i][2]));
@@ -100,6 +101,7 @@ public class Main {
 			
 			while (offset + num_token + 1 < ls.length) {
 				Token nextToken = ls[offset + num_token];
+				
 				if (!(nextToken instanceof Token.Operator)) break;
 				
 				if (!(((Token.Operator) nextToken).op.equals("+")) &&
@@ -143,13 +145,15 @@ public class Main {
 			num_token = left.num_token;
 			
 			while (offset + num_token + 1 < ls.length) {
+
 				Token nextToken = ls[offset + num_token];
 				if (!(nextToken instanceof Token.Operator)) break;
-				
+
 				if (!(((Token.Operator)(nextToken)).op.equals("*")) &&
 					!(((Token.Operator)(nextToken)).op.equals("/"))) break;
 				
 				AST right = new Num(ls, offset + num_token + 1);
+				
 				if (!right.ok) break;
 				children.add(new ASTLeaf(nextToken));
 				children.add(right);
