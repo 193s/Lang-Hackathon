@@ -1,17 +1,26 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import lang.Extension;
 
 
 public class Main {
 	public static void main(String args[]) {
-		String s = "a=(1+2)*3";
+		String s = "a=(1+2)*3;a";
+		System.out.println(s + '\n');	//入力 + 改行
 		Token[] ls = tokenizer(s);	// 字句解析
+		for (Token t: ls) System.out.println(" [" + t + ']');	// 字句解析の結果を出力
+		System.out.println();	//改行
 		TokenInput input = new TokenInput(ls);
-		AST ast = new Statement(input);	// 構文解析
-		System.out.println(s);
-		System.out.println(ast.eval(0, new Environment()));
+		AST ast = new Program(input);	// 構文解析
+		
+		Environment e = new Environment();
+		ast.eval(0, e);
+		System.out.println(e.hashMap.size());
+		for(Entry<String, Integer> entry : e.hashMap.entrySet()) {
+			System.out.println(entry.getKey() +" : " + entry.getValue());
+		}
 	}
 
 	public static Token[] tokenizer(String s) {
@@ -77,6 +86,13 @@ public class Main {
 	}
 	
 	
+	/*	
+	 * 	Num ::= '(' Sum ')' | NumberToken | Variable
+	 *	Sum ::= Prod { [+-] Prod }
+	 *	Assign ::= Variable '=' Num
+	 *	Statement ::= Assign | Sum
+	 *	Program ::= Statement {';' Statement? }
+	 */
 	static class AST {
 		// その要素に含まれる合計のトークン数
 		int num_token = 0;
@@ -106,14 +122,11 @@ public class Main {
 	}
 
 	
-	
-	// Num ::= '(' Sum ')' | NumberToken | Variable
 	static class Num extends ASTList {
 		Num(TokenInput input) {
-			if (input.get() instanceof Token.Operator) {
-//				if(!((Token.Operator)ls[offset]).getValue().equals("(")) return;
-				if(!((Token.Operator)input.get()).getValue().equals("(")) return;
-//				AST s = new Sum(ls, offset + 1);
+			Token nextToken = input.get();
+			if (nextToken instanceof Token.Operator) {
+				if(!((Token.Operator)nextToken).getValue().equals("(")) return;
 				AST s = new Sum(input.clone(1));
 				if(!s.ok) return;
 				if(input.offset + s.num_token + 1 >= input.length) return;
@@ -123,15 +136,16 @@ public class Main {
 				children.add(s);
 			}
 
-			else if (input.get() instanceof Token.Num) {
-				children.add(new ASTLeaf(input.get()));
+			else if (nextToken instanceof Token.Num) {
+				children.add(new ASTLeaf(nextToken));
 				num_token = 1;
 			}
 			
-			else if (input.get() instanceof Token.Name) {
+			else if (nextToken instanceof Token.Name) {
 				String ident = (String)input.get().getValue();
-				children.add(new Variable(ident));
-				num_token = ident.length();
+				Variable v = new Variable(ident);
+				children.add(v);
+				num_token = 1;
 			}
 			
 			ok = true;
@@ -141,16 +155,14 @@ public class Main {
 		int eval(int k, Environment e) {
 			for(int i=0; i<k; i++) System.out.print(" ");
 			System.out.println("Num");
-			AST firstChild = children.get(0);
-			return firstChild instanceof Sum ?
-					firstChild.eval(k + 1, e):
-					((Token.Num)((ASTLeaf)firstChild).child).getValue();
+			AST child = children.get(0);
+			if		(child instanceof Sum)		return child.eval(k + 1, e);
+			else if (child instanceof Variable) return child.eval(k + 1, e);
+			else /* child instanceof ASTLeaf */ return ((Token.Num)((ASTLeaf)child).child).getValue();
 		}
 	}
 	
 	
-	
-	// Sum ::= Prod { [+-] Prod }
 	static class Sum extends ASTList {
 		Sum(TokenInput input) {
 			AST left = new Prod(input.clone());
@@ -195,7 +207,6 @@ public class Main {
 	}
 	
 	
-	// Prod ::= Num { [*/] Num }
 	static class Prod extends ASTList {
 		Prod(TokenInput input) {
 			AST left = new Num(input.clone());
@@ -242,8 +253,8 @@ public class Main {
 			return ret;
 		}
 	}
+
 	
-	// Statement ::= Assign | Sum
 	static class Statement extends ASTList {
 		Statement(TokenInput input) {
 			AST child = new Assign(input.clone());
@@ -255,15 +266,66 @@ public class Main {
 			num_token = child.num_token;
 			ok = true;
 		}
+
+		@Override
+		int eval(int k, Environment e) {
+			for (int i=0; i<k; i++) System.out.print(' ');
+
+			AST child = children.get(0);
+//			if		(child instanceof Assign) child.eval(k+1, e);
+//			else if (child instanceof Sum)	  child.eval(k+1, e);
+			return child.eval(k+1, e);
+		}
 	}
 	
-	// Assign ::= Variable '=' Num
+	
+	static class Program extends ASTList {
+		Program(TokenInput input) {
+			AST s = new Statement(input);
+			if (!s.ok) return;
+			children.add(s);
+			num_token = s.num_token;
+
+			while (input.offset + num_token + 1 < input.length) {
+				Token nextToken = input.getNext();
+				if (!(nextToken instanceof Token.Operator)) break;
+				
+				String op = ((Token.Operator)nextToken).getValue();
+				if (!op.equals(";")) break;
+				children.add(new ASTLeaf(nextToken));
+				num_token++;
+				
+				AST right = new Statement(input.clone(2));
+				if (!right.ok) continue;
+				children.add(right);
+				num_token += right.num_token;
+			}
+			ok = true;
+		}
+		
+		@Override
+		int eval(int k, Environment e) {
+			for (int i=0; i<k; i++) System.out.println(' ');
+			int ret = children.get(0).eval(k+1, e);
+			for (int i=1; i<children.size(); i+=2) {
+				for (int j=0; j<k; j++) System.out.print(' ');
+				System.out.println(((ASTLeaf)(children.get(i))).child.toString());
+				int right = children.get(i+1).eval(k+1, e);
+				ret += right;	//FIXME
+			}
+			return ret;
+		}
+	}
+
+	
 	static class Assign extends ASTList {
 		Assign(TokenInput input) {
-			if (!(input.get() instanceof Token.Name)) return;
-			AST left = new Variable((String)input.get().getValue());
-			if (!left.ok) return;
-
+			if (input.offset + 2 >= input.length) return;
+			
+			Token nextToken = input.get();
+			if (!(nextToken instanceof Token.Name)) return;
+			AST left = new Variable((String)nextToken.getValue());
+			
 			if (!(input.getNext() instanceof Token.Operator)) return;
 			if (!(input.getNext().getValue().equals("="))) return;
 			
@@ -273,9 +335,18 @@ public class Main {
 			children.add(left);
 			children.add(new ASTLeaf(input.getNext()));
 			children.add(right);
+
 			num_token += 3;
 			
 			ok = true;
+		}
+		@Override
+		int eval(int k, Environment e) {
+			for(int i=0; i<k; i++) System.out.print(' ');
+			System.out.println("Assign");
+			int ret = ((Statement)children.get(2)).eval(k+1, e);
+			e.hashMap.put(((Variable)children.get(0)).name, ret);
+			return ret;
 		}
 	}
 	
@@ -288,7 +359,8 @@ public class Main {
 		}
 		@Override
 		int eval(int k, Environment e) {
-			return e.hashMap.get(name);
+			Integer v = e.hashMap.get(name);
+			return v == null? 0: v;
 		}
 	}
 	
