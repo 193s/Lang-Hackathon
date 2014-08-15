@@ -11,14 +11,19 @@ import lang.Extension;
 public class Main {
 	public static void main(String args[]) {
 		String s = "";
-		try {
-			InputStreamReader isr = new InputStreamReader(System.in);
-			BufferedReader br = new BufferedReader(isr);
-			s = br.readLine();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-			System.out.println("\nInput Error");
+		
+		InputStreamReader isr = new InputStreamReader(System.in);
+		BufferedReader br = new BufferedReader(isr);
+		while (true) {
+			try {
+				String input = br.readLine();
+				if (input.equals("")) break;
+				s += input + "\n";
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+				System.out.println("\nInput Error");
+			}
 		}
 		
 		System.out.println(s + '\n');	// 入力 + 改行
