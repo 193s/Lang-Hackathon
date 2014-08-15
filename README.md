@@ -1,4 +1,4 @@
-Lang-Hackathon
+myLang
 ==============
 
-K会情報講座インタプリタ班
+Programing language.
