@@ -18,16 +18,21 @@ public class Main {
 		}
 		catch (IOException e) {
 			e.printStackTrace();
+			System.out.println("\nInput Error");
 		}
 		
 		System.out.println(s + '\n');	// 入力 + 改行
 		Token[] ls = tokenizer(s);		// 字句解析
 		for (Token t: ls) System.out.println(" [" + t + ']');	// 字句解析の結果を出力
 		System.out.println();	//改行
-		TokenInput input = new TokenInput(ls);
-		AST ast = new Program(input);	// 構文解析
 		
-		Environment e = new Environment();
+		AST ast = new Program(new TokenInput(ls));	// 構文解析
+		if(!ast.ok) {
+			System.out.println("Parsing failed!");
+			return;
+		}
+		
+		Environment e = new Environment();	// 環境
 		System.out.println(ast.eval(0, e));
 		
 		// Environmentに保存されている変数を列挙
@@ -35,8 +40,10 @@ public class Main {
 			System.out.println(entry.getKey() +" : " + entry.getValue());
 	}
 
+	// 字句解析器
 	public static Token[] tokenizer(String s) {
-		String[][] m = Extension.matchAll(s, "\\s*(([0-9]+)|([-+*/=;\\(\\)])|([a-zA-z]+))\\s*");
+		String[][] m = Extension.matchAll(s, "\\s*(([0-9]+)|(==|[-+*/=;<>\\{\\}\\(\\)])|([a-zA-z]+))\\s*");
+		
 		Token[] ret = new Token[m.length];
 		for (int i=0; i<m.length; i++) {
 			if		(m[i][2] != null) ret[i] = new Token.Num(Integer.parseInt(m[i][2]));
@@ -48,7 +55,7 @@ public class Main {
 
 	
 	static class TokenInput implements Cloneable {
-		Token[] tokens;
+		static Token[] tokens;
 		int offset = 0;
 		int length;
 		
@@ -142,11 +149,13 @@ public class Main {
 	 *
 	 *	Assign	 ::= Variable '=' Statement
 	 *
-	 *	Statement ::= Assign | Sum | While
-	 *	Program   ::= Statement {';' Statement? }
-	 *
 	 *	Condition ::= Sum ('>' | '==' | '<') Sum
 	 *	While	  ::= 'while' '(' Condition ')' '{' Program '}'
+	 *	If		  ::= 'if' '(' Condition ')' '{' Program '}'
+	 *
+	 *
+	 *	Statement ::= Assign | Sum | While | If
+	 *	Program   ::= Statement {';' Statement? }
 	 *
 	 */
 	
@@ -300,10 +309,16 @@ public class Main {
 	
 	static class Statement extends ASTList {
 		Statement(TokenInput input) {
-			AST child = new Assign(input.clone());
+			AST child = new While(input.clone());
 			if (!child.ok) {
-				child = new Sum(input.clone());
-				if (!child.ok) return;
+				child = new If(input.clone());
+				if (!child.ok) {
+					child = new Assign(input.clone());
+					if (!child.ok) {
+						child = new Sum(input.clone());
+						if (!child.ok) return;
+					}
+				}
 			}
 			children.add(child);
 			num_token = child.num_token;
@@ -323,7 +338,7 @@ public class Main {
 	
 	static class Program extends ASTList {
 		Program(TokenInput input) {
-			AST s = new Statement(input);
+			AST s = new Statement(input.clone());
 			if (!s.ok) return;
 			children.add(s);
 			num_token = s.num_token;
@@ -334,11 +349,12 @@ public class Main {
 				if (!(nextToken instanceof Token.Operator)) break;
 				String op = ((Token.Operator)nextToken).getValue();
 				if (!op.equals(";")) break;
-				children.add(new ASTLeaf(nextToken));
 				num_token++;
 				
 				AST right = new Statement(input.clone(num_token));
 				if (!right.ok) continue;
+
+				children.add(new ASTLeaf(nextToken));
 				children.add(right);
 				num_token += right.num_token;
 			}
@@ -409,7 +425,7 @@ public class Main {
 			Token operator = input.get(num_token);
 			if (!(operator instanceof Token.Operator)) return;
 			String op = (String)(((Token.Operator)operator).getValue());
-			if (!( op.equals("==")) || op.equals(">") || op.equals("<") ) return;
+			if (!( op.equals("==") || op.equals(">") || op.equals("<")) ) return;
 			children.add(new ASTLeaf(operator));
 			num_token++;
 			
@@ -444,8 +460,43 @@ public class Main {
 		While(TokenInput input) {
 			if (input.offset + 7 >= input.length) return;
 			
+			Token nextToken = input.get();
 			if (!(input.get() instanceof Token.Name)) return;
-//			if (((NameToken)input.get().
+			if (!((String) (((Token.Name) input.get()).getValue())).equals("while")) return;
+			num_token++;
+
+			nextToken = input.get(num_token);
+			if (!(nextToken instanceof Token.Operator)) return;
+			if (!((String) (((Token.Operator) nextToken)).getValue()).equals("(")) return;
+			num_token++;
+			
+			AST condition = new Condition(input.clone(num_token));
+			if (!condition.ok) return;
+			num_token += condition.num_token;
+			
+			nextToken = input.get(num_token);
+			if (!(nextToken instanceof Token.Operator)) return;
+			if (!((String) (((Token.Operator) nextToken)).getValue()).equals(")")) return;
+			num_token++;
+			
+			nextToken = input.get(num_token);
+			if (!(nextToken instanceof Token.Operator)) return;
+			if (!((String) (((Token.Operator) nextToken)).getValue()).equals("{")) return;
+			num_token++;
+			
+			AST program = new Program(input.clone(num_token));
+			if (!program.ok) return;
+			num_token += program.num_token;
+			
+			nextToken = input.get(num_token);
+			if (!(nextToken instanceof Token.Operator)) return;
+			if (!((String) (((Token.Operator) nextToken)).getValue()).equals("}")) return;
+			num_token++;
+			
+			children.add(condition);
+			children.add(program);
+
+			ok = true;
 		}
 		
 		@Override
@@ -454,7 +505,72 @@ public class Main {
 			System.out.println("While");
 			
 			int ret = 0;
+			AST condition = children.get(0);
+			AST program = children.get(1);
 			
+			while (condition.eval(k+1, e) == 1) {
+				ret = program.eval(k+1, e);
+			}
+			return ret;
+		}
+	}
+	
+	
+	static class If extends ASTList {
+		If(TokenInput input) {
+			if (input.offset + 7 >= input.length) return;
+			
+			Token nextToken = input.get();
+			if (!(input.get() instanceof Token.Name)) return;
+			if (!((String) (((Token.Name) input.get()).getValue())).equals("if")) return;
+			num_token++;
+
+			nextToken = input.get(num_token);
+			if (!(nextToken instanceof Token.Operator)) return;
+			if (!((String) (((Token.Operator) nextToken)).getValue()).equals("(")) return;
+			num_token++;
+			
+			AST condition = new Condition(input.clone(num_token));
+			if (!condition.ok) return;
+			num_token += condition.num_token;
+			
+			nextToken = input.get(num_token);
+			if (!(nextToken instanceof Token.Operator)) return;
+			if (!((String) (((Token.Operator) nextToken)).getValue()).equals(")")) return;
+			num_token++;
+			
+			nextToken = input.get(num_token);
+			if (!(nextToken instanceof Token.Operator)) return;
+			if (!((String) (((Token.Operator) nextToken)).getValue()).equals("{")) return;
+			num_token++;
+			
+			AST program = new Program(input.clone(num_token));
+			if (!program.ok) return;
+			num_token += program.num_token;
+			
+			nextToken = input.get(num_token);
+			if (!(nextToken instanceof Token.Operator)) return;
+			if (!((String) (((Token.Operator) nextToken)).getValue()).equals("}")) return;
+			num_token++;
+			
+			children.add(condition);
+			children.add(program);
+
+			ok = true;
+		}
+		
+		@Override
+		int eval(int k, Environment e) {
+			for (int i=0; i<k; i++) System.out.print(' ');
+			System.out.println("If");
+			
+			int ret = 0;
+			AST condition = children.get(0);
+			AST program = children.get(1);
+			
+			if (condition.eval(k+1, e) == 1) {
+				ret = program.eval(k+1, e);
+			}
 			return ret;
 		}
 	}
