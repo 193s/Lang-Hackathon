@@ -171,10 +171,14 @@ public class Main {
 			this.name = name;
 			num_token = 1;
 		}
+		
 		@Override
 		int eval(int k, Environment e) {
+			for (int i=0; i<k; i++) System.out.print(' ');
 			Integer v = e.hashMap.get(name);
-			return v == null? 0: v;
+			int value = v == null? 0: v;
+			System.out.println("Variable : " + name + '(' + value + ')');
+			return value;
 		}
 	}
 	
@@ -210,12 +214,17 @@ public class Main {
 		
 		@Override
 		int eval(int k, Environment e) {
-			for(int i=0; i<k; i++) System.out.print(" ");
+			for (int i=0; i<k; i++) System.out.print(' ');
 			System.out.println("Num");
 			AST child = children.get(0);
 			if		(child instanceof Sum)		return child.eval(k + 1, e);
 			else if (child instanceof Variable) return child.eval(k + 1, e);
-			else /* child instanceof ASTLeaf */ return ((Token.Num)((ASTLeaf)child).child).getValue();
+			else {
+				for (int i=0; i<k; i++) System.out.print(' ');
+				int value = ((Token.Num)((ASTLeaf)child).child).getValue();
+				System.out.println(" : " + value);
+				return value;
+			}
 		}
 	}
 	
@@ -325,6 +334,7 @@ public class Main {
 					}
 				}
 			}
+
 			children.add(child);
 			num_token = child.num_token;
 			ok = true;
@@ -441,15 +451,16 @@ public class Main {
 			
 			ok = true;
 		}
-
+		
 		@Override
 		int eval(int k, Environment e) {
-			for (int i=0; i<k; i++) System.out.println(' ');
-			System.out.println("Condition");
+			for (int i=0; i<k; i++) System.out.print(' ');
+			System.out.print("Condition");
+			String op = (String) (((ASTLeaf) children.get(1)).child.getValue());
+			System.out.println(" : " + op);
 			
 			int left = children.get(0).eval(k+1, e);
 			int right = children.get(2).eval(k+1, e);
-			String op = (String) (((ASTLeaf) children.get(1)).child.getValue());
 			
 			int ret = 0;
 			if		(op.equals(">"))  ret = left > right?  1:0;
@@ -460,7 +471,7 @@ public class Main {
 		}
 	}
 
-	
+
 	static class While extends ASTList {
 		While(TokenInput input) {
 			if (input.offset + 7 >= input.length) return;
