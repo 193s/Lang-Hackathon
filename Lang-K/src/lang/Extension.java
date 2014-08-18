@@ -5,8 +5,15 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/* this code has copied from processing.core.PApplet */
 public class Extension {
+	public static String getSpace(int k) {
+		StringBuilder s = new StringBuilder();
+		for(int i=0; i<k; i++) s.append(' ');
+		return s.toString();
+	}
+
+	
+	/* this code has copied from processing.core.PApplet */
 	public static HashMap<String, Pattern> matchPatterns;
 
 	public static Pattern matchPattern(String regexp) {
