@@ -243,44 +243,40 @@ public class Main {
 			if (!left.ok) return;
 			children.add(left);
 			num_token = left.num_token;
-			ok = true;
-			// 左辺成立
 			
-			if (input.offset + num_token + 1 >= input.length) return;
-			Token nextToken = input.get(num_token);
-			
-			if (!(nextToken instanceof Token.Operator)) return;
+			while (input.offset + num_token + 1 < input.length) {
+				Token nextToken = input.get(num_token);
 				
-			if (!(((Token.Operator) nextToken).getValue().equals("+")) &&
-				!(((Token.Operator) nextToken).getValue().equals("-"))) return;
-			
-			AST right = new Sum(input.clone(num_token + 1));
-			if (!right.ok) {
-				right = new Prod(input.clone(num_token + 1));
-				if (!right.ok) return;
+				if (!(nextToken instanceof Token.Operator)) break;
+
+				if (!(((Token.Operator) nextToken).getValue().equals("+")) &&
+				!(((Token.Operator) nextToken).getValue().equals("-"))) break;
+
+				AST right = new Prod(input.clone(num_token + 1));
+				if(!right.ok) break;
+				children.add(new ASTLeaf(nextToken));
+				children.add(right);
+				num_token += right.num_token + 1;
 			}
 			
-			children.add(new ASTLeaf(nextToken));
-			children.add(right);
-			
-			num_token += right.num_token + 1;
+			ok = true;
 		}
 		
 		@Override
 		int eval(int k, Environment e) {
 			System.out.println(Extension.getSpace(k) + "Sum");
 			int ret = children.get(0).eval(k + 1, e);
+			// 左辺
 
-			// 右辺含む
-			if (children.size() == 3) {
-				ASTLeaf operator = (ASTLeaf)children.get(1);
+			for (int i=1; i<children.size(); i+=2) {
+				ASTLeaf operator = (ASTLeaf)children.get(i);
 				String op = ((Token.Operator) operator.child).getValue();
 				
 				System.out.println(Extension.getSpace(k) + op);
 			
 				int right = children.get(2).eval(k + 1, e);
 				if		(op.equals("+")) ret += right;
-				else if (op.equals("-")) ret = ret - right;
+				else if (op.equals("-")) ret -= right;
 			}
 			return ret;
 		}
@@ -297,21 +293,23 @@ public class Main {
 			ok = true;
 			// 左辺成立
 			
-			if (input.offset + num_token + 1 >= input.length) return;
+			while (true) {
+				if (input.offset + num_token + 1 >= input.length) return;
 
-			Token nextToken = input.get(num_token);
-			if (!(nextToken instanceof Token.Operator)) return;
+				Token nextToken = input.get(num_token);
+				if (!(nextToken instanceof Token.Operator)) return;
 
-			if (!(((Token.Operator)(nextToken)).getValue().equals("*")) &&
-				!(((Token.Operator)(nextToken)).getValue().equals("/"))) return;
+				if (!(((Token.Operator)(nextToken)).getValue().equals("*")) &&
+					!(((Token.Operator)(nextToken)).getValue().equals("/"))) return;
 				
-			AST right = new Num(input.clone(num_token + 1));
-			if (!right.ok) return;
+				AST right = new Num(input.clone(num_token + 1));
+				if (!right.ok) return;
 				
-			children.add(new ASTLeaf(nextToken));
-			children.add(right);
+				children.add(new ASTLeaf(nextToken));
+				children.add(right);
 
-			num_token += right.num_token + 1;
+				num_token += right.num_token + 1;
+			}
 		}
 		
 		@Override
@@ -321,13 +319,13 @@ public class Main {
 			int ret = children.get(0).eval(k + 1, e);
 			
 			// 右辺含む
-			if (children.size() == 3) {
-				ASTLeaf operator = (ASTLeaf)children.get(1);
+			for (int i=1; i<children.size(); i+=2) {
+				ASTLeaf operator = (ASTLeaf)children.get(i);
 				String op = ((Token.Operator) operator.child).getValue();
 				
 				System.out.println(Extension.getSpace(k) + op);
 
-				int right = children.get(2).eval(k + 1, e);
+				int right = children.get(i+1).eval(k + 1, e);
 
 				if		(op.equals("*")) ret *= right;
 				else if (op.equals("/")) ret /= right;
