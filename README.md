@@ -1,4 +1,4 @@
 myLang
 ==============
 
-Programing language.
+自作言語.
