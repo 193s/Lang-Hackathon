@@ -10,7 +10,7 @@ Lang-K
 名前は便宜的にLang-Kとしている.
 
 *例*
-`a = 0;
+`     a = 0;
  while (a < 10) {
      a = a+1;
  };
@@ -19,7 +19,6 @@ Lang-K
 今のところif文とwhile文などが使える.
 
 
-Lang-JavaCC
+lexer
 --------------
-JavaCCを使った自作言語の予定
-まだ字句解析器しかない
+古い字句解析器.deprecated.
