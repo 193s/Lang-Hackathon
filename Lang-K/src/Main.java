@@ -27,7 +27,7 @@ public class Main {
 		}
 		
 		System.out.println(s + '\n');	// 入力 + 改行
-		Token[] ls = tokenizer(s);		// 字句解析
+		Token[] ls = Lexer.tokenize(s);		// 字句解析
 		for (Token t: ls) System.out.println(" [" + t + ']');	// 字句解析の結果を出力
 		System.out.println();	//改行
 		
@@ -44,21 +44,6 @@ public class Main {
 		for(Entry<String, Integer> entry : e.hashMap.entrySet())
 			System.out.println(entry.getKey() +" : " + entry.getValue());
 	}
-
-	// 字句解析器
-	public static Token[] tokenizer(String s) {
-		String[][] m = Extension.matchAll(s,
-				"\\s*((==|[-+*/=;<>\\{\\}\\(\\)])|([0-9]+)|([a-zA-z]+))\\s*");
-		
-		Token[] ret = new Token[m.length];
-		for (int i=0; i<m.length; i++) {
-			if		(m[i][2] != null) ret[i] = new Token.Operator(m[i][2]);
-			else if	(m[i][3] != null) ret[i] = new Token.Num(Integer.parseInt(m[i][3]));
-			else if (m[i][4] != null) ret[i] = new Token.Name(m[i][4]);
-		}
-		return ret;
-	}
-
 	
 	static class TokenInput implements Cloneable {
 		static Token[] tokens;
