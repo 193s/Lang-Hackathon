@@ -1,5 +1,6 @@
-import lang.Extension;
-
+package lang.lexer;
+import lang.lexer.Token.*;
+import lang.util.Extension;
 
 public class Lexer {
 	// 字句解析器

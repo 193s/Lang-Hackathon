@@ -1,3 +1,4 @@
+package lang.lexer;
 
 public abstract class Token<T> {
 	protected Token(T value) {
