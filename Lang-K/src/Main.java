@@ -99,7 +99,7 @@ public class Main {
 	 *
 	 *	Assign	 ::= Variable '=' Statement
 	 *	
-	 *	Condition ::= Sum ('>' | '==' | '<') Sum
+	 *	Condition ::= Expr RelationalOperator Expr
 	 *	While	  ::= 'while' '(' Condition ')' '{' Program '}'
 	 *	If		  ::= 'if' '(' Condition ')' '{' Program '}'
 	 *
@@ -224,8 +224,8 @@ public class Main {
 		int eval(int k, Environment e) {
 			System.out.println(Extension.getSpace(k) + "Num");
 			AST child = children.get(0);
-			if		(child instanceof Expr)		return child.eval(k + 1, e);
-			else if (child instanceof Variable) return child.eval(k + 1, e);
+			if (child instanceof Expr || child instanceof Variable)
+				return child.eval(k + 1, e);
 			else {
 				int value = ((Token.Num)((ASTLeaf)child).child).getValue();
 				System.out.println(Extension.getSpace(k) + " : " + value);
@@ -276,7 +276,7 @@ public class Main {
 				
 				if (!(nextToken instanceof Token.Operator)) break;
 				String op = ((Token.Operator)nextToken).getValue();
-				if (!op.equals(";")) break;
+				if (!";".equals(op)) break;
 				num_token++;
 				
 				AST right = new Statement(input.clone(num_token));
@@ -351,7 +351,8 @@ public class Main {
 			Token operator = input.get(num_token);
 			if (!(operator instanceof Token.Operator)) return;
 			String op = (String)(((Token.Operator)operator).getValue());
-			if (!( op.equals("==") || op.equals(">") || op.equals("<")) ) return;
+			
+			if (!( "==".equals(op) || ">".equals(op) || "<".equals(op)) ) return;
 			children.add(new ASTLeaf(operator));
 			num_token++;
 			
@@ -372,9 +373,9 @@ public class Main {
 			int right = children.get(2).eval(k+1, e);
 			
 			int ret = 0;
-			if		(op.equals(">"))  ret = left > right?  1:0;
-			else if (op.equals("==")) ret = left == right? 1:0;
-			else if (op.equals("<"))  ret = left < right?  1:0;
+			if		(">".equals(op))  ret = left > right ? 1:0;
+			else if ("==".equals(op)) ret = left == right? 1:0;
+			else if ("<".equals(op))  ret = left < right ? 1:0;
 			
 			return ret;
 		}
@@ -387,12 +388,12 @@ public class Main {
 			
 			Token nextToken = input.get();
 			if (!(input.get() instanceof Token.Name)) return;
-			if (!((String) (((Token.Name) input.get()).getValue())).equals("while")) return;
+			if (!"while".equals((String) (((Token.Name) input.get()).getValue()))) return;
 			num_token++;
 
 			nextToken = input.get(num_token);
 			if (!(nextToken instanceof Token.Operator)) return;
-			if (!((String) (((Token.Operator) nextToken)).getValue()).equals("(")) return;
+			if (!"(".equals((String) (((Token.Operator) nextToken)).getValue())) return;
 			num_token++;
 			
 			AST condition = new Condition(input.clone(num_token));
@@ -401,12 +402,12 @@ public class Main {
 			
 			nextToken = input.get(num_token);
 			if (!(nextToken instanceof Token.Operator)) return;
-			if (!((String) (((Token.Operator) nextToken)).getValue()).equals(")")) return;
+			if (!")".equals((String) (((Token.Operator) nextToken)).getValue())) return;
 			num_token++;
 			
 			nextToken = input.get(num_token);
 			if (!(nextToken instanceof Token.Operator)) return;
-			if (!((String) (((Token.Operator) nextToken)).getValue()).equals("{")) return;
+			if (!"{".equals((String) (((Token.Operator) nextToken)).getValue())) return;
 			num_token++;
 			
 			AST program = new Program(input.clone(num_token));
@@ -415,7 +416,7 @@ public class Main {
 			
 			nextToken = input.get(num_token);
 			if (!(nextToken instanceof Token.Operator)) return;
-			if (!((String) (((Token.Operator) nextToken)).getValue()).equals("}")) return;
+			if (!"}".equals((String) (((Token.Operator) nextToken)).getValue())) return;
 			num_token++;
 			
 			children.add(condition);
@@ -428,10 +429,10 @@ public class Main {
 		int eval(int k, Environment e) {
 			System.out.println(Extension.getSpace(k) + "While");
 			
-			int ret = 0;
 			AST condition = children.get(0);
 			AST program = children.get(1);
 			
+			int ret = 0;
 			while (condition.eval(k+1, e) == 1) {
 				ret = program.eval(k+1, e);
 			}
@@ -446,12 +447,12 @@ public class Main {
 			
 			Token nextToken = input.get();
 			if (!(input.get() instanceof Token.Name)) return;
-			if (!((String) (((Token.Name) input.get()).getValue())).equals("if")) return;
+			if (!"if".equals((String) (((Token.Name) input.get()).getValue()))) return;
 			num_token++;
 
 			nextToken = input.get(num_token);
 			if (!(nextToken instanceof Token.Operator)) return;
-			if (!((String) (((Token.Operator) nextToken)).getValue()).equals("(")) return;
+			if (!"(".equals((String) (((Token.Operator) nextToken)).getValue())) return;
 			num_token++;
 			
 			AST condition = new Condition(input.clone(num_token));
@@ -460,12 +461,12 @@ public class Main {
 			
 			nextToken = input.get(num_token);
 			if (!(nextToken instanceof Token.Operator)) return;
-			if (!((String) (((Token.Operator) nextToken)).getValue()).equals(")")) return;
+			if (!")".equals((String) (((Token.Operator) nextToken)).getValue())) return;
 			num_token++;
 			
 			nextToken = input.get(num_token);
 			if (!(nextToken instanceof Token.Operator)) return;
-			if (!((String) (((Token.Operator) nextToken)).getValue()).equals("{")) return;
+			if (!"{".equals((String) (((Token.Operator) nextToken)).getValue())) return;
 			num_token++;
 			
 			AST program = new Program(input.clone(num_token));
@@ -474,7 +475,7 @@ public class Main {
 			
 			nextToken = input.get(num_token);
 			if (!(nextToken instanceof Token.Operator)) return;
-			if (!((String) (((Token.Operator) nextToken)).getValue()).equals("}")) return;
+			if (!"}".equals((String) (((Token.Operator) nextToken)).getValue())) return;
 			num_token++;
 			
 			children.add(condition);
