@@ -140,13 +140,15 @@ public class Main {
 				if (!(operator instanceof Token.Operator)) break;
 				String opstr = ((Token.Operator)operator).getValue();
 				
-				operators.add (
-					opstr.equals("+") ?	IntegerBinaryOperator.Plus:
-					opstr.equals("-") ? IntegerBinaryOperator.Minus:
-					opstr.equals("*") ? IntegerBinaryOperator.Mult:
-					opstr.equals("/") ? IntegerBinaryOperator.Div:
-					null
-				);
+				BinaryOperatorIF binaryOperator = 
+					"+".equals(opstr) ?	IntegerBinaryOperator.Plus:
+					"-".equals(opstr) ? IntegerBinaryOperator.Minus:
+					"*".equals(opstr) ? IntegerBinaryOperator.Mult:
+					"/".equals(opstr) ? IntegerBinaryOperator.Div:
+					null;
+				
+				if (binaryOperator == null) break;
+				operators.add(binaryOperator);
 				num_token++;
 			
 				Num n2 = new Num(input.clone(num_token));
@@ -192,12 +194,12 @@ public class Main {
 			Token nextToken = input.get();
 			if (nextToken instanceof Token.Operator) {
 				String op = ((Token.Operator)nextToken).getValue();
-				if (!op.equals("(")) return;
+				if (! "(".equals(op)) return;
 				AST s = new Expr(input.clone(1));
 				if (!s.ok) return;
 				if (input.offset + s.num_token + 1 >= input.length) return;
-				if (!(input.get(s.num_token + 1) instanceof Token.Operator)) return;
-				if (!((Token.Operator)input.get(s.num_token + 1)).getValue().equals(")")) return;
+				if (! (input.get(s.num_token + 1) instanceof Token.Operator)) return;
+				if (! ")".equals((Token.Operator)input.get(s.num_token + 1).getValue())) return;
 				num_token = 1 + s.num_token + 1;
 				children.add(s);
 			}
@@ -313,7 +315,7 @@ public class Main {
 			AST left = new Variable((String)nextToken.getValue());
 			
 			if (!(input.getNext() instanceof Token.Operator)) return;
-			if (!(input.getNext().getValue().equals("="))) return;
+			if (!("=".equals(input.getNext().getValue()))) return;
 			
 			AST right = new Statement(input.clone(2));
 			if (!right.ok) return;
