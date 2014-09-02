@@ -1,4 +1,4 @@
-package lang;
+package lang.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 public class Extension {
 	public static String getSpace(int k) {
 		StringBuilder s = new StringBuilder();
-		for(int i=0; i<k; i++) s.append(' ');
+		for (int i=0; i<k; i++) s.append(' ');
 		return s.toString();
 	}
 

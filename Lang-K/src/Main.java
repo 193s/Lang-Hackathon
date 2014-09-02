@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import lang.Extension;
+import lang.lexer.Lexer;
+import lang.lexer.Token;
+import lang.util.Extension;
 
 
 public class Main {
@@ -31,7 +33,7 @@ public class Main {
 		for (Token t: ls) System.out.println(" [" + t + ']');	// 字句解析の結果を出力
 		System.out.println();	//改行
 		
-		AST ast = new Program(new TokenInput(ls));	// 構文解析
+		AST ast = new Program(new TokenSet(ls));	// 構文解析
 		if(!ast.ok) {
 			System.out.println("Parsing failed!");
 			return;
@@ -45,50 +47,7 @@ public class Main {
 			System.out.println(entry.getKey() +" : " + entry.getValue());
 	}
 	
-	static class TokenInput implements Cloneable {
-		static Token[] tokens;
-		static int length;
-		int offset = 0;
-		
-		TokenInput(Token[] tokens) {
-			this.tokens = tokens;
-			length = tokens.length;
-		}
-		Token getNext() {
-			return tokens[offset+1];
-		}
-		Token get() {
-			return tokens[offset];
-		}
-		Token get(int skip) {
-			return tokens[offset + skip];
-		}
-		
-		
-		@Override
-		public TokenInput clone() {
-			TokenInput r;
-			try {
-				r = (TokenInput) super.clone();
-			}
-			catch (CloneNotSupportedException e) {
-				throw new RuntimeException();
-			}
-			return r;
-		}
-		
-		TokenInput clone(int skip) {
-			TokenInput r;
-			try {
-				r = (TokenInput) super.clone();
-				r.offset += skip;
-			}
-			catch (CloneNotSupportedException e) {
-				throw new RuntimeException();
-			}
-			return r;
-		}
-	}
+	
 	
 	
 
@@ -134,17 +93,10 @@ public class Main {
 	/*	
 	 *	Variable ::= NameToken
 	 *	
-	 *	Number	::= '(' Sum ')' | NumberToken | Variable
+	 *	Number	::= '(' Expr ')' | NumberToken | Variable
+	 *	Expr ::= Number { BinaryOperator Number }
+	 *	**************BinaryExpr ::= BinaryExpr (BinaryOperator BinaryExpr)!
 	 *
-	 *		//	*Mod	::= Number ('%' Number)?
-	 *	// Prod		::= Number { ('*' | '/') Number }
-	 *	// Sum		::= Prod { ('+' | '-') Prod }
-	 *	new [
-	 *		Number	::= '(' Sum ')' | '-'?NumberToken | Variable
-	 *		Prod 	::= Number ( ('*' | '/') (Prod | Number) )?
-	 *		Sum		::= Prod ( ('+' | '-') (Sum | Prod) )?
-	 *	]
-	 *	
 	 *	Assign	 ::= Variable '=' Statement
 	 *	
 	 *	Condition ::= Sum ('>' | '==' | '<') Sum
@@ -152,7 +104,7 @@ public class Main {
 	 *	If		  ::= 'if' '(' Condition ')' '{' Program '}'
 	 *
 	 *
-	 *	Statement ::= Assign | Sum | While | If
+	 *	Statement ::= Assign | Expr | While | If
 	 *	Program   ::= Statement {';' Statement? }
 	 *
 	 */
@@ -166,26 +118,86 @@ public class Main {
 		
 		@Override
 		int eval(int k, Environment e) {
-			for (int i=0; i<k; i++) System.out.print(' ');
 			Integer v = e.hashMap.get(name);
 			int value = v == null? 0: v;
-			System.out.println("Variable : " + name + '(' + value + ')');
+			System.out.println(Extension.getSpace(k) + "Variable : " + name + '(' + value + ')');
 			return value;
 		}
 	}
 	
+	static class Expr extends ASTList {
+		ArrayList<BinaryOperatorIF> operators;
+		Expr(TokenSet input) {
+			operators = new ArrayList<BinaryOperatorIF>();
+			Num n = new Num(input.clone());
+			if (!n.ok) return;
+			children = new ArrayList<AST>();
+			children.add(n);
+			num_token = n.num_token;
+			
+			while (input.offset + num_token + 1 < input.length) {
+				Token operator = input.get(num_token);
+				if (!(operator instanceof Token.Operator)) break;
+				String opstr = ((Token.Operator)operator).getValue();
+				
+				operators.add (
+					opstr.equals("+") ?	IntegerBinaryOperator.Plus:
+					opstr.equals("-") ? IntegerBinaryOperator.Minus:
+					opstr.equals("*") ? IntegerBinaryOperator.Mult:
+					opstr.equals("/") ? IntegerBinaryOperator.Div:
+					null
+				);
+				num_token++;
+			
+				Num n2 = new Num(input.clone(num_token));
+				if(!n2.ok) return;
+				children.add(n2);
+				num_token += n2.num_token;
+			}
+			ok = true;
+		}
+		
+		@Override
+		int eval(int k, Environment e) {
+			System.out.println(Extension.getSpace(k) + "Expr");
+			ArrayList<Object> vals = new ArrayList<Object>();
+			
+			for (AST v: children) vals.add(((Num)v).eval(k+1, e));
+			ArrayList<BinaryOperatorIF> ops_cpy = new ArrayList<BinaryOperatorIF>(operators);
+			ArrayList<BinaryOperatorIF> ops_cpy2 = new ArrayList<BinaryOperatorIF>();
+			ArrayList<Object> vals_ = new ArrayList<Object>();
+			
+			for (int il=0; il<5; il++) {
+				ops_cpy2.clear();
+				vals_.clear();
+				
+				vals_.add(vals.get(0));
+				for (int i=0; i<ops_cpy.size(); i++) {
+					if (ops_cpy.get(i).getLevel()==il) {
+						vals_.add(ops_cpy.get(i).eval(vals_.remove(vals_.size()-1), vals.get(i+1)));
+					} else {
+						vals_.add(vals.get(i+1));
+						ops_cpy2.add(ops_cpy.get(i));
+					}
+				}
+				ops_cpy = new ArrayList<BinaryOperatorIF>(ops_cpy2);
+				vals = new ArrayList<Object>(vals_);
+			}
+			return (Integer)vals.get(0);
+		}
+	}
 	
 	static class Num extends ASTList {
-		Num(TokenInput input) {
+		Num(TokenSet input) {
 			Token nextToken = input.get();
 			if (nextToken instanceof Token.Operator) {
 				String op = ((Token.Operator)nextToken).getValue();
-				if(!op.equals("(")) return;
-				AST s = new Sum(input.clone(1));
-				if(!s.ok) return;
-				if(input.offset + s.num_token + 1 >= input.length) return;
-				if(!(input.get(s.num_token + 1) instanceof Token.Operator)) return;
-				if(!((Token.Operator)input.get(s.num_token + 1)).getValue().equals(")")) return;
+				if (!op.equals("(")) return;
+				AST s = new Expr(input.clone(1));
+				if (!s.ok) return;
+				if (input.offset + s.num_token + 1 >= input.length) return;
+				if (!(input.get(s.num_token + 1) instanceof Token.Operator)) return;
+				if (!((Token.Operator)input.get(s.num_token + 1)).getValue().equals(")")) return;
 				num_token = 1 + s.num_token + 1;
 				children.add(s);
 			}
@@ -201,134 +213,35 @@ public class Main {
 				children.add(v);
 				num_token = 1;
 			}
+			else return;
 			
 			ok = true;
 		}
 		
 		@Override
 		int eval(int k, Environment e) {
-			for (int i=0; i<k; i++) System.out.print(' ');
-			System.out.println("Num");
+			System.out.println(Extension.getSpace(k) + "Num");
 			AST child = children.get(0);
-			if		(child instanceof Sum)		return child.eval(k + 1, e);
+			if		(child instanceof Expr)		return child.eval(k + 1, e);
 			else if (child instanceof Variable) return child.eval(k + 1, e);
 			else {
-				for (int i=0; i<k; i++) System.out.print(' ');
 				int value = ((Token.Num)((ASTLeaf)child).child).getValue();
-				System.out.println(" : " + value);
+				System.out.println(Extension.getSpace(k) + " : " + value);
 				return value;
 			}
-		}
-	}
-	
-	
-	static class Sum extends ASTList {
-		Sum(TokenInput input) {
-			AST left = new Prod(input.clone());
-			if (!left.ok) return;
-			children.add(left);
-			num_token = left.num_token;
-			
-			while (input.offset + num_token + 1 < input.length) {
-				Token nextToken = input.get(num_token);
-				
-				if (!(nextToken instanceof Token.Operator)) break;
-
-				if (!(((Token.Operator) nextToken).getValue().equals("+")) &&
-				!(((Token.Operator) nextToken).getValue().equals("-"))) break;
-
-				AST right = new Prod(input.clone(num_token + 1));
-				if(!right.ok) break;
-				children.add(new ASTLeaf(nextToken));
-				children.add(right);
-				num_token += right.num_token + 1;
-			}
-			
-			ok = true;
-		}
-		
-		@Override
-		int eval(int k, Environment e) {
-			System.out.println(Extension.getSpace(k) + "Sum");
-			int ret = children.get(0).eval(k + 1, e);
-			// 左辺
-
-			for (int i=1; i<children.size(); i+=2) {
-				ASTLeaf operator = (ASTLeaf)children.get(i);
-				String op = ((Token.Operator) operator.child).getValue();
-				
-				System.out.println(Extension.getSpace(k) + op);
-			
-				int right = children.get(2).eval(k + 1, e);
-				if		(op.equals("+")) ret += right;
-				else if (op.equals("-")) ret -= right;
-			}
-			return ret;
-		}
-	}
-	
-	
-	static class Prod extends ASTList {
-		Prod(TokenInput input) {
-			AST left = new Num(input.clone());
-			if (!left.ok) return;
-			children.add(left);
-			num_token = left.num_token;
-			
-			ok = true;
-			// 左辺成立
-			
-			while (true) {
-				if (input.offset + num_token + 1 >= input.length) return;
-
-				Token nextToken = input.get(num_token);
-				if (!(nextToken instanceof Token.Operator)) return;
-
-				if (!(((Token.Operator)(nextToken)).getValue().equals("*")) &&
-					!(((Token.Operator)(nextToken)).getValue().equals("/"))) return;
-				
-				AST right = new Num(input.clone(num_token + 1));
-				if (!right.ok) return;
-				
-				children.add(new ASTLeaf(nextToken));
-				children.add(right);
-
-				num_token += right.num_token + 1;
-			}
-		}
-		
-		@Override
-		int eval(int k, Environment e) {
-			for (int i=0; i<k; i++) System.out.print(' ');
-			System.out.println("Prod");
-			int ret = children.get(0).eval(k + 1, e);
-			
-			// 右辺含む
-			for (int i=1; i<children.size(); i+=2) {
-				ASTLeaf operator = (ASTLeaf)children.get(i);
-				String op = ((Token.Operator) operator.child).getValue();
-				
-				System.out.println(Extension.getSpace(k) + op);
-
-				int right = children.get(i+1).eval(k + 1, e);
-
-				if		(op.equals("*")) ret *= right;
-				else if (op.equals("/")) ret /= right;
-			}
-			return ret;
 		}
 	}
 
 	
 	static class Statement extends ASTList {
-		Statement(TokenInput input) {
+		Statement(TokenSet input) {
 			AST child = new While(input.clone());
 			if (!child.ok) {
 				child = new If(input.clone());
 				if (!child.ok) {
 					child = new Assign(input.clone());
 					if (!child.ok) {
-						child = new Sum(input.clone());
+						child = new Expr(input.clone());
 						if (!child.ok) return;
 					}
 				}
@@ -341,8 +254,7 @@ public class Main {
 
 		@Override
 		int eval(int k, Environment e) {
-			for (int i=0; i<k; i++) System.out.print(' ');
-			System.out.println("Statement");
+			System.out.println(Extension.getSpace(k) + "Statement");
 
 			AST child = children.get(0);
 			return child.eval(k+1, e);
@@ -351,7 +263,7 @@ public class Main {
 	
 	
 	static class Program extends ASTList {
-		Program(TokenInput input) {
+		Program(TokenSet input) {
 			AST s = new Statement(input.clone());
 			if (!s.ok) return;
 			children.add(s);
@@ -377,15 +289,14 @@ public class Main {
 		
 		@Override
 		int eval(int k, Environment e) {
-			for (int i=0; i<k; i++) System.out.print(' ');
-			System.out.println("Program");
+			System.out.println(Extension.getSpace(k) + "Program");
 			int ret = children.get(0).eval(k + 1, e);
 			
 			for (int i=1; i<children.size(); i++) {
 				if (children.get(i) instanceof Statement) ret = children.get(i).eval(k+1, e);
 				else {
-					for (int j=0; j<k; j++) System.out.print(' ');
-					System.out.println(((ASTLeaf)(children.get(i))).child.getValue().toString());
+					System.out.println(Extension.getSpace(k) +
+							((ASTLeaf)(children.get(i))).child.getValue().toString());
 				}
 			}
 			return ret;
@@ -394,7 +305,7 @@ public class Main {
 
 	
 	static class Assign extends ASTList {
-		Assign(TokenInput input) {
+		Assign(TokenSet input) {
 			if (input.offset + 2 >= input.length) return;
 			
 			Token nextToken = input.get();
@@ -418,8 +329,7 @@ public class Main {
 		
 		@Override
 		int eval(int k, Environment e) {
-			for(int i=0; i<k; i++) System.out.print(' ');
-			System.out.println("Assign");
+			System.out.println(Extension.getSpace(k) + "Assign");
 			int ret = ((Statement)children.get(2)).eval(k+1, e);
 			e.hashMap.put(((Variable)children.get(0)).name, ret);
 			return ret;
@@ -428,9 +338,9 @@ public class Main {
 	
 	
 	static class Condition extends ASTList {
-		Condition(TokenInput input) {
+		Condition(TokenSet input) {
 			if (input.offset + 2 >= input.length) return;
-			AST left = new Sum(input.clone());
+			AST left = new Expr(input.clone());
 			if (!left.ok) return;
 			children.add(left);
 			num_token += left.num_token;
@@ -443,7 +353,7 @@ public class Main {
 			children.add(new ASTLeaf(operator));
 			num_token++;
 			
-			AST right = new Sum(input.clone(num_token));
+			AST right = new Expr(input.clone(num_token));
 			if (!right.ok) return;
 			children.add(right);
 			num_token += right.num_token;
@@ -453,10 +363,8 @@ public class Main {
 		
 		@Override
 		int eval(int k, Environment e) {
-			for (int i=0; i<k; i++) System.out.print(' ');
-			System.out.print("Condition");
 			String op = (String) (((ASTLeaf) children.get(1)).child.getValue());
-			System.out.println(" : " + op);
+			System.out.println(Extension.getSpace(k) + "Condition : " + op);
 			
 			int left = children.get(0).eval(k+1, e);
 			int right = children.get(2).eval(k+1, e);
@@ -472,7 +380,7 @@ public class Main {
 
 
 	static class While extends ASTList {
-		While(TokenInput input) {
+		While(TokenSet input) {
 			if (input.offset + 7 >= input.length) return;
 			
 			Token nextToken = input.get();
@@ -516,8 +424,7 @@ public class Main {
 		
 		@Override
 		int eval(int k, Environment e) {
-			for (int i=0; i<k; i++) System.out.print(' ');
-			System.out.println("While");
+			System.out.println(Extension.getSpace(k) + "While");
 			
 			int ret = 0;
 			AST condition = children.get(0);
@@ -532,7 +439,7 @@ public class Main {
 	
 	
 	static class If extends ASTList {
-		If(TokenInput input) {
+		If(TokenSet input) {
 			if (input.offset + 7 >= input.length) return;
 			
 			Token nextToken = input.get();
@@ -576,8 +483,7 @@ public class Main {
 		
 		@Override
 		int eval(int k, Environment e) {
-			for (int i=0; i<k; i++) System.out.print(' ');
-			System.out.println("If");
+			System.out.println(Extension.getSpace(k) + "If");
 			
 			int ret = 0;
 			AST condition = children.get(0);
