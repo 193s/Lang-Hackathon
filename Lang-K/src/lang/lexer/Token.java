@@ -17,7 +17,11 @@ public abstract class Token<T> {
 	}
 	
 	
-	
+	public static class Reserved extends Token<String> {
+		public Reserved(String value) {
+			super(value);
+		}
+	}
 	public static class Name extends Token<String> {
 		public Name(String value) {
 			super(value);
@@ -27,6 +31,9 @@ public abstract class Token<T> {
 	public static class Num extends Token<Integer> {
 		public Num(int value) {
 			super(value);
+		}
+		public Num(String value) {
+			super(Integer.parseInt(value));
 		}
 	}
 	

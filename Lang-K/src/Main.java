@@ -387,8 +387,8 @@ public class Main {
 			if (input.offset + 7 >= input.length) return;
 			
 			Token nextToken = input.get();
-			if (!(input.get() instanceof Token.Name)) return;
-			if (!"while".equals((String) (((Token.Name) input.get()).getValue()))) return;
+			if (!(input.get() instanceof Token.Reserved)) return;
+			if (!"while".equals((String) (((Token.Reserved) input.get()).getValue()))) return;
 			num_token++;
 
 			nextToken = input.get(num_token);
@@ -446,8 +446,8 @@ public class Main {
 			if (input.offset + 7 >= input.length) return;
 			
 			Token nextToken = input.get();
-			if (!(input.get() instanceof Token.Name)) return;
-			if (!"if".equals((String) (((Token.Name) input.get()).getValue()))) return;
+			if (!(input.get() instanceof Token.Reserved)) return;
+			if (!"if".equals((String) (((Token.Reserved) input.get()).getValue()))) return;
 			num_token++;
 
 			nextToken = input.get(num_token);
