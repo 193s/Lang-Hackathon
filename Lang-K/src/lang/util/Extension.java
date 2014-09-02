@@ -6,12 +6,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Extension {
-	public static String getSpace(int k) {
-		StringBuilder s = new StringBuilder();
-		for (int i=0; i<k; i++) s.append(' ');
-		return s.toString();
+	public static String getSpace(int times) {
+		StringBuilder stringBuilder = new StringBuilder();
+		for (int i=0; i<times; i++) stringBuilder.append(' ');
+		return stringBuilder.toString();
 	}
-
+	
+	// {"a", "b", "c"}  to "a|b|c"
+	public static String getRegularExpressionOrString(String[] words) {
+		StringBuilder stringBuilder = new StringBuilder();
+		for (String s: words) {
+			stringBuilder.append('|').append(s);
+		}
+		return stringBuilder.substring(1);
+	}
 	
 	/* this code has copied from processing.core.PApplet */
 	public static HashMap<String, Pattern> matchPatterns;
