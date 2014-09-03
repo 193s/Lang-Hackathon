@@ -14,7 +14,7 @@ public class Lexer {
 		String[][] m = Extension.matchAll(s,
 				"\\s*("
 				+ '(' + Extension.getRegularExpressionOrString(reserved) + ')' + '|'
-				+ "(==|[-+*/=;<>\\{\\}\\(\\)])" + "|"
+				+ "(==|[-+*/%=;<>\\{\\}\\(\\)])" + "|"
 				+ "([0-9]+)" + "|"
 				+ "([a-zA-z]+)"
 				+ ")\\s*");

@@ -60,9 +60,7 @@ public class Main {
 	
 	
 
-	static class AST {
-		// その要素に含まれる合計のトークン数
-		int num_token = 0;
+	static abstract class AST {
 		// 構文木の構築に成功したかどうか
 		boolean ok = false;
 		
@@ -82,8 +80,7 @@ public class Main {
 	
 	static class ASTLeaf extends AST {
 		Token child;
-		ASTLeaf() {
-		}
+		ASTLeaf() {}
 		ASTLeaf(Token l) {
 			child = l;
 		}
@@ -95,7 +92,6 @@ public class Main {
 	 *	
 	 *	Number	::= '(' Expr ')' | NumberToken | Variable
 	 *	Expr ::= Number { BinaryOperator Number }
-	 *	**************BinaryExpr ::= BinaryExpr (BinaryOperator BinaryExpr)!
 	 *
 	 *	Assign	 ::= Variable '=' Statement
 	 *	
@@ -113,13 +109,12 @@ public class Main {
 		String name;
 		Variable(String name) {
 			this.name = name;
-			num_token = 1;
 		}
 		
 		@Override
 		int eval(int k, Environment e) {
 			Integer v = e.hashMap.get(name);
-			int value = v == null? 0: v;
+			int value = (v == null)? 0: v;
 			System.out.println(Extension.getSpace(k) + "Variable : " + name + '(' + value + ')');
 			return value;
 		}
@@ -129,32 +124,28 @@ public class Main {
 		ArrayList<BinaryOperatorIF> operators;
 		Expr(TokenSet input) {
 			operators = new ArrayList<BinaryOperatorIF>();
-			Num n = new Num(input.clone());
+			Num n = new Num(input);
 			if (!n.ok) return;
 			children = new ArrayList<AST>();
 			children.add(n);
-			num_token = n.num_token;
 			
-			while (input.offset + num_token + 1 < input.length) {
-				Token operator = input.get(num_token);
-				if (!(operator instanceof Token.Operator)) break;
-				String opstr = ((Token.Operator)operator).getValue();
+			while (true) {
+				if (!input.isOperator()) break;
+				String opstr = input.readOperator().getValue();
 				
-				BinaryOperatorIF binaryOperator = 
-					"+".equals(opstr) ?	IntegerBinaryOperator.Plus:
-					"-".equals(opstr) ? IntegerBinaryOperator.Minus:
-					"*".equals(opstr) ? IntegerBinaryOperator.Mult:
-					"/".equals(opstr) ? IntegerBinaryOperator.Div:
-					null;
-				
+				BinaryOperatorIF binaryOperator = null;
+				for (BinaryOperatorIF b: IntegerBinaryOperator.values()) {
+					if (b.getSign().equals(opstr)) {
+						binaryOperator = b;
+						break;
+					}
+				}
 				if (binaryOperator == null) break;
 				operators.add(binaryOperator);
-				num_token++;
-			
-				Num n2 = new Num(input.clone(num_token));
+				
+				Num n2 = new Num(input);
 				if(!n2.ok) return;
 				children.add(n2);
-				num_token += n2.num_token;
 			}
 			ok = true;
 		}
@@ -164,18 +155,26 @@ public class Main {
 			System.out.println(Extension.getSpace(k) + "Expr");
 			ArrayList<Object> vals = new ArrayList<Object>();
 			
-			for (AST v: children) vals.add(((Num)v).eval(k+1, e));
+			int count = 0;
+			for (AST v: children) {
+				vals.add(((Num)v).eval(k+1, e));
+				if (count >= operators.size()) break;
+				System.out.println(operators.get(count).getSign());
+				count++;
+			}
+			
 			ArrayList<BinaryOperatorIF> ops_cpy = new ArrayList<BinaryOperatorIF>(operators);
 			ArrayList<BinaryOperatorIF> ops_cpy2 = new ArrayList<BinaryOperatorIF>();
 			ArrayList<Object> vals_ = new ArrayList<Object>();
 			
-			for (int il=0; il<5; il++) {
+			int max_level = 5;
+			for (int il=0; il<max_level; il++) {
 				ops_cpy2.clear();
 				vals_.clear();
 				
 				vals_.add(vals.get(0));
 				for (int i=0; i<ops_cpy.size(); i++) {
-					if (ops_cpy.get(i).getLevel()==il) {
+					if (ops_cpy.get(i).getLevel() == il) {
 						vals_.add(ops_cpy.get(i).eval(vals_.remove(vals_.size()-1), vals.get(i+1)));
 					} else {
 						vals_.add(vals.get(i+1));
@@ -185,35 +184,31 @@ public class Main {
 				ops_cpy = new ArrayList<BinaryOperatorIF>(ops_cpy2);
 				vals = new ArrayList<Object>(vals_);
 			}
-			return (Integer)vals.get(0);
+			return (Integer) vals.get(0);
 		}
 	}
 	
 	static class Num extends ASTList {
 		Num(TokenSet input) {
-			Token nextToken = input.get();
-			if (nextToken instanceof Token.Operator) {
-				String op = ((Token.Operator)nextToken).getValue();
+			if (input.isOperator()) {
+				String op = (input.readOperator()).getValue();
 				if (! "(".equals(op)) return;
-				AST s = new Expr(input.clone(1));
+				AST s = new Expr(input);
 				if (!s.ok) return;
-				if (input.offset + s.num_token + 1 >= input.length) return;
-				if (! (input.get(s.num_token + 1) instanceof Token.Operator)) return;
-				if (! ")".equals((Token.Operator)input.get(s.num_token + 1).getValue())) return;
-				num_token = 1 + s.num_token + 1;
+				
+				if (! input.isOperator()) return;
+				if (! ")".equals(input.readOperator().getValue())) return;
 				children.add(s);
 			}
 
-			else if (nextToken instanceof Token.Num) {
-				children.add(new ASTLeaf(nextToken));
-				num_token = 1;
+			else if (input.isNumber()) {
+				children.add(new ASTLeaf(input.readNumber()));
 			}
 			
-			else if (nextToken instanceof Token.Name) {
-				String ident = (String)input.get().getValue();
+			else if (input.isName()) {
+				String ident = input.readName().getValue();
 				Variable v = new Variable(ident);
 				children.add(v);
-				num_token = 1;
 			}
 			else return;
 			
@@ -237,20 +232,19 @@ public class Main {
 	
 	static class Statement extends ASTList {
 		Statement(TokenSet input) {
-			AST child = new While(input.clone());
+			AST child = new While(input);
 			if (!child.ok) {
-				child = new If(input.clone());
+				child = new If(input);
 				if (!child.ok) {
-					child = new Assign(input.clone());
+					child = new Assign(input);
 					if (!child.ok) {
-						child = new Expr(input.clone());
+						child = new Expr(input);
 						if (!child.ok) return;
 					}
 				}
 			}
 
 			children.add(child);
-			num_token = child.num_token;
 			ok = true;
 		}
 
@@ -266,25 +260,21 @@ public class Main {
 	
 	static class Program extends ASTList {
 		Program(TokenSet input) {
-			AST s = new Statement(input.clone());
+			AST s = new Statement(input);
 			if (!s.ok) return;
 			children.add(s);
-			num_token = s.num_token;
 
-			while (input.offset + num_token + 1 < input.length) {
-				Token nextToken = input.get(num_token);
-				
-				if (!(nextToken instanceof Token.Operator)) break;
-				String op = ((Token.Operator)nextToken).getValue();
+			while (true) {
+				if (!input.isOperator()) break;
+				Token.Operator operator = input.readOperator();
+				String op = operator.getValue();
 				if (!";".equals(op)) break;
-				num_token++;
 				
-				AST right = new Statement(input.clone(num_token));
+				AST right = new Statement(input);
 				if (!right.ok) continue;
 
-				children.add(new ASTLeaf(nextToken));
+				children.add(new ASTLeaf(operator));
 				children.add(right);
-				num_token += right.num_token;
 			}
 			ok = true;
 		}
@@ -308,24 +298,19 @@ public class Main {
 	
 	static class Assign extends ASTList {
 		Assign(TokenSet input) {
-			if (input.offset + 2 >= input.length) return;
+			if (!input.isName()) return;
+			AST left = new Variable(input.readName().getValue());
 			
-			Token nextToken = input.get();
-			if (!(nextToken instanceof Token.Name)) return;
-			AST left = new Variable((String)nextToken.getValue());
+			if (!input.isOperator()) return;
+			if (!("=".equals(input.readOperator().getValue()))) return;
 			
-			if (!(input.getNext() instanceof Token.Operator)) return;
-			if (!("=".equals(input.getNext().getValue()))) return;
-			
-			AST right = new Statement(input.clone(2));
+			AST right = new Statement(input);
 			if (!right.ok) return;
 			
 			children.add(left);
 			children.add(new ASTLeaf(input.getNext()));
 			children.add(right);
 
-			num_token += 2 + right.num_token;
-			
 			ok = true;
 		}
 		
@@ -341,25 +326,20 @@ public class Main {
 	
 	static class Condition extends ASTList {
 		Condition(TokenSet input) {
-			if (input.offset + 2 >= input.length) return;
-			AST left = new Expr(input.clone());
+			AST left = new Expr(input);
 			if (!left.ok) return;
 			children.add(left);
-			num_token += left.num_token;
 			
-			if (input.offset + num_token + 1 >= input.length) return;
-			Token operator = input.get(num_token);
-			if (!(operator instanceof Token.Operator)) return;
-			String op = (String)(((Token.Operator)operator).getValue());
+			if (!input.isOperator()) return;
+			Token.Operator operator = input.readOperator();
+			String op = operator.getValue();
 			
 			if (!( "==".equals(op) || ">".equals(op) || "<".equals(op)) ) return;
 			children.add(new ASTLeaf(operator));
-			num_token++;
 			
-			AST right = new Expr(input.clone(num_token));
+			AST right = new Expr(input);
 			if (!right.ok) return;
 			children.add(right);
-			num_token += right.num_token;
 			
 			ok = true;
 		}
@@ -384,40 +364,27 @@ public class Main {
 
 	static class While extends ASTList {
 		While(TokenSet input) {
-			if (input.offset + 7 >= input.length) return;
-			
 			Token nextToken = input.get();
-			if (!(input.get() instanceof Token.Reserved)) return;
+			if (!input.isReserved()) return;
 			if (!"while".equals((String) (((Token.Reserved) input.get()).getValue()))) return;
-			num_token++;
 
-			nextToken = input.get(num_token);
-			if (!(nextToken instanceof Token.Operator)) return;
-			if (!"(".equals((String) (((Token.Operator) nextToken)).getValue())) return;
-			num_token++;
+			if (!input.isOperator()) return;
+			if (!"(".equals((String) (input.readOperator()).getValue())) return;
 			
-			AST condition = new Condition(input.clone(num_token));
+			AST condition = new Condition(input);
 			if (!condition.ok) return;
-			num_token += condition.num_token;
 			
-			nextToken = input.get(num_token);
-			if (!(nextToken instanceof Token.Operator)) return;
-			if (!")".equals((String) (((Token.Operator) nextToken)).getValue())) return;
-			num_token++;
+			if (!input.isOperator()) return;
+			if (!")".equals((String) input.readOperator().getValue())) return;
 			
-			nextToken = input.get(num_token);
-			if (!(nextToken instanceof Token.Operator)) return;
-			if (!"{".equals((String) (((Token.Operator) nextToken)).getValue())) return;
-			num_token++;
+			if (!input.isOperator()) return;
+			if (!"{".equals((String) input.readOperator().getValue())) return;
 			
-			AST program = new Program(input.clone(num_token));
+			AST program = new Program(input);
 			if (!program.ok) return;
-			num_token += program.num_token;
 			
-			nextToken = input.get(num_token);
-			if (!(nextToken instanceof Token.Operator)) return;
-			if (!"}".equals((String) (((Token.Operator) nextToken)).getValue())) return;
-			num_token++;
+			if (!input.isOperator()) return;
+			if (!"}".equals((String) input.readOperator().getValue())) return;
 			
 			children.add(condition);
 			children.add(program);
@@ -445,38 +412,26 @@ public class Main {
 		If(TokenSet input) {
 			if (input.offset + 7 >= input.length) return;
 			
-			Token nextToken = input.get();
-			if (!(input.get() instanceof Token.Reserved)) return;
-			if (!"if".equals((String) (((Token.Reserved) input.get()).getValue()))) return;
-			num_token++;
+			if (!input.isReserved()) return;
+			if (!"if".equals((String) input.readReserved().getValue())) return;
 
-			nextToken = input.get(num_token);
-			if (!(nextToken instanceof Token.Operator)) return;
-			if (!"(".equals((String) (((Token.Operator) nextToken)).getValue())) return;
-			num_token++;
+			if (!input.isOperator()) return;
+			if (!"(".equals((String) input.readOperator().getValue())) return;
 			
-			AST condition = new Condition(input.clone(num_token));
+			AST condition = new Condition(input);
 			if (!condition.ok) return;
-			num_token += condition.num_token;
 			
-			nextToken = input.get(num_token);
-			if (!(nextToken instanceof Token.Operator)) return;
-			if (!")".equals((String) (((Token.Operator) nextToken)).getValue())) return;
-			num_token++;
+			if (!input.isOperator()) return;
+			if (!")".equals((String) input.readOperator().getValue())) return;
 			
-			nextToken = input.get(num_token);
-			if (!(nextToken instanceof Token.Operator)) return;
-			if (!"{".equals((String) (((Token.Operator) nextToken)).getValue())) return;
-			num_token++;
+			if (!input.isOperator()) return;
+			if (!"{".equals((String) input.readOperator().getValue())) return;
 			
-			AST program = new Program(input.clone(num_token));
+			AST program = new Program(input);
 			if (!program.ok) return;
-			num_token += program.num_token;
 			
-			nextToken = input.get(num_token);
-			if (!(nextToken instanceof Token.Operator)) return;
-			if (!"}".equals((String) (((Token.Operator) nextToken)).getValue())) return;
-			num_token++;
+			if (!input.isOperator()) return;
+			if (!"}".equals((String) input.readOperator().getValue())) return;
 			
 			children.add(condition);
 			children.add(program);
