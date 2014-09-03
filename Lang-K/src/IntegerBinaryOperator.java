@@ -1,19 +1,26 @@
 import java.util.function.BinaryOperator;
 
 public enum IntegerBinaryOperator implements BinaryOperatorIF<Integer> {
-    Mod		(0, (left, right) -> left % right),
-	Plus	(1, (left, right) -> left + right),
-    Minus	(1, (left ,right) -> left - right),
-    Mult	(2, (left, right) -> left * right),
-    Div		(2, (left, right) -> left / right),
+    Mod		(3, '%', (left, right) -> left % right),
+	Plus	(2, '+', (left, right) -> left + right),
+    Minus	(2, '-', (left ,right) -> left - right),
+    Mult	(1, '*', (left, right) -> left * right),
+    Div		(1, '/', (left, right) -> left / right),
     ;
     
     private int level;	// 優先順位
     private BinaryOperator<Integer> eval;
+    private String sign;
     
-    private IntegerBinaryOperator(int level, BinaryOperator<Integer> function) {
+    private IntegerBinaryOperator(int level, String sign, BinaryOperator<Integer> function) {
         this.level = level;
         this.eval = function;
+        this.sign = sign;
+    }
+    private IntegerBinaryOperator(int level, char sign, BinaryOperator<Integer> function) {
+    	this.level = level;
+    	this.eval = function;
+    	this.sign = String.valueOf(sign);
     }
     
     @Override public Integer eval(Integer left, Integer right) {
@@ -21,5 +28,8 @@ public enum IntegerBinaryOperator implements BinaryOperatorIF<Integer> {
     }
     @Override public int getLevel() {
     	return level;
+    }
+    @Override public String getSign() {
+    	return sign;
     }
 }
