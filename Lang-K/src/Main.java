@@ -11,21 +11,23 @@ import lang.util.Extension;
 
 
 public class Main {
-	public static void main(String args[]) {
-		String s = "";
-		
-		InputStreamReader isr = new InputStreamReader(System.in);
-		BufferedReader br = new BufferedReader(isr);
-		while (true) {
-			try {
-				String input = br.readLine();
-				if (input.isEmpty()) break;
-				s += input + "\n";
+	static Debug debug = new Debug(System.out);
+	
+	public static void main(String[] args) {
+		String s = new String();
+		try {	
+			InputStreamReader isr = new InputStreamReader(System.in);
+			BufferedReader br = new BufferedReader(isr);
+			String tokenSet;
+			do {
+				tokenSet = br.readLine();
+				s += tokenSet + '\n';
 			}
-			catch (IOException e) {
-				e.printStackTrace();
-				System.out.println("\nInput Error");
-			}
+			while (!tokenSet.isEmpty());
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+			System.out.println("\nInput Error");
 		}
 		
 		System.out.println(s + '\n');	// 入力 + 改行
@@ -40,8 +42,13 @@ public class Main {
 		}
 		
 		Environment e = new Environment();	// 環境
-		System.out.println(ast.eval(0, e));
-		
+		try {
+			System.out.println(ast.eval(0, e));
+		}
+		catch(Exception ex) {
+			System.out.println("Runtime Error:");
+			ex.printStackTrace();
+		}
 		// Environmentに保存されている変数を列挙
 		for(Entry<String, Integer> entry : e.hashMap.entrySet())
 			System.out.println(entry.getKey() +" : " + entry.getValue());
@@ -115,23 +122,23 @@ public class Main {
 		int eval(int k, Environment e) {
 			Integer v = e.hashMap.get(name);
 			int value = (v == null)? 0: v;
-			System.out.println(Extension.getSpace(k) + "Variable : " + name + '(' + value + ')');
+			debug.print(k, "Variable : " + name + '(' + value + ')');
 			return value;
 		}
 	}
 	
 	static class Expr extends ASTList {
 		ArrayList<BinaryOperatorIF> operators;
-		Expr(TokenSet input) {
+		Expr(TokenSet tokenSet) {
 			operators = new ArrayList<BinaryOperatorIF>();
-			Num n = new Num(input);
+			Num n = new Num(tokenSet);
 			if (!n.ok) return;
 			children = new ArrayList<AST>();
 			children.add(n);
 			
 			while (true) {
-				if (!input.isOperator()) break;
-				String opstr = input.readOperator().getValue();
+				if (!tokenSet.isOperator()) break;
+				String opstr = tokenSet.readOperator().getValue();
 				
 				BinaryOperatorIF binaryOperator = null;
 				for (BinaryOperatorIF b: IntegerBinaryOperator.values()) {
@@ -140,11 +147,14 @@ public class Main {
 						break;
 					}
 				}
-				if (binaryOperator == null) break;
+				if (binaryOperator == null) {
+					tokenSet.back();
+					break;
+				}
 				operators.add(binaryOperator);
 				
-				Num n2 = new Num(input);
-				if(!n2.ok) return;
+				Num n2 = new Num(tokenSet);
+				if (!n2.ok) return;
 				children.add(n2);
 			}
 			ok = true;
@@ -152,7 +162,7 @@ public class Main {
 		
 		@Override
 		int eval(int k, Environment e) {
-			System.out.println(Extension.getSpace(k) + "Expr");
+			debug.print(k, "Expr");
 			ArrayList<Object> vals = new ArrayList<Object>();
 			
 			int count = 0;
@@ -189,24 +199,24 @@ public class Main {
 	}
 	
 	static class Num extends ASTList {
-		Num(TokenSet input) {
-			if (input.isOperator()) {
-				String op = (input.readOperator()).getValue();
+		Num(TokenSet tokenSet) {
+			if (tokenSet.isOperator()) {
+				String op = (tokenSet.readOperator()).getValue();
 				if (! "(".equals(op)) return;
-				AST s = new Expr(input);
+				AST s = new Expr(tokenSet);
 				if (!s.ok) return;
 				
-				if (! input.isOperator()) return;
-				if (! ")".equals(input.readOperator().getValue())) return;
+				if (! tokenSet.isOperator()) return;
+				if (! ")".equals(tokenSet.readOperator().getValue())) return;
 				children.add(s);
 			}
 
-			else if (input.isNumber()) {
-				children.add(new ASTLeaf(input.readNumber()));
+			else if (tokenSet.isNumber()) {
+				children.add(new ASTLeaf(tokenSet.readNumber()));
 			}
 			
-			else if (input.isName()) {
-				String ident = input.readName().getValue();
+			else if (tokenSet.isName()) {
+				String ident = tokenSet.readName().getValue();
 				Variable v = new Variable(ident);
 				children.add(v);
 			}
@@ -217,7 +227,7 @@ public class Main {
 		
 		@Override
 		int eval(int k, Environment e) {
-			System.out.println(Extension.getSpace(k) + "Num");
+			debug.print(k, "Num");
 			AST child = children.get(0);
 			if (child instanceof Expr || child instanceof Variable)
 				return child.eval(k + 1, e);
@@ -231,18 +241,15 @@ public class Main {
 
 	
 	static class Statement extends ASTList {
-		Statement(TokenSet input) {
-			AST child = new While(input);
-			if (!child.ok) {
-				child = new If(input);
-				if (!child.ok) {
-					child = new Assign(input);
-					if (!child.ok) {
-						child = new Expr(input);
-						if (!child.ok) return;
-					}
-				}
-			}
+		Statement(TokenSet tokenSet) {
+			AST child = null;
+			if (tokenSet.isReserved("while"))
+				child = new While(tokenSet);
+			else if (tokenSet.isReserved("if"))
+				child = new If(tokenSet);
+			else if (tokenSet.isName())
+				child = new Assign(tokenSet);
+			else child = new Expr(tokenSet);
 
 			children.add(child);
 			ok = true;
@@ -250,7 +257,7 @@ public class Main {
 
 		@Override
 		int eval(int k, Environment e) {
-			System.out.println(Extension.getSpace(k) + "Statement");
+			debug.print(k, "Statement");
 
 			AST child = children.get(0);
 			return child.eval(k+1, e);
@@ -259,18 +266,21 @@ public class Main {
 	
 	
 	static class Program extends ASTList {
-		Program(TokenSet input) {
-			AST s = new Statement(input);
+		Program(TokenSet tokenSet) {
+			AST s = new Statement(tokenSet);
 			if (!s.ok) return;
 			children.add(s);
 
 			while (true) {
-				if (!input.isOperator()) break;
-				Token.Operator operator = input.readOperator();
+				if (!tokenSet.isOperator()) break;
+				Token.Operator operator = tokenSet.readOperator();
 				String op = operator.getValue();
-				if (!";".equals(op)) break;
+				if (!";".equals(op)) {
+					tokenSet.back();
+					break;
+				}
 				
-				AST right = new Statement(input);
+				AST right = new Statement(tokenSet);
 				if (!right.ok) continue;
 
 				children.add(new ASTLeaf(operator));
@@ -281,14 +291,13 @@ public class Main {
 		
 		@Override
 		int eval(int k, Environment e) {
-			System.out.println(Extension.getSpace(k) + "Program");
+			debug.print(k, "Program");
 			int ret = children.get(0).eval(k + 1, e);
 			
 			for (int i=1; i<children.size(); i++) {
 				if (children.get(i) instanceof Statement) ret = children.get(i).eval(k+1, e);
 				else {
-					System.out.println(Extension.getSpace(k) +
-							((ASTLeaf)(children.get(i))).child.getValue().toString());
+					debug.print(k, (String) ((ASTLeaf)children.get(i)).child.getValue());
 				}
 			}
 			return ret;
@@ -297,18 +306,19 @@ public class Main {
 
 	
 	static class Assign extends ASTList {
-		Assign(TokenSet input) {
-			if (!input.isName()) return;
-			AST left = new Variable(input.readName().getValue());
+		Assign(TokenSet tokenSet) {
+			if (!tokenSet.isName()) return;
+			AST left = new Variable(tokenSet.readName().getValue());
 			
-			if (!input.isOperator()) return;
-			if (!("=".equals(input.readOperator().getValue()))) return;
+			if (!tokenSet.isOperator()) return;
+			Token.Operator operator = tokenSet.readOperator();
+			if (!"=".equals(operator.getValue())) return;
 			
-			AST right = new Statement(input);
+			AST right = new Statement(tokenSet);
 			if (!right.ok) return;
 			
 			children.add(left);
-			children.add(new ASTLeaf(input.getNext()));
+			children.add(new ASTLeaf(operator));
 			children.add(right);
 
 			ok = true;
@@ -316,7 +326,7 @@ public class Main {
 		
 		@Override
 		int eval(int k, Environment e) {
-			System.out.println(Extension.getSpace(k) + "Assign");
+			debug.print(k, "Assign");
 			int ret = ((Statement)children.get(2)).eval(k+1, e);
 			e.hashMap.put(((Variable)children.get(0)).name, ret);
 			return ret;
@@ -325,19 +335,19 @@ public class Main {
 	
 	
 	static class Condition extends ASTList {
-		Condition(TokenSet input) {
-			AST left = new Expr(input);
+		Condition(TokenSet tokenSet) {
+			AST left = new Expr(tokenSet);
 			if (!left.ok) return;
 			children.add(left);
 			
-			if (!input.isOperator()) return;
-			Token.Operator operator = input.readOperator();
+			if (!tokenSet.isOperator()) return;
+			Token.Operator operator = tokenSet.readOperator();
 			String op = operator.getValue();
 			
 			if (!( "==".equals(op) || ">".equals(op) || "<".equals(op)) ) return;
 			children.add(new ASTLeaf(operator));
 			
-			AST right = new Expr(input);
+			AST right = new Expr(tokenSet);
 			if (!right.ok) return;
 			children.add(right);
 			
@@ -347,7 +357,7 @@ public class Main {
 		@Override
 		int eval(int k, Environment e) {
 			String op = (String) (((ASTLeaf) children.get(1)).child.getValue());
-			System.out.println(Extension.getSpace(k) + "Condition : " + op);
+			debug.print(k, "Condition" + op);
 			
 			int left = children.get(0).eval(k+1, e);
 			int right = children.get(2).eval(k+1, e);
@@ -363,28 +373,27 @@ public class Main {
 
 
 	static class While extends ASTList {
-		While(TokenSet input) {
-			Token nextToken = input.get();
-			if (!input.isReserved()) return;
-			if (!"while".equals((String) (((Token.Reserved) input.get()).getValue()))) return;
+		While(TokenSet tokenSet) {
+			if (!tokenSet.isReserved()) return;
+			if (!"while".equals((String) tokenSet.readReserved().getValue())) return;
 
-			if (!input.isOperator()) return;
-			if (!"(".equals((String) (input.readOperator()).getValue())) return;
+			if (!tokenSet.isOperator()) return;
+			if (!"(".equals((String) (tokenSet.readOperator()).getValue())) return;
 			
-			AST condition = new Condition(input);
+			AST condition = new Condition(tokenSet);
 			if (!condition.ok) return;
 			
-			if (!input.isOperator()) return;
-			if (!")".equals((String) input.readOperator().getValue())) return;
+			if (!tokenSet.isOperator()) return;
+			if (!")".equals((String) tokenSet.readOperator().getValue())) return;
 			
-			if (!input.isOperator()) return;
-			if (!"{".equals((String) input.readOperator().getValue())) return;
+			if (!tokenSet.isOperator()) return;
+			if (!"{".equals((String) tokenSet.readOperator().getValue())) return;
 			
-			AST program = new Program(input);
+			AST program = new Program(tokenSet);
 			if (!program.ok) return;
 			
-			if (!input.isOperator()) return;
-			if (!"}".equals((String) input.readOperator().getValue())) return;
+			if (!tokenSet.isOperator()) return;
+			if (!"}".equals((String) tokenSet.readOperator().getValue())) return;
 			
 			children.add(condition);
 			children.add(program);
@@ -394,7 +403,7 @@ public class Main {
 		
 		@Override
 		int eval(int k, Environment e) {
-			System.out.println(Extension.getSpace(k) + "While");
+			debug.print(k, "While");
 			
 			AST condition = children.get(0);
 			AST program = children.get(1);
@@ -409,29 +418,27 @@ public class Main {
 	
 	
 	static class If extends ASTList {
-		If(TokenSet input) {
-			if (input.offset + 7 >= input.length) return;
-			
-			if (!input.isReserved()) return;
-			if (!"if".equals((String) input.readReserved().getValue())) return;
+		If(TokenSet tokenSet) {
+			if (!tokenSet.isReserved()) return;
+			if (!"if".equals((String) tokenSet.readReserved().getValue())) return;
 
-			if (!input.isOperator()) return;
-			if (!"(".equals((String) input.readOperator().getValue())) return;
+			if (!tokenSet.isOperator()) return;
+			if (!"(".equals((String) tokenSet.readOperator().getValue())) return;
 			
-			AST condition = new Condition(input);
+			AST condition = new Condition(tokenSet);
 			if (!condition.ok) return;
 			
-			if (!input.isOperator()) return;
-			if (!")".equals((String) input.readOperator().getValue())) return;
+			if (!tokenSet.isOperator()) return;
+			if (!")".equals((String) tokenSet.readOperator().getValue())) return;
 			
-			if (!input.isOperator()) return;
-			if (!"{".equals((String) input.readOperator().getValue())) return;
+			if (!tokenSet.isOperator()) return;
+			if (!"{".equals((String) tokenSet.readOperator().getValue())) return;
 			
-			AST program = new Program(input);
+			AST program = new Program(tokenSet);
 			if (!program.ok) return;
 			
-			if (!input.isOperator()) return;
-			if (!"}".equals((String) input.readOperator().getValue())) return;
+			if (!tokenSet.isOperator()) return;
+			if (!"}".equals((String) tokenSet.readOperator().getValue())) return;
 			
 			children.add(condition);
 			children.add(program);
@@ -441,7 +448,7 @@ public class Main {
 		
 		@Override
 		int eval(int k, Environment e) {
-			System.out.println(Extension.getSpace(k) + "If");
+			debug.print(k, "If");
 			
 			int ret = 0;
 			AST condition = children.get(0);

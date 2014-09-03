@@ -1,23 +1,22 @@
 import java.util.function.BinaryOperator;
 
-public enum IntegerBinaryOperator implements BinaryOperatorIF<Integer> {
-    Mod		(2, '%', (left, right) -> left % right),
-	Plus	(1, '+', (left, right) -> left + right),
-    Minus	(1, '-', (left ,right) -> left - right),
-    Mult	(0, '*', (left, right) -> left * right),
-    Div		(0, '/', (left, right) -> left / right),
+
+public enum RelationalBinaryOperator implements BinaryOperatorIF<Integer> {
+    Equal	(0, "==", (left, right) -> left == right? 1: 0),
+    MoreThan(0, '>',  (left, right) -> left >  right? 1: 0),
+    LessThan(0, '<',  (left, right) -> left <  right? 1: 0),
     ;
     
     private int level;	// 優先順位
     private BinaryOperator<Integer> eval;
     private String sign;
     
-    private IntegerBinaryOperator(int level, String sign, BinaryOperator<Integer> function) {
+    private RelationalBinaryOperator(int level, String sign, BinaryOperator<Integer> function) {
         this.level = level;
         this.eval = function;
         this.sign = sign;
     }
-    private IntegerBinaryOperator(int level, char sign, BinaryOperator<Integer> function) {
+    private RelationalBinaryOperator(int level, char sign, BinaryOperator<Integer> function) {
     	this.level = level;
     	this.eval = function;
     	this.sign = String.valueOf(sign);
