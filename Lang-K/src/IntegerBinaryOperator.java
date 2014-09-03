@@ -3,7 +3,7 @@ import java.util.function.BinaryOperator;
 public enum IntegerBinaryOperator implements BinaryOperatorIF<Integer> {
     Mod		(0, (left, right) -> left % right),
 	Plus	(1, (left, right) -> left + right),
-    Minus	(1, (left ,right) -> left - right),
+    Minus	(1, (left, right) -> left - right),
     Mult	(2, (left, right) -> left * right),
     Div		(2, (left, right) -> left / right),
     ;

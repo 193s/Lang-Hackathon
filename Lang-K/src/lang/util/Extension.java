@@ -13,7 +13,7 @@ public class Extension {
 	}
 
 	
-	/* this code has copied from processing.core.PApplet */
+	/* this code has been copied from processing.core.PApplet */
 	public static HashMap<String, Pattern> matchPatterns;
 
 	public static Pattern matchPattern(String regexp) {
