@@ -30,9 +30,9 @@ public class Main {
 			System.out.println("\nInput Error");
 		}
 		
-		System.out.println(s + '\n');	// 入力 + 改行
+		System.out.println(s + "\n");	// 入力 + 改行
 		Token[] ls = Lexer.tokenize(s);		// 字句解析
-		for (Token t: ls) System.out.println(" [" + t + ']');	// 字句解析の結果を出力
+		for (Token t: ls) System.out.println(" [" + t + "]");	// 字句解析の結果を出力
 		System.out.println();	//改行
 		
 		AST ast = new Program(new TokenSet(ls));	// 構文解析
@@ -121,8 +121,13 @@ public class Main {
 		@Override
 		int eval(int k, Environment e) {
 			Integer v = e.hashMap.get(name);
+<<<<<<< HEAD
 			int value = (v == null)? 0: v;
 			debug.print(k, "Variable : " + name + '(' + value + ')');
+=======
+			int value = v == null? 0: v;
+			System.out.println(Extension.getSpace(k) + "Variable : " + name + "(" + value + ")");
+>>>>>>> chatsftd#test
 			return value;
 		}
 	}

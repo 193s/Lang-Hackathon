@@ -7,11 +7,11 @@ public enum IntegerBinaryOperator implements BinaryOperatorIF<Integer> {
     Mult	(0, '*', (left, right) -> left * right),
     Div		(0, '/', (left, right) -> left / right),
     ;
-    
+
     private int level;	// 優先順位
     private BinaryOperator<Integer> eval;
     private String sign;
-    
+
     private IntegerBinaryOperator(int level, String sign, BinaryOperator<Integer> function) {
         this.level = level;
         this.eval = function;
@@ -22,7 +22,7 @@ public enum IntegerBinaryOperator implements BinaryOperatorIF<Integer> {
     	this.eval = function;
     	this.sign = String.valueOf(sign);
     }
-    
+
     @Override public Integer eval(Integer left, Integer right) {
     	return eval.apply(left, right);
     }
