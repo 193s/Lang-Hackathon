@@ -1,74 +1,75 @@
-import lang.lexer.Token;
+package lang.lexer;
 
 
-public class TokenSet implements Cloneable {
-	Token[] tokens;
-	int length;
-	int offset = 0;
+public class TokenSet {
+	private final Token[] list;
+	private final int length;
+	private int offset = 0;
 	
-	TokenSet(Token[] tokens) {
-		this.tokens = tokens;
+	public TokenSet(Token[] tokens) {
+		this.list = tokens;
 		length = tokens.length;
 	}
-	void back() {
+	
+	public void back() {
 		if (offset > 0) offset--;
 	}
-	Token next() {
-		return tokens[offset++];
+	public Token next() {
+		return list[offset++];
 	}
 	private Token getNext() {
-		return tokens[offset+1];
+		return list[offset+1];
 	}
-	Token get() {
-		return tokens[offset];
+	public Token get() {
+		return list[offset];
 	}
 	
-	boolean isEOF() {
+	public boolean isEOF() {
 		return offset >= length;
 	}
 	
-	boolean isName() {
+	public boolean isName() {
 		return isEOF()? false : get() instanceof Token.Name;
 	}
 	
-	Token.Name readName() {
+	public Token.Name readName() {
 		return isName()? (Token.Name) next() : null;
 	}
 	
 	
-	boolean isNumber() {
+	public boolean isNumber() {
 		return isEOF()? false : get() instanceof Token.Num;
 	}
 	
-	Token.Num readNumber() {
+	public Token.Num readNumber() {
 		return isNumber()? (Token.Num) next() : null;
 	}
 	
 	
 	
-	boolean isOperator() {
+	public boolean isOperator() {
 		return isEOF()? false : get() instanceof Token.Operator;
 	}
 	
-	boolean isOperator(String str) {
+	public boolean isOperator(String str) {
 		return isOperator() && str.equals((String) get().getValue());
 	}
 	
-	Token.Operator readOperator() {
+	public Token.Operator readOperator() {
 		return isOperator()? (Token.Operator) next() : null;
 	}
 	
 	
 	
-	boolean isReserved() {
+	public boolean isReserved() {
 		return isEOF()? false : get() instanceof Token.Reserved;
 	}
 	
-	boolean isReserved(String str) {
+	public boolean isReserved(String str) {
 		return isReserved() && str.equals((String) get().getValue());
 	}
 	
-	Token.Reserved readReserved() {
+	public Token.Reserved readReserved() {
 		return isReserved()? (Token.Reserved) next() : null;
 	}
 }
