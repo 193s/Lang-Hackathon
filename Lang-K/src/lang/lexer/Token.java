@@ -1,7 +1,7 @@
 package lang.lexer;
 
 public abstract class Token<T> {
-	protected Token(T value) {
+	public Token(T value) {
 		this.value = value;
 	}
 	

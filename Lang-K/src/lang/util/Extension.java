@@ -6,9 +6,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Extension {
-	public static String getSpace(int times) {
+	public static String getChar(char c, int times) {
 		StringBuilder stringBuilder = new StringBuilder();
-		for (int i=0; i<times; i++) stringBuilder.append(' ');
+		for (int i=0; i<times; i++) stringBuilder.append(c);
 		return stringBuilder.toString();
 	}
 	

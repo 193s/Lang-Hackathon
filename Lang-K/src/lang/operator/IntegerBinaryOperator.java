@@ -1,3 +1,4 @@
+package lang.operator;
 import java.util.function.BinaryOperator;
 
 public enum IntegerBinaryOperator implements BinaryOperatorIF<Integer> {

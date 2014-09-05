@@ -5,12 +5,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import lang.debug.Debug;
 import lang.lexer.Lexer;
 import lang.lexer.Token;
+import lang.lexer.TokenSet;
+import lang.operator.BinaryOperatorIF;
+import lang.operator.IntegerBinaryOperator;
 import lang.util.Extension;
 
 
-public class Main {
+public class InterPreter {
 	static Debug debug = new Debug(System.out);
 	
 	public static void main(String[] args) {
@@ -27,31 +31,32 @@ public class Main {
 		}
 		catch (IOException e) {
 			e.printStackTrace();
-			System.out.println("\nInput Error");
+			debug.out.println("\nInput Error");
 		}
 		
-		System.out.println(s + "\n");	// 入力 + 改行
+		debug.brank(3);
 		Token[] ls = Lexer.tokenize(s);		// 字句解析
-		for (Token t: ls) System.out.println(" [" + t + "]");	// 字句解析の結果を出力
-		System.out.println();	//改行
+		for (Token t: ls) debug.out.printf(" [%s]%n", t); // 字句解析の結果を出力
+		debug.out.println();	//改行
 		
 		AST ast = new Program(new TokenSet(ls));	// 構文解析
 		if(!ast.ok) {
-			System.out.println("Parsing failed!");
+			debug.out.println("Parsing failed!");
 			return;
 		}
 		
 		Environment e = new Environment();	// 環境
 		try {
-			System.out.println(ast.eval(0, e));
+			debug.out.println(ast.eval(0, e)); // 実行
 		}
 		catch(Exception ex) {
-			System.out.println("Runtime Error:");
+			debug.out.println("Runtime Error:");
 			ex.printStackTrace();
 		}
+		
 		// Environmentに保存されている変数を列挙
 		for(Entry<String, Integer> entry : e.hashMap.entrySet())
-			System.out.println(entry.getKey() +" : " + entry.getValue());
+			debug.out.println(entry.getKey() +" : " + entry.getValue());
 	}
 	
 	
@@ -121,13 +126,8 @@ public class Main {
 		@Override
 		int eval(int k, Environment e) {
 			Integer v = e.hashMap.get(name);
-<<<<<<< HEAD
 			int value = (v == null)? 0: v;
-			debug.print(k, "Variable : " + name + '(' + value + ')');
-=======
-			int value = v == null? 0: v;
-			System.out.println(Extension.getSpace(k) + "Variable : " + name + "(" + value + ")");
->>>>>>> chatsftd#test
+			debug.log(k, "Variable : " + name + '(' + value + ')');
 			return value;
 		}
 	}
@@ -141,8 +141,7 @@ public class Main {
 			children = new ArrayList<AST>();
 			children.add(n);
 			
-			while (true) {
-				if (!tokenSet.isOperator()) break;
+			while (tokenSet.isOperator()) {
 				String opstr = tokenSet.readOperator().getValue();
 				
 				BinaryOperatorIF binaryOperator = null;
@@ -167,14 +166,14 @@ public class Main {
 		
 		@Override
 		int eval(int k, Environment e) {
-			debug.print(k, "Expr");
+			debug.log(k, "Expr");
 			ArrayList<Object> vals = new ArrayList<Object>();
 			
 			int count = 0;
 			for (AST v: children) {
 				vals.add(((Num)v).eval(k+1, e));
 				if (count >= operators.size()) break;
-				System.out.println(operators.get(count).getSign());
+				debug.out.println(operators.get(count).getSign());
 				count++;
 			}
 			
@@ -232,13 +231,13 @@ public class Main {
 		
 		@Override
 		int eval(int k, Environment e) {
-			debug.print(k, "Num");
+			debug.log(k, "Num");
 			AST child = children.get(0);
 			if (child instanceof Expr || child instanceof Variable)
 				return child.eval(k + 1, e);
 			else {
 				int value = ((Token.Num)((ASTLeaf)child).child).getValue();
-				System.out.println(Extension.getSpace(k) + " : " + value);
+				debug.log(k, " : " + value);
 				return value;
 			}
 		}
@@ -262,7 +261,7 @@ public class Main {
 
 		@Override
 		int eval(int k, Environment e) {
-			debug.print(k, "Statement");
+			debug.log(k, "Statement");
 
 			AST child = children.get(0);
 			return child.eval(k+1, e);
@@ -296,13 +295,13 @@ public class Main {
 		
 		@Override
 		int eval(int k, Environment e) {
-			debug.print(k, "Program");
+			debug.log(k, "Program");
 			int ret = children.get(0).eval(k + 1, e);
 			
 			for (int i=1; i<children.size(); i++) {
 				if (children.get(i) instanceof Statement) ret = children.get(i).eval(k+1, e);
 				else {
-					debug.print(k, (String) ((ASTLeaf)children.get(i)).child.getValue());
+					debug.log(k, (String) ((ASTLeaf)children.get(i)).child.getValue());
 				}
 			}
 			return ret;
@@ -331,7 +330,7 @@ public class Main {
 		
 		@Override
 		int eval(int k, Environment e) {
-			debug.print(k, "Assign");
+			debug.log(k, "Assign");
 			int ret = ((Statement)children.get(2)).eval(k+1, e);
 			e.hashMap.put(((Variable)children.get(0)).name, ret);
 			return ret;
@@ -362,7 +361,7 @@ public class Main {
 		@Override
 		int eval(int k, Environment e) {
 			String op = (String) (((ASTLeaf) children.get(1)).child.getValue());
-			debug.print(k, "Condition" + op);
+			debug.log(k, "Condition" + op);
 			
 			int left = children.get(0).eval(k+1, e);
 			int right = children.get(2).eval(k+1, e);
@@ -380,7 +379,9 @@ public class Main {
 	static class While extends ASTList {
 		While(TokenSet tokenSet) {
 			if (!tokenSet.isReserved()) return;
-			if (!"while".equals((String) tokenSet.readReserved().getValue())) return;
+			if (!tokenSet.isOperator("while")) debug.out.println("error:::");
+			tokenSet.readOperator();
+//			if (!"while".equals((String) tokenSet.readReserved().getValue())) return;
 
 			if (!tokenSet.isOperator()) return;
 			if (!"(".equals((String) (tokenSet.readOperator()).getValue())) return;
@@ -408,7 +409,7 @@ public class Main {
 		
 		@Override
 		int eval(int k, Environment e) {
-			debug.print(k, "While");
+			debug.log(k, "While");
 			
 			AST condition = children.get(0);
 			AST program = children.get(1);
@@ -453,7 +454,7 @@ public class Main {
 		
 		@Override
 		int eval(int k, Environment e) {
-			debug.print(k, "If");
+			debug.log(k, "If");
 			
 			int ret = 0;
 			AST condition = children.get(0);
