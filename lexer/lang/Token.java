@@ -83,7 +83,7 @@ public class Token {
 		QuestionMark	('?'),
 		Percent			('%'),
 		Ampersand		('&'),
-		AsterLisk		('*'),
+		Asterisk		('*'),
 		Plus			('+'),
 		Minus			('-'),
 		Comma			(','),
