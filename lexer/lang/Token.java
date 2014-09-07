@@ -42,7 +42,7 @@ public class Token {
 		False,				// false
 		Null,				// null
 		Operator1,			// 演算子
-		Operator2,			// 演算子($)
+		Operator2,			// 演算子($+識別子)
 		Ident,				// 識別子
 		Reserved,			// 予約語
 		OneLineComment,		// 一行コメント
