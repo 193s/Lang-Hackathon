@@ -22,35 +22,52 @@ public class InterPreter {
 		try {	
 			InputStreamReader isr = new InputStreamReader(System.in);
 			BufferedReader br = new BufferedReader(isr);
-			String tokenSet;
+			String input;
 			do {
-				tokenSet = br.readLine();
-				s += tokenSet + '\n';
+				input = br.readLine();
+				s += input + '\n';
 			}
-			while (!tokenSet.isEmpty());
+			while (!input.isEmpty());
 		}
 		catch (IOException e) {
-			e.printStackTrace();
-			debug.out.println("\nInput Error");
+			debug.brank();
+			debug.out.println("ERROR: IOException");
 		}
 		
-		debug.brank(3);
-		Token[] ls = Lexer.tokenize(s);		// 字句解析
-		for (Token t: ls) debug.out.printf(" [%s]%n", t); // 字句解析の結果を出力
-		debug.out.println();	//改行
-		
-		AST ast = new Program(new TokenSet(ls));	// 構文解析
-		if(!ast.ok) {
-			debug.out.println("Parsing failed!");
+		if ("\n".equals(s)) {
+			debug.out.println("ERROR: input string is empty.");
 			return;
 		}
 		
+		Token[] ls = Lexer.tokenize(s);		// 字句解析
+		if (ls == null) {
+			debug.out.println("ERROR: tokenize failed!");
+			return;
+		}
+		else debug.out.println("--SUCCEED TOKENIZING--");
+		
+		for (Token t: ls) debug.out.printf(" [%s]%n", t); // 字句解析の結果を出力
+		debug.brank(3);
+		
+		
+		AST ast = new Program(new TokenSet(ls));	// 構文解析
+		if (ast.ok) {
+			debug.out.println("--SUCCEED PARSING--");
+		}
+		else {
+			debug.out.println("ERROR: Parsing failed!");
+			return;
+		}
+		debug.brank(3);
+		
 		Environment e = new Environment();	// 環境
 		try {
+			debug.out.println("--- RUNNING ---");
+			debug.brank();
 			debug.out.println(ast.eval(0, e)); // 実行
 		}
-		catch(Exception ex) {
-			debug.out.println("Runtime Error:");
+		catch (Exception ex) {
+			debug.out.println("RUNTIME ERROR:");
 			ex.printStackTrace();
 		}
 		
