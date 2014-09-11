@@ -1,5 +1,6 @@
 ﻿using System;
 //using System.Text.RegularExpressions;
+using LLVM;
 namespace MyLang
 {
 	public class Interpreter 
