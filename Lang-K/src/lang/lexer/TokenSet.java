@@ -28,6 +28,14 @@ public class TokenSet {
 		return offset >= length;
 	}
 	
+	public boolean read(String... args) {
+		for (String t : args) {
+	 		Token<String> next = next();
+	 		if (!t.equals(next.getValue())) return false;
+		}
+		return true;
+	}
+	
 	public boolean isName() {
 		return isEOF()? false : get() instanceof Token.Name;
 	}
