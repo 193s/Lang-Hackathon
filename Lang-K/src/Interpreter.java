@@ -398,7 +398,6 @@ public class Interpreter {
 			if (!tokenSet.isReserved()) return;
 			if (!tokenSet.isOperator("while")) debug.out.println("error:::");
 			tokenSet.readOperator();
-//			if (!"while".equals((String) tokenSet.readReserved().getValue())) return;
 
 			if (!tokenSet.isOperator()) return;
 			if (!"(".equals((String) (tokenSet.readOperator()).getValue())) return;
@@ -442,26 +441,17 @@ public class Interpreter {
 	
 	static class If extends ASTList {
 		If(TokenSet tokenSet) {
-			if (!tokenSet.isReserved()) return;
-			if (!"if".equals((String) tokenSet.readReserved().getValue())) return;
-
-			if (!tokenSet.isOperator()) return;
-			if (!"(".equals((String) tokenSet.readOperator().getValue())) return;
+			if (!tokenSet.read("if", "(")) return;
 			
 			AST condition = new Condition(tokenSet);
 			if (!condition.ok) return;
 			
-			if (!tokenSet.isOperator()) return;
-			if (!")".equals((String) tokenSet.readOperator().getValue())) return;
-			
-			if (!tokenSet.isOperator()) return;
-			if (!"{".equals((String) tokenSet.readOperator().getValue())) return;
+			if (!tokenSet.read(")", "{")) return;
 			
 			AST program = new Program(tokenSet);
 			if (!program.ok) return;
 			
-			if (!tokenSet.isOperator()) return;
-			if (!"}".equals((String) tokenSet.readOperator().getValue())) return;
+			if (!tokenSet.read("}")) return;
 			
 			children.add(condition);
 			children.add(program);
