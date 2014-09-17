@@ -14,7 +14,7 @@ import lang.operator.IntegerBinaryOperator;
 import lang.util.Extension;
 
 
-public class InterPreter {
+public class Interpreter {
 	static Debug debug = new Debug(System.out);
 	
 	public static void main(String[] args) {
