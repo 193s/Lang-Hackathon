@@ -1,8 +1,10 @@
 ﻿<Properties GitUserInfo="UsingGIT">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="myLang/Interpreter.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="myLang/Lexer.cs">
     <Files>
-      <File FileName="myLang/Interpreter.cs" Line="37" Column="37" />
+      <File FileName="myLang/Interpreter.cs" Line="36" Column="36" />
+      <File FileName="myLang/Lexer.cs" Line="33" Column="33" />
+      <File FileName="myLang/Extension.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
