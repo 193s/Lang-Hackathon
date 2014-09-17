@@ -16,8 +16,8 @@ public class Lexer {
 				+ '(' + Extension.getRegularExpressionOrString(reserved) + ')' + '|'
 				+ "(==|[-+*/%=;<>\\{\\}\\(\\)])" + "|"
 				+ "([0-9]+)" + "|"
-				+ "([a-zA-z]+)"
-				+ ")\\s*");
+				+ "([a-zA-z]+)" +")");
+//				+ ")\\s*");
 		
 		Token[] ret = new Token[m.length];
 		for (int i=0; i<m.length; i++) {
