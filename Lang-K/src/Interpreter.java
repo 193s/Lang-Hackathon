@@ -46,7 +46,7 @@ public class Interpreter {
 		}
 		else debug.out.println("--SUCCEED TOKENIZING--");
 		
-		for (Token t: ls) debug.out.printf(" [%s]%n", t); // 字句解析の結果を出力
+		for (Token t: ls) debug.out.printf(" [ %s ]%n", t); // 字句解析の結果を出力
 		debug.brank(3);
 		
 		
@@ -77,18 +77,6 @@ public class Interpreter {
 	}
 	
 	
-	
-	
-
-	static class Environment { 
-		HashMap<String, Integer> hashMap;
-		Environment() {
-			hashMap = new HashMap<String, Integer>();
-		}
-	}
-	
-	
-
 	static abstract class AST {
 		// 構文木の構築に成功したかどうか
 		boolean ok = false;
@@ -159,7 +147,7 @@ public class Interpreter {
 			children.add(n);
 			
 			while (tokenSet.isOperator()) {
-				String opstr = tokenSet.readOperator().getValue();
+				String opstr = tokenSet.readOperator().string;
 				
 				BinaryOperatorIF binaryOperator = null;
 				for (BinaryOperatorIF b: IntegerBinaryOperator.values()) {
@@ -222,13 +210,13 @@ public class Interpreter {
 	static class Num extends ASTList {
 		Num(TokenSet tokenSet) {
 			if (tokenSet.isOperator()) {
-				String op = (tokenSet.readOperator()).getValue();
+				String op = (tokenSet.readOperator()).string;
 				if (! "(".equals(op)) return;
 				AST s = new Expr(tokenSet);
 				if (!s.ok) return;
 				
 				if (! tokenSet.isOperator()) return;
-				if (! ")".equals(tokenSet.readOperator().getValue())) return;
+				if (! ")".equals(tokenSet.readOperator().string)) return;
 				children.add(s);
 			}
 
@@ -237,7 +225,7 @@ public class Interpreter {
 			}
 			
 			else if (tokenSet.isName()) {
-				String ident = tokenSet.readName().getValue();
+				String ident = tokenSet.readName().string;
 				Variable v = new Variable(ident);
 				children.add(v);
 			}
@@ -253,7 +241,7 @@ public class Interpreter {
 			if (child instanceof Expr || child instanceof Variable)
 				return child.eval(k + 1, e);
 			else {
-				int value = ((Token.Num)((ASTLeaf)child).child).getValue();
+				int value = ((Token.Num)((ASTLeaf)child).child).num;
 				debug.log(k, " : " + value);
 				return value;
 			}
@@ -270,7 +258,8 @@ public class Interpreter {
 				child = new If(tokenSet);
 			else if (tokenSet.isName())
 				child = new Assign(tokenSet);
-			else child = new Expr(tokenSet);
+			else
+				child = new Expr(tokenSet);
 
 			children.add(child);
 			ok = true;
@@ -295,7 +284,7 @@ public class Interpreter {
 			while (true) {
 				if (!tokenSet.isOperator()) break;
 				Token.Operator operator = tokenSet.readOperator();
-				String op = operator.getValue();
+				String op = operator.string;
 				if (!";".equals(op)) {
 					tokenSet.back();
 					break;
@@ -318,7 +307,7 @@ public class Interpreter {
 			for (int i=1; i<children.size(); i++) {
 				if (children.get(i) instanceof Statement) ret = children.get(i).eval(k+1, e);
 				else {
-					debug.log(k, (String) ((ASTLeaf)children.get(i)).child.getValue());
+					debug.log(k, ((ASTLeaf)children.get(i)).child.string);
 				}
 			}
 			return ret;
@@ -329,11 +318,11 @@ public class Interpreter {
 	static class Assign extends ASTList {
 		Assign(TokenSet tokenSet) {
 			if (!tokenSet.isName()) return;
-			AST left = new Variable(tokenSet.readName().getValue());
+			AST left = new Variable(tokenSet.readName().string);
 			
 			if (!tokenSet.isOperator()) return;
 			Token.Operator operator = tokenSet.readOperator();
-			if (!"=".equals(operator.getValue())) return;
+			if (!"=".equals(operator.string)) return;
 			
 			AST right = new Statement(tokenSet);
 			if (!right.ok) return;
@@ -363,7 +352,7 @@ public class Interpreter {
 			
 			if (!tokenSet.isOperator()) return;
 			Token.Operator operator = tokenSet.readOperator();
-			String op = operator.getValue();
+			String op = operator.string;
 			
 			if (!( "==".equals(op) || ">".equals(op) || "<".equals(op)) ) return;
 			children.add(new ASTLeaf(operator));
@@ -377,7 +366,7 @@ public class Interpreter {
 		
 		@Override
 		int eval(int k, Environment e) {
-			String op = (String) (((ASTLeaf) children.get(1)).child.getValue());
+			String op = ((ASTLeaf) children.get(1)).child.string;
 			debug.log(k, "Condition" + op);
 			
 			int left = children.get(0).eval(k+1, e);
@@ -395,30 +384,18 @@ public class Interpreter {
 
 	static class While extends ASTList {
 		While(TokenSet tokenSet) {
-			if (!tokenSet.isReserved()) return;
-			if (!tokenSet.isOperator("while")) debug.out.println("error:::");
-			tokenSet.readOperator();
-
-			if (!tokenSet.isOperator()) return;
-			if (!"(".equals((String) (tokenSet.readOperator()).getValue())) return;
+			debug.out.println("-while statement-");
+			if (!tokenSet.read("while", "(")) return;
 			
 			AST condition = new Condition(tokenSet);
 			if (!condition.ok) return;
 			
-			if (!tokenSet.isOperator()) return;
-			if (!")".equals((String) tokenSet.readOperator().getValue())) return;
+			if (!tokenSet.read(")")) return;
 			
-			if (!tokenSet.isOperator()) return;
-			if (!"{".equals((String) tokenSet.readOperator().getValue())) return;
-			
-			AST program = new Program(tokenSet);
-			if (!program.ok) return;
-			
-			if (!tokenSet.isOperator()) return;
-			if (!"}".equals((String) tokenSet.readOperator().getValue())) return;
+			AST block = new Block(tokenSet);
 			
 			children.add(condition);
-			children.add(program);
+			children.add(block);
 
 			ok = true;
 		}
@@ -437,24 +414,36 @@ public class Interpreter {
 			return ret;
 		}
 	}
+	static class Block extends ASTList {
+		Block(TokenSet tokenSet) {
+			debug.out.println("-block-");
+			if (!tokenSet.read(":")) return;
+			AST program = new Program(tokenSet);
+			if (!tokenSet.read("end")) return;
+			children.add(program);
+			ok = true;
+		}
+		
+		@Override
+		public int eval(int k, Environment e) {
+			debug.log(k, "block");
+			return children.get(0).eval(k + 1, e);
+		}
+	}
 	
 	
 	static class If extends ASTList {
 		If(TokenSet tokenSet) {
+			debug.out.println("-if statement-");
 			if (!tokenSet.read("if", "(")) return;
 			
 			AST condition = new Condition(tokenSet);
 			if (!condition.ok) return;
-			
-			if (!tokenSet.read(")", "{")) return;
-			
-			AST program = new Program(tokenSet);
-			if (!program.ok) return;
-			
-			if (!tokenSet.read("}")) return;
+			if (!tokenSet.read(")")) return;
+			AST block = new Block(tokenSet);
 			
 			children.add(condition);
-			children.add(program);
+			children.add(block);
 
 			ok = true;
 		}

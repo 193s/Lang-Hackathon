@@ -6,7 +6,7 @@ public class Lexer {
 	public static String[] reserved;
 	
 	static {
-		reserved = new String[] {"if","else", "while"};
+		reserved = new String[] {"if","else", "while", "end"};
 	}
 	
 	// 字句解析器
@@ -14,7 +14,7 @@ public class Lexer {
 		String[][] m = Extension.matchAll(s,
 				"\\s*("
 				+ '(' + Extension.getRegularExpressionOrString(reserved) + ')' + '|'
-				+ "(==|[-+*/%=;<>\\{\\}\\(\\)])" + "|"
+				+ "(==|[-+*/%=:;<>\\{\\}\\(\\)])" + "|"
 				+ "([0-9]+)" + "|"
 				+ "([a-zA-z]+)" +")");
 		
