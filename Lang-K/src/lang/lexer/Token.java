@@ -1,43 +1,38 @@
 package lang.lexer;
 
-public abstract class Token<T> {
-	public Token(T value) {
-		this.value = value;
+public abstract class Token {
+	public Token(String string) {
+		this.string = string;
 	}
 	
-	private T value;
-	
-	public T getValue() {
-		return value;
-	}
+	public String string;
 	
 	@Override
 	public String toString() {
-		return value + " : " + getClass().toString().substring(6);
+		return string + "\t: " + getClass().getSimpleName();
 	}
 	
 	
-	public static class Reserved extends Token<String> {
+	public static class Reserved extends Token {
 		public Reserved(String value) {
 			super(value);
 		}
 	}
-	public static class Name extends Token<String> {
+	public static class Name extends Token {
 		public Name(String value) {
 			super(value);
 		}
 	}
 	
-	public static class Num extends Token<Integer> {
-		public Num(int value) {
-			super(value);
-		}
+	public static class Num extends Token {
+		public int num;
 		public Num(String value) {
-			super(Integer.parseInt(value));
+			super(value);
+			num = Integer.parseInt(value);
 		}
 	}
 	
-	public static class Operator extends Token<String> {
+	public static class Operator extends Token {
 		public Operator(String value) {
 			super(value);
 		}

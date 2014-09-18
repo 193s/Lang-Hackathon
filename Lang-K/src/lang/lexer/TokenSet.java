@@ -30,8 +30,8 @@ public class TokenSet {
 	
 	public boolean read(String... args) {
 		for (String t : args) {
-	 		Token<String> next = next();
-	 		if (!t.equals(next.getValue())) return false;
+	 		Token next = next();
+	 		if (!t.equals(next.string)) return false;
 		}
 		return true;
 	}
@@ -60,7 +60,7 @@ public class TokenSet {
 	}
 	
 	public boolean isOperator(String str) {
-		return isOperator() && str.equals((String) get().getValue());
+		return isOperator() && str.equals(get().string);
 	}
 	
 	public Token.Operator readOperator() {
@@ -74,7 +74,7 @@ public class TokenSet {
 	}
 	
 	public boolean isReserved(String str) {
-		return isReserved() && str.equals((String) get().getValue());
+		return isReserved() && str.equals(get().string);
 	}
 	
 	public Token.Reserved readReserved() {
