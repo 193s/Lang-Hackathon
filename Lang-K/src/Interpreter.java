@@ -11,6 +11,7 @@ import lang.lexer.Token;
 import lang.lexer.TokenSet;
 import lang.operator.BinaryOperatorIF;
 import lang.operator.IntegerBinaryOperator;
+import lang.parser.Environment;
 import lang.util.Extension;
 
 
@@ -139,15 +140,16 @@ public class Interpreter {
 	
 	static class Expr extends ASTList {
 		ArrayList<BinaryOperatorIF> operators;
-		Expr(TokenSet tokenSet) {
+		
+		Expr(TokenSet ls) {
 			operators = new ArrayList<BinaryOperatorIF>();
-			Num n = new Num(tokenSet);
+			Num n = new Num(ls);
 			if (!n.ok) return;
 			children = new ArrayList<AST>();
 			children.add(n);
 			
-			while (tokenSet.isOperator()) {
-				String opstr = tokenSet.readOperator().string;
+			while (ls.isOperator()) {
+				String opstr = ls.readOperator().string;
 				
 				BinaryOperatorIF binaryOperator = null;
 				for (BinaryOperatorIF b: IntegerBinaryOperator.values()) {
@@ -157,12 +159,12 @@ public class Interpreter {
 					}
 				}
 				if (binaryOperator == null) {
-					tokenSet.back();
+					ls.unget();
 					break;
 				}
 				operators.add(binaryOperator);
 				
-				Num n2 = new Num(tokenSet);
+				Num n2 = new Num(ls);
 				if (!n2.ok) return;
 				children.add(n2);
 			}
@@ -208,24 +210,21 @@ public class Interpreter {
 	}
 	
 	static class Num extends ASTList {
-		Num(TokenSet tokenSet) {
-			if (tokenSet.isOperator()) {
-				String op = (tokenSet.readOperator()).string;
-				if (! "(".equals(op)) return;
-				AST s = new Expr(tokenSet);
+		Num(TokenSet ls) {
+			if (ls.isOperator()) {
+				if (!ls.read("(")) return;
+				AST s = new Expr(ls);
 				if (!s.ok) return;
-				
-				if (! tokenSet.isOperator()) return;
-				if (! ")".equals(tokenSet.readOperator().string)) return;
+				if (!ls.read(")")) return;
 				children.add(s);
 			}
 
-			else if (tokenSet.isNumber()) {
-				children.add(new ASTLeaf(tokenSet.readNumber()));
+			else if (ls.isNumber()) {
+				children.add(new ASTLeaf(ls.readNumber()));
 			}
 			
-			else if (tokenSet.isName()) {
-				String ident = tokenSet.readName().string;
+			else if (ls.isName()) {
+				String ident = ls.readName().string;
 				Variable v = new Variable(ident);
 				children.add(v);
 			}
@@ -238,28 +237,27 @@ public class Interpreter {
 		int eval(int k, Environment e) {
 			debug.log(k, "Num");
 			AST child = children.get(0);
-			if (child instanceof Expr || child instanceof Variable)
-				return child.eval(k + 1, e);
-			else {
+			if (child instanceof ASTLeaf) {
 				int value = ((Token.Num)((ASTLeaf)child).child).num;
 				debug.log(k, " : " + value);
 				return value;
 			}
+			else return child.eval(k+1, e);
 		}
 	}
 
 	
 	static class Statement extends ASTList {
-		Statement(TokenSet tokenSet) {
+		Statement(TokenSet ls) {
 			AST child = null;
-			if (tokenSet.isReserved("while"))
-				child = new While(tokenSet);
-			else if (tokenSet.isReserved("if"))
-				child = new If(tokenSet);
-			else if (tokenSet.isName())
-				child = new Assign(tokenSet);
+			if (ls.isReserved("while"))
+				child = new While(ls);
+			else if (ls.isReserved("if"))
+				child = new If(ls);
+			else if (ls.isName())
+				child = new Assign(ls);
 			else
-				child = new Expr(tokenSet);
+				child = new Expr(ls);
 
 			children.add(child);
 			ok = true;
@@ -276,21 +274,21 @@ public class Interpreter {
 	
 	
 	static class Program extends ASTList {
-		Program(TokenSet tokenSet) {
-			AST s = new Statement(tokenSet);
+		Program(TokenSet ls) {
+			AST s = new Statement(ls);
 			if (!s.ok) return;
 			children.add(s);
 
 			while (true) {
-				if (!tokenSet.isOperator()) break;
-				Token.Operator operator = tokenSet.readOperator();
+				if (!ls.isOperator()) break;
+				Token.Operator operator = ls.readOperator();
 				String op = operator.string;
-				if (!";".equals(op)) {
-					tokenSet.back();
+				if (!",".equals(op)) {
+					ls.unget();
 					break;
 				}
 				
-				AST right = new Statement(tokenSet);
+				AST right = new Statement(ls);
 				if (!right.ok) continue;
 
 				children.add(new ASTLeaf(operator));
@@ -316,15 +314,16 @@ public class Interpreter {
 
 	
 	static class Assign extends ASTList {
-		Assign(TokenSet tokenSet) {
-			if (!tokenSet.isName()) return;
-			AST left = new Variable(tokenSet.readName().string);
+		Assign(TokenSet ls) {
+			debug.out.println("assign");
+			if (!ls.isName()) return;
+			AST left = new Variable(ls.readName().string);
 			
-			if (!tokenSet.isOperator()) return;
-			Token.Operator operator = tokenSet.readOperator();
+			if (!ls.isOperator()) return;
+			Token.Operator operator = ls.readOperator();
 			if (!"=".equals(operator.string)) return;
 			
-			AST right = new Statement(tokenSet);
+			AST right = new Statement(ls);
 			if (!right.ok) return;
 			
 			children.add(left);
@@ -345,19 +344,20 @@ public class Interpreter {
 	
 	
 	static class Condition extends ASTList {
-		Condition(TokenSet tokenSet) {
-			AST left = new Expr(tokenSet);
+		Condition(TokenSet ls) {
+			debug.out.println("condition");
+			AST left = new Expr(ls);
 			if (!left.ok) return;
 			children.add(left);
 			
-			if (!tokenSet.isOperator()) return;
-			Token.Operator operator = tokenSet.readOperator();
+			if (!ls.isOperator()) return;
+			Token.Operator operator = ls.readOperator();
 			String op = operator.string;
 			
 			if (!( "==".equals(op) || ">".equals(op) || "<".equals(op)) ) return;
 			children.add(new ASTLeaf(operator));
 			
-			AST right = new Expr(tokenSet);
+			AST right = new Expr(ls);
 			if (!right.ok) return;
 			children.add(right);
 			
@@ -383,16 +383,16 @@ public class Interpreter {
 
 
 	static class While extends ASTList {
-		While(TokenSet tokenSet) {
-			debug.out.println("-while statement-");
-			if (!tokenSet.read("while", "(")) return;
+		While(TokenSet ls) {
+			debug.out.println("while");
+			if (!ls.read("while", "(")) return;
 			
-			AST condition = new Condition(tokenSet);
+			AST condition = new Condition(ls);
 			if (!condition.ok) return;
 			
-			if (!tokenSet.read(")")) return;
+			if (!ls.read(")")) return;
 			
-			AST block = new Block(tokenSet);
+			AST block = new Block(ls);
 			
 			children.add(condition);
 			children.add(block);
@@ -415,11 +415,11 @@ public class Interpreter {
 		}
 	}
 	static class Block extends ASTList {
-		Block(TokenSet tokenSet) {
+		Block(TokenSet ls) {
 			debug.out.println("-block-");
-			if (!tokenSet.read(":")) return;
-			AST program = new Program(tokenSet);
-			if (!tokenSet.read("end")) return;
+			if (!ls.read(":")) return;
+			AST program = new Program(ls);
+			if (!ls.read(";")) return;
 			children.add(program);
 			ok = true;
 		}
@@ -433,14 +433,14 @@ public class Interpreter {
 	
 	
 	static class If extends ASTList {
-		If(TokenSet tokenSet) {
-			debug.out.println("-if statement-");
-			if (!tokenSet.read("if", "(")) return;
+		If(TokenSet ls) {
+			debug.out.println("if");
+			if (!ls.read("if", "(")) return;
 			
-			AST condition = new Condition(tokenSet);
+			AST condition = new Condition(ls);
 			if (!condition.ok) return;
-			if (!tokenSet.read(")")) return;
-			AST block = new Block(tokenSet);
+			if (!ls.read(")")) return;
+			AST block = new Block(ls);
 			
 			children.add(condition);
 			children.add(block);

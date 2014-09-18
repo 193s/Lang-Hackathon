@@ -1,5 +1,7 @@
 package lang.lexer;
 
+import sun.security.util.Debug;
+
 
 public class TokenSet {
 	private final Token[] list;
@@ -11,8 +13,11 @@ public class TokenSet {
 		length = tokens.length;
 	}
 	
-	public void back() {
+	public void unget() {
 		if (offset > 0) offset--;
+	}
+	public void unget(int k) {
+		if (offset >= k) offset -= k;
 	}
 	public Token next() {
 		return list[offset++];
