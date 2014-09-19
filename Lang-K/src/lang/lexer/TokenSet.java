@@ -33,6 +33,17 @@ public class TokenSet {
 		return offset >= length;
 	}
 	
+//	public boolean isMatch(String s) {
+//		return s.equals(get().string);
+//	}
+	
+	public boolean isMatch(String... args) {
+		String t = get().string;
+		for (String str: args) {
+			if (str.equals(t)) return true;
+		}
+		return false;
+	}
 	public boolean read(String... args) {
 		for (String t : args) {
 	 		Token next = next();
@@ -42,47 +53,51 @@ public class TokenSet {
 	}
 	
 	public boolean isName() {
-		return isEOF()? false : get() instanceof Token.Name;
+		return isEOF()? false : get().kind == TokenKind.Identifier;
 	}
 	
-	public Token.Name readName() {
-		return isName()? (Token.Name) next() : null;
+	@Deprecated
+	public Token readName() {
+		return isName()? next() : null;
 	}
 	
 	
 	public boolean isNumber() {
-		return isEOF()? false : get() instanceof Token.Num;
+		return isEOF()? false : get().kind == TokenKind.Literal;
 	}
 	
-	public Token.Num readNumber() {
-		return isNumber()? (Token.Num) next() : null;
+	@Deprecated
+	public Token readNumber() {
+		return isNumber()? next() : null;
 	}
 	
 	
 	
 	public boolean isOperator() {
-		return isEOF()? false : get() instanceof Token.Operator;
+		return isEOF()? false : get().kind == TokenKind.Operator;
 	}
 	
 	public boolean isOperator(String str) {
-		return isOperator() && str.equals(get().string);
+		return isOperator() && isMatch(str);
 	}
 	
-	public Token.Operator readOperator() {
-		return isOperator()? (Token.Operator) next() : null;
+	@Deprecated
+	public Token readOperator() {
+		return isOperator()? next() : null;
 	}
 	
 	
 	
 	public boolean isReserved() {
-		return isEOF()? false : get() instanceof Token.Reserved;
+		return isEOF()? false : get().kind == TokenKind.Reserved;
 	}
 	
 	public boolean isReserved(String str) {
 		return isReserved() && str.equals(get().string);
 	}
 	
-	public Token.Reserved readReserved() {
-		return isReserved()? (Token.Reserved) next() : null;
+	@Deprecated
+	public Token readReserved() {
+		return isReserved()? next() : null;
 	}
 }

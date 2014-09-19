@@ -2,6 +2,7 @@ package lang.lexer;
 import lang.lexer.Token.*;
 import lang.util.Extension;
 
+import static lang.lexer.TokenKind.*;
 public class Lexer {
 	public static String[] reserved;
 	
@@ -16,14 +17,14 @@ public class Lexer {
 				+ '(' + Extension.getRegularExpressionOrString(reserved) + ')' + '|'
 				+ "(==|[-+*/%=:;,<>\\{\\}\\(\\)])" + "|"
 				+ "([0-9]+)" + "|"
-				+ "([a-zA-z]+)" +")");
+				+ "([a-zA-z]+)" + ")");
 		
 		Token[] ret = new Token[m.length];
 		for (int i=0; i<m.length; i++) {
-			if		(m[i][2] != null) ret[i] = new Token.Reserved(m[i][2]);
-			else if	(m[i][3] != null) ret[i] = new Token.Operator(m[i][3]);
-			else if (m[i][4] != null) ret[i] = new Token.Num(m[i][4]);
-			else if (m[i][5] != null) ret[i] = new Token.Name(m[i][5]);
+			if		(m[i][2] != null) ret[i] = new Token(m[i][2], Reserved);
+			else if	(m[i][3] != null) ret[i] = new Token(m[i][3], Operator);
+			else if (m[i][4] != null) ret[i] = new Token(m[i][4], Literal);
+			else if (m[i][5] != null) ret[i] = new Token(m[i][5], Identifier);
 		}
 		return ret;
 	}

@@ -72,7 +72,10 @@ public class Interpreter {
 			ex.printStackTrace();
 		}
 		
+		debug.brank(2);
+		
 		// Environmentに保存されている変数を列挙
+		debug.out.println("Environment:");
 		for(Entry<String, Integer> entry : e.hashMap.entrySet())
 			debug.out.println(entry.getKey() +" : " + entry.getValue());
 	}
@@ -95,7 +98,7 @@ public class Interpreter {
 		}
 	}
 	
-	
+	@Deprecated
 	static class ASTLeaf extends AST {
 		Token child;
 		ASTLeaf() {}
@@ -106,8 +109,6 @@ public class Interpreter {
 
 	
 	/*	
-	 *	Variable ::= NameToken
-	 *	
 	 *	Number	::= '(' Expr ')' | NumberToken | Variable
 	 *	Expr ::= Number { BinaryOperator Number }
 	 *
@@ -123,17 +124,37 @@ public class Interpreter {
 	 *
 	 */
 	
-	static class Variable extends ASTLeaf {
+	static class Variable extends AST {
 		String name;
 		Variable(String name) {
 			this.name = name;
 		}
-		
+	
 		@Override
 		int eval(int k, Environment e) {
 			Integer v = e.hashMap.get(name);
 			int value = (v == null)? 0: v;
 			debug.log(k, "Variable : " + name + '(' + value + ')');
+			return value;
+		}
+	}
+	
+	static class Literal extends AST {
+		int value;
+		Literal(TokenSet ls) {
+			Token t = ls.next();
+			value = Integer.parseInt(t.string);
+		}
+		Literal(Token token) {
+			value = Integer.parseInt(token.string);
+		}
+		Literal(String str) {
+			value = Integer.parseInt(str);
+		}
+		
+		@Override
+		int eval(int k, Environment e) {
+			debug.log(k, "Literal");
 			return value;
 		}
 	}
@@ -211,7 +232,10 @@ public class Interpreter {
 	
 	static class Num extends ASTList {
 		Num(TokenSet ls) {
+			debug.out.println("num");
+			// ( Expression )
 			if (ls.isOperator()) {
+				debug.out.println("( expression )");
 				if (!ls.read("(")) return;
 				AST s = new Expr(ls);
 				if (!s.ok) return;
@@ -219,12 +243,16 @@ public class Interpreter {
 				children.add(s);
 			}
 
+			// Literal
 			else if (ls.isNumber()) {
-				children.add(new ASTLeaf(ls.readNumber()));
+				debug.out.println("literal");
+				children.add(new Literal(ls));
 			}
 			
+			// Variable
 			else if (ls.isName()) {
-				String ident = ls.readName().string;
+				debug.out.println("variable");
+				String ident = ls.next().string;
 				Variable v = new Variable(ident);
 				children.add(v);
 			}
@@ -237,12 +265,7 @@ public class Interpreter {
 		int eval(int k, Environment e) {
 			debug.log(k, "Num");
 			AST child = children.get(0);
-			if (child instanceof ASTLeaf) {
-				int value = ((Token.Num)((ASTLeaf)child).child).num;
-				debug.log(k, " : " + value);
-				return value;
-			}
-			else return child.eval(k+1, e);
+			return child.eval(k+1, e);
 		}
 	}
 
@@ -266,7 +289,6 @@ public class Interpreter {
 		@Override
 		int eval(int k, Environment e) {
 			debug.log(k, "Statement");
-
 			AST child = children.get(0);
 			return child.eval(k+1, e);
 		}
@@ -280,13 +302,9 @@ public class Interpreter {
 			children.add(s);
 
 			while (true) {
-				if (!ls.isOperator()) break;
-				Token.Operator operator = ls.readOperator();
-				String op = operator.string;
-				if (!",".equals(op)) {
-					ls.unget();
-					break;
-				}
+				if (ls.isEOF()) break;
+				if (ls.isMatch(",")) break;
+				Token operator = ls.next();
 				
 				AST right = new Statement(ls);
 				if (!right.ok) continue;
@@ -316,11 +334,11 @@ public class Interpreter {
 	static class Assign extends ASTList {
 		Assign(TokenSet ls) {
 			debug.out.println("assign");
-			if (!ls.isName()) return;
-			AST left = new Variable(ls.readName().string);
+			if (ls.isEOF()) return;
+			AST left = new Variable(ls.next().string);
 			
-			if (!ls.isOperator()) return;
-			Token.Operator operator = ls.readOperator();
+			if (ls.isEOF()) return;
+			Token operator = ls.next();
 			if (!"=".equals(operator.string)) return;
 			
 			AST right = new Statement(ls);
@@ -350,13 +368,8 @@ public class Interpreter {
 			if (!left.ok) return;
 			children.add(left);
 			
-			if (!ls.isOperator()) return;
-			Token.Operator operator = ls.readOperator();
-			String op = operator.string;
-			
-			if (!( "==".equals(op) || ">".equals(op) || "<".equals(op)) ) return;
-			children.add(new ASTLeaf(operator));
-			
+			if (!ls.isMatch("==", ">", "<")) return;
+			children.add(new ASTLeaf(ls.next()));
 			AST right = new Expr(ls);
 			if (!right.ok) return;
 			children.add(right);
@@ -416,7 +429,7 @@ public class Interpreter {
 	}
 	static class Block extends ASTList {
 		Block(TokenSet ls) {
-			debug.out.println("-block-");
+			debug.out.println("block");
 			if (!ls.read(":")) return;
 			AST program = new Program(ls);
 			if (!ls.read(";")) return;
