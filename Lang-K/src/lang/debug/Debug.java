@@ -5,19 +5,16 @@ import lang.util.Extension;
 
 
 public class Debug {
-	public PrintStream out;
-	public Debug(PrintStream out) {
-		this.out = out;
-	}
+	static public PrintStream out = System.out;
 	
-	public void log(int k, String string) {
+	static public void log(int k, String string) {
 		out.println(Extension.getChar(' ', k) + string);
 	}
 	
-	public void brank() {
+	static public void brank() {
 		out.println();
 	}
-	public void brank(int times) {
+	static public void brank(int times) {
 		out.println(Extension.getChar('\n', times));
 	}
 }
