@@ -1,6 +1,6 @@
 package lang.lexer;
 
-import sun.security.util.Debug;
+import java.io.EOFException;
 
 
 public class TokenSet {
@@ -32,10 +32,6 @@ public class TokenSet {
 	public boolean isEOF() {
 		return offset >= length;
 	}
-	
-//	public boolean isMatch(String s) {
-//		return s.equals(get().string);
-//	}
 	
 	public boolean isMatch(String... args) {
 		String t = get().string;

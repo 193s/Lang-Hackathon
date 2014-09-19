@@ -11,6 +11,6 @@ public class Token {
 	
 	@Override
 	public String toString() {
-		return string + "\t: " + getClass().getSimpleName();
+		return string + "\t: " + kind;
 	}
 }

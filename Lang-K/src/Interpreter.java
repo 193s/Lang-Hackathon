@@ -272,16 +272,12 @@ public class Interpreter {
 	
 	static class Statement extends ASTList {
 		Statement(TokenSet ls) {
-			AST child = null;
-			if (ls.isReserved("while"))
-				child = new While(ls);
-			else if (ls.isReserved("if"))
-				child = new If(ls);
-			else if (ls.isName())
-				child = new Assign(ls);
-			else
-				child = new Expr(ls);
-
+			AST child = 
+			  ls.isReserved("while")?	new While(ls)
+			: ls.isReserved("if")?		new If(ls)
+			: ls.isName()?				new Assign(ls)
+			: 							new Expr(ls)
+			;
 			children.add(child);
 			ok = true;
 		}
@@ -303,7 +299,7 @@ public class Interpreter {
 
 			while (true) {
 				if (ls.isEOF()) break;
-				if (ls.isMatch(",")) break;
+				if (!ls.isMatch(",")) break;
 				Token operator = ls.next();
 				
 				AST right = new Statement(ls);
@@ -318,7 +314,7 @@ public class Interpreter {
 		@Override
 		int eval(int k, Environment e) {
 			debug.log(k, "Program");
-			int ret = children.get(0).eval(k + 1, e);
+			int ret = children.get(0).eval(k+1, e);
 			
 			for (int i=1; i<children.size(); i++) {
 				if (children.get(i) instanceof Statement) ret = children.get(i).eval(k+1, e);
@@ -355,7 +351,9 @@ public class Interpreter {
 		int eval(int k, Environment e) {
 			debug.log(k, "Assign");
 			int ret = ((Statement)children.get(2)).eval(k+1, e);
-			e.hashMap.put(((Variable)children.get(0)).name, ret);
+			// 代入
+			String identifier = ((Variable)children.get(0)).name;
+			e.hashMap.put(identifier, ret);
 			return ret;
 		}
 	}
@@ -399,17 +397,13 @@ public class Interpreter {
 		While(TokenSet ls) {
 			debug.out.println("while");
 			if (!ls.read("while", "(")) return;
-			
 			AST condition = new Condition(ls);
 			if (!condition.ok) return;
-			
 			if (!ls.read(")")) return;
-			
 			AST block = new Block(ls);
 			
 			children.add(condition);
 			children.add(block);
-
 			ok = true;
 		}
 		
@@ -440,7 +434,7 @@ public class Interpreter {
 		@Override
 		public int eval(int k, Environment e) {
 			debug.log(k, "block");
-			return children.get(0).eval(k + 1, e);
+			return children.get(0).eval(k+1, e);
 		}
 	}
 	
@@ -457,7 +451,6 @@ public class Interpreter {
 			
 			children.add(condition);
 			children.add(block);
-
 			ok = true;
 		}
 		
