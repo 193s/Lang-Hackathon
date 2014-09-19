@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import lang.debug.Debug;
 import lang.lexer.Token;
 import lang.lexer.TokenSet;
-import lang.operator.BinaryOperatorIF;
-import lang.operator.IntegerBinaryOperator;
+import lang.parser.operator.BinaryOperatorIF;
+import lang.parser.operator.IntegerBinaryOperator;
 
 public class Parser {
 	static public AST parse(TokenSet ls) {
@@ -31,7 +31,6 @@ class ASTList extends AST {
 @Deprecated
 class ASTLeaf extends AST {
 	Token child;
-	ASTLeaf() {}
 	ASTLeaf(Token l) {
 		child = l;
 	}
@@ -78,7 +77,7 @@ class Expr extends ASTList {
 	
 	Expr(TokenSet ls) {
 		operators = new ArrayList<BinaryOperatorIF>();
-		Num n = new Num(ls);
+		Value n = new Value(ls);
 		if (!n.ok) return;
 		children = new ArrayList<AST>();
 		children.add(n);
@@ -99,7 +98,7 @@ class Expr extends ASTList {
 			}
 			operators.add(binaryOperator);
 			
-			Num n2 = new Num(ls);
+			Value n2 = new Value(ls);
 			if (!n2.ok) return;
 			children.add(n2);
 		}
@@ -113,7 +112,7 @@ class Expr extends ASTList {
 		
 		int count = 0;
 		for (AST v: children) {
-			vals.add(((Num)v).eval(k+1, e));
+			vals.add(((Value)v).eval(k+1, e));
 			if (count >= operators.size()) break;
 			Debug.out.println(operators.get(count).getSign());
 			count++;
@@ -144,8 +143,8 @@ class Expr extends ASTList {
 	}
 }
 
-class Num extends ASTList {
-	Num(TokenSet ls) {
+class Value extends ASTList {
+	Value(TokenSet ls) {
 		Debug.out.println("num");
 		// ( Expression )
 		if (ls.isOperator()) {

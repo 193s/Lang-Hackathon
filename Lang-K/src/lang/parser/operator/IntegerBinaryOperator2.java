@@ -1,4 +1,4 @@
-package lang.operator;
+package lang.parser.operator;
 
 import java.util.HashMap;
 import java.util.function.BinaryOperator;
