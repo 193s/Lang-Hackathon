@@ -8,8 +8,6 @@ import lang.debug.Debug;
 import lang.lexer.Lexer;
 import lang.lexer.Token;
 import lang.lexer.TokenSet;
-import lang.operator.BinaryOperatorIF;
-import lang.operator.IntegerBinaryOperator;
 import lang.parser.AST;
 import lang.parser.Environment;
 import lang.parser.Parser;

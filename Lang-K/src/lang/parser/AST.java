@@ -1,6 +1,6 @@
 package lang.parser;
 
-public class AST {
+public abstract class AST {
 	// 構文木の構築に成功したかどうか
 	boolean ok = false;
 	
