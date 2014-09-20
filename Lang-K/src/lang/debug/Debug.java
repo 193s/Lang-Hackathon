@@ -11,10 +11,10 @@ public class Debug {
 		out.println(Extension.getChar(' ', k) + string);
 	}
 	
-	static public void brank() {
+	static public void blank() {
 		out.println();
 	}
-	static public void brank(int times) {
+	static public void blank(int times) {
 		out.println(Extension.getChar('\n', times));
 	}
 }
