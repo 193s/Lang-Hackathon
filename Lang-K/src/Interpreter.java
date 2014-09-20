@@ -28,7 +28,7 @@ public class Interpreter {
 			while (!input.isEmpty());
 		}
 		catch (IOException e) {
-			Debug.brank();
+			Debug.blank();
 			Debug.out.println("ERROR: IOException");
 		}
 		
@@ -45,16 +45,16 @@ public class Interpreter {
 		else Debug.out.println("--SUCCEED TOKENIZING--");
 		
 		for (Token t: ls) Debug.out.printf(" [ %s ]%n", t); // 字句解析の結果を出力
-		Debug.brank(3);
+		Debug.blank(3);
 		
 		
 		AST ast = Parser.parse(new TokenSet(ls));
-		Debug.brank(3);
+		Debug.blank(3);
 		
 		Environment e = new Environment();	// 環境
 		try {
 			Debug.out.println("--- RUNNING ---");
-			Debug.brank();
+			Debug.blank();
 			Debug.out.println(ast.eval(0, e)); // 実行
 		}
 		catch (Exception ex) {
@@ -62,7 +62,7 @@ public class Interpreter {
 			ex.printStackTrace();
 		}
 		
-		Debug.brank(2);
+		Debug.blank(2);
 		
 		// Environmentに保存されている変数を列挙
 		Debug.out.println("Environment:");
