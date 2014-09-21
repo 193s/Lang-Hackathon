@@ -3,13 +3,13 @@ package lang.parser.operator;
 import java.util.HashMap;
 import java.util.function.BinaryOperator;
 
-public class IntegerBinaryOperator2 {
+public class IntegerBinaryOperatorHashMap {
 	public static final HashMap<String, BinaryOp<Integer>> map;
 	
 	static {
 		map = new HashMap<String, BinaryOp<Integer>>() {
 			{
-//				map.put("+", new BinaryOp(1, (a,b) -> (Integer)a + (Integer)b));
+//				map.put("+", new BinaryOp<Integer>(1, (Integer a, Integer b) -> a + b));
 //				map.put("-", new BinaryOp<Integer>(1, (a,b) -> a - b));
 			}
 		};
