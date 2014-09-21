@@ -66,8 +66,9 @@ public class Interpreter {
 		
 		// Environmentに保存されている変数を列挙
 		Debug.out.println("Environment:");
-		for(Entry<String, Integer> entry : e.hashMap.entrySet())
+		for (Entry<String, Integer> entry : e.hashMap.entrySet()) {
 			Debug.out.println(entry.getKey() +" : " + entry.getValue());
+		}
 	}
 	/*	
 	 *	Number	::= '(' Expr ')' | NumberToken | Variable

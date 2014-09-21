@@ -15,7 +15,7 @@ public class Parser {
 			Debug.out.println("--SUCCEED PARSING--");
 		}
 		else {
-			Debug.out.println("ERROR: Parsing failed!");
+	        Debug.out.println("ERROR: Parsing failed!");
 		}
 		return ast;
 	}
@@ -28,16 +28,20 @@ class ASTList extends AST {
 	}
 }
 
-@Deprecated
 class ASTLeaf extends AST {
-	Token child;
-	ASTLeaf(Token l) {
-		child = l;
+}
+
+class Operator extends ASTLeaf {
+	String string;
+	Operator(Token t) {
+		string = t.string;
+	}
+	Operator (String s) {
+		string = s;
 	}
 }
 
-
-class Variable extends AST {
+class Variable extends ASTLeaf {
 	String name;
 	Variable(String name) {
 		this.name = name;
@@ -52,7 +56,7 @@ class Variable extends AST {
 	}
 }
 	
-class Literal extends AST {
+class Literal extends ASTLeaf {
 	int value;
 	Literal(TokenSet ls) {
 		Token t = ls.next();
@@ -67,7 +71,7 @@ class Literal extends AST {
 	
 	@Override
 	public int eval(int k, Environment e) {
-		Debug.log(k, "Literal");
+		Debug.log(k, "Literal: " + value);
 		return value;
 	}
 }
@@ -218,7 +222,7 @@ class Program extends ASTList {
 			AST right = new Statement(ls);
 			if (!right.ok) continue;
 
-			children.add(new ASTLeaf(operator));
+			children.add(new Operator(operator));
 			children.add(right);
 		}
 		ok = true;
@@ -232,7 +236,7 @@ class Program extends ASTList {
 		for (int i=1; i<children.size(); i++) {
 			if (children.get(i) instanceof Statement) ret = children.get(i).eval(k+1, e);
 			else {
-				Debug.log(k, ((ASTLeaf)children.get(i)).child.string);
+				Debug.log(k, ((Operator)children.get(i)).string);
 			}
 		}
 		return ret;
@@ -254,7 +258,7 @@ class Assign extends ASTList {
 		if (!right.ok) return;
 		
 		children.add(left);
-		children.add(new ASTLeaf(operator));
+		children.add(new Operator(operator));
 		children.add(right);
 
 		ok = true;
@@ -280,7 +284,7 @@ class Condition extends ASTList {
 		children.add(left);
 		
 		if (!ls.isMatch("==", ">", "<")) return;
-		children.add(new ASTLeaf(ls.next()));
+		children.add(new Operator(ls.next()));
 		AST right = new Expr(ls);
 		if (!right.ok) return;
 		children.add(right);
@@ -290,7 +294,7 @@ class Condition extends ASTList {
 	
 	@Override
 	public int eval(int k, Environment e) {
-		String op = ((ASTLeaf) children.get(1)).child.string;
+		String op = ((Operator) children.get(1)).string;
 		Debug.log(k, "Condition" + op);
 		
 		int left = children.get(0).eval(k+1, e);
