@@ -16,13 +16,14 @@ import lang.parser.Parser;
 public class Interpreter {
 	
 	public static void main(String[] args) {
+        Debug.out.println("input:");
 		String s = new String();
-		try {	
+		try {
 			InputStreamReader isr = new InputStreamReader(System.in);
 			BufferedReader br = new BufferedReader(isr);
-			String input;
-			do {
-				input = br.readLine();
+            String input;
+            do {
+                input = br.readLine();
 				s += input + '\n';
 			}
 			while (!input.isEmpty());
@@ -54,22 +55,23 @@ public class Interpreter {
 		Environment e = new Environment();	// 環境
 		try {
 			Debug.out.println("--- RUNNING ---");
-			Debug.blank();
-			Debug.out.println(ast.eval(0, e)); // 実行
-		}
+            Debug.blank();
+            Debug.out.println(ast.eval(0, e)); // 実行
+
+            Debug.blank(2);
+
+            // Environmentに保存されている変数を列挙
+            Debug.out.println("Environment:");
+            for (Entry<String, Integer> entry : e.hashMap.entrySet()) {
+                Debug.out.println(entry.getKey() +" : " + entry.getValue());
+            }
+        }
 		catch (Exception ex) {
-			Debug.out.println("RUNTIME ERROR:");
-			ex.printStackTrace();
-		}
-		
-		Debug.blank(2);
-		
-		// Environmentに保存されている変数を列挙
-		Debug.out.println("Environment:");
-		for (Entry<String, Integer> entry : e.hashMap.entrySet()) {
-			Debug.out.println(entry.getKey() +" : " + entry.getValue());
-		}
-	}
+            Debug.out.println("RUNTIME ERROR:");
+            ex.printStackTrace();
+        }
+
+    }
 	/*	
 	 *	Number	::= '(' Expr ')' | NumberToken | Variable
 	 *	Expr ::= Number { BinaryOperator Number }

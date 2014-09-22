@@ -1,9 +1,10 @@
 package lang.parser.operator;
 import java.util.function.BinaryOperator;
 
+@Deprecated
 public enum IntegerBinaryOperator implements BinaryOperatorIF<Integer> {
     Mod		(2, '%', (left, right) -> left % right),
-	Plus	(1, '+', (left, right) -> left + right),
+    Plus	(1, '+', (left, right) -> left + right),
     Minus	(1, '-', (left ,right) -> left - right),
     Mult	(0, '*', (left, right) -> left * right),
     Div		(0, '/', (left, right) -> left / right),
@@ -15,22 +16,22 @@ public enum IntegerBinaryOperator implements BinaryOperatorIF<Integer> {
 
     private IntegerBinaryOperator(int level, String sign, BinaryOperator<Integer> function) {
         this.level = level;
-        this.eval = function;
         this.sign = sign;
+        this.eval = function;
     }
     private IntegerBinaryOperator(int level, char sign, BinaryOperator<Integer> function) {
-    	this.level = level;
-    	this.eval = function;
-    	this.sign = String.valueOf(sign);
+        this.level = level;
+        this.sign = String.valueOf(sign);
+        this.eval = function;
     }
 
     @Override public Integer eval(Integer left, Integer right) {
-    	return eval.apply(left, right);
+        return eval.apply(left, right);
     }
     @Override public int getLevel() {
-    	return level;
+        return level;
     }
     @Override public String getSign() {
-    	return sign;
+        return sign;
     }
 }
