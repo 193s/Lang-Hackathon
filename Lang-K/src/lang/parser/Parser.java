@@ -5,7 +5,7 @@ import lang.lexer.Token;
 import lang.lexer.TokenSet;
 import lang.parser.operator.BinaryOp;
 import lang.parser.operator.BinaryOperatorIF;
-import lang.parser.operator.IntegerBinaryOperatorHashMap;
+import lang.parser.operator.IntegerBinaryOperator;
 
 import java.util.ArrayList;
 
@@ -77,10 +77,10 @@ class Literal extends ASTLeaf {
 }
 
 class Expr extends ASTList {
-	ArrayList<BinaryOp> operators;
+	ArrayList<BinaryOperatorIF> operators;
 	
 	Expr(TokenSet ls) {
-		operators = new ArrayList<BinaryOp>();
+		operators = new ArrayList<BinaryOperatorIF>();
 		Value n = new Value(ls);
 		if (!n.ok) return;
 		children = new ArrayList<AST>();
@@ -89,14 +89,14 @@ class Expr extends ASTList {
 		while (ls.isOperator()) {
 			String opstr = ls.readOperator().string;
 			
-            BinaryOp binaryOperator = null;
-            binaryOperator = IntegerBinaryOperatorHashMap.map.get(opstr);
-//			for (BinaryOperatorIF b: IntegerBinaryOperator.values()) {
-//				if (b.getSign().equals(opstr)) {
-//					binaryOperator = b;
-//					break;
-//				}
-//			}
+            BinaryOperatorIF binaryOperator = null;
+//            binaryOperator = IntegerBinaryOperatorHashMap.map.get(opstr);
+			for (BinaryOperatorIF b: IntegerBinaryOperator.values()) {
+				if (b.getSign().equals(opstr)) {
+					binaryOperator = b;
+					break;
+				}
+			}
 			if (binaryOperator == null) {
 				ls.unget();
 				break;
@@ -119,12 +119,12 @@ class Expr extends ASTList {
 		for (AST v: children) {
 			vals.add(((Value)v).eval(k+1, e));
 			if (count >= operators.size()) break;
-//			Debug.out.println(operators.get(count).getSign());
+			Debug.out.println(operators.get(count).getSign());
 			count++;
 		}
 		
-		ArrayList<BinaryOp> ops_cpy = new ArrayList<BinaryOp>(operators);
-		ArrayList<BinaryOp> ops_cpy2 = new ArrayList<BinaryOp>();
+		ArrayList<BinaryOperatorIF> ops_cpy = new ArrayList<BinaryOperatorIF>(operators);
+		ArrayList<BinaryOperatorIF> ops_cpy2 = new ArrayList<BinaryOperatorIF>();
 		ArrayList<Object> vals_ = new ArrayList<Object>();
 		
 		int max_level = 5;
@@ -134,14 +134,14 @@ class Expr extends ASTList {
 			
 			vals_.add(vals.get(0));
 			for (int i=0; i<ops_cpy.size(); i++) {
-				if (ops_cpy.get(i).level == il) {
-					vals_.add(ops_cpy.get(i).apply(vals_.remove(vals_.size()-1), vals.get(i+1)));
+				if (ops_cpy.get(i).getLevel() == il) {
+					vals_.add(ops_cpy.get(i).eval(vals_.remove(vals_.size()-1), vals.get(i+1)));
 				} else {
 					vals_.add(vals.get(i+1));
 					ops_cpy2.add(ops_cpy.get(i));
 				}
 			}
-			ops_cpy = new ArrayList<BinaryOp>(ops_cpy2);
+			ops_cpy = new ArrayList<BinaryOperatorIF>(ops_cpy2);
 			vals = new ArrayList<Object>(vals_);
 		}
 		return (Integer) vals.get(0);

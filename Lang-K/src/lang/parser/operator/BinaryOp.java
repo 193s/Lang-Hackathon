@@ -2,6 +2,7 @@ package lang.parser.operator;
 
 import java.util.function.BinaryOperator;
 
+@Deprecated
 public class BinaryOp<T> implements BinaryOperator<T> {
     public int level;
     private BinaryOperator<T> eval;

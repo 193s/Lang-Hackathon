@@ -16,6 +16,7 @@ import lang.parser.Parser;
 public class Interpreter {
 	
 	public static void main(String[] args) {
+	/* ========== 入力 ========== */
         Debug.out.println("input:");
 		String s = new String();
 		try {
@@ -38,6 +39,7 @@ public class Interpreter {
 			return;
 		}
 		
+		/* ========== 字句解析 ========== */
 		Token[] ls = Lexer.tokenize(s);		// 字句解析
 		if (ls == null) {
 			Debug.out.println("ERROR: tokenize failed!");
@@ -48,10 +50,11 @@ public class Interpreter {
 		for (Token t: ls) Debug.out.printf(" [ %s ]%n", t); // 字句解析の結果を出力
 		Debug.blank(3);
 		
-		
+		/* ========== 構文解析 ========== */
 		AST ast = Parser.parse(new TokenSet(ls));
 		Debug.blank(3);
 		
+		/* ========== 実行 ========== */
 		Environment e = new Environment();	// 環境
 		try {
 			Debug.out.println("--- RUNNING ---");
@@ -65,26 +68,12 @@ public class Interpreter {
             for (Entry<String, Integer> entry : e.hashMap.entrySet()) {
                 Debug.out.println(entry.getKey() +" : " + entry.getValue());
             }
-        }
+			Debug.blank();
+			Debug.out.println(ast.eval(0, e)); // 実行
+		}
 		catch (Exception ex) {
             Debug.out.println("RUNTIME ERROR:");
             ex.printStackTrace();
         }
-
-    }
-	/*	
-	 *	Number	::= '(' Expr ')' | NumberToken | Variable
-	 *	Expr ::= Number { BinaryOperator Number }
-	 *
-	 *	Assign	 ::= Variable '=' Statement
-	 *	
-	 *	Condition ::= Expr RelationalOperator Expr
-	 *	While	  ::= 'while' '(' Condition ')' '{' Program '}'
-	 *	If		  ::= 'if' '(' Condition ')' '{' Program '}'
-	 *
-	 *
-	 *	Statement ::= Assign | Expr | While | If
-	 *	Program   ::= Statement {';' Statement? }
-	 *
-	 */
+	}
 }
