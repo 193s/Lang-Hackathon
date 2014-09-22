@@ -2,7 +2,6 @@ package lang.parser.operator;
 import java.util.function.BinaryOperator;
 
 
-@Deprecated
 public enum RelationalBinaryOperator implements BinaryOperatorIF<Integer> {
 //    Equal	(0, "==", (left, right) -> left == right? 1: 0),
 //    MoreThan(0, '>',  (left, right) -> left >  right? 1: 0),

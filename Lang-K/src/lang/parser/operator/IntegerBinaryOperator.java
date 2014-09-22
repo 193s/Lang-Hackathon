@@ -1,7 +1,6 @@
 package lang.parser.operator;
 import java.util.function.BinaryOperator;
 
-@Deprecated
 public enum IntegerBinaryOperator implements BinaryOperatorIF<Integer> {
     Mod		(2, '%', (left, right) -> left % right),
     Plus	(1, '+', (left, right) -> left + right),
