@@ -1,24 +1,26 @@
-myLang
-==============
+# myLang
+A JVM-based scripting language.
 
-自作言語.
+## Lang-K
+A interpreter of 'myLang' written in Java.
 
+###### Example
+```
+a = 0,
+while (a < 10):
+    a = a+1
+;
+ 
+```
 
-Lang-K
---------------
-自作言語.
-名前は便宜的にLang-Kとしている.
-
-*例*
-`     a = 0
- while (a < 10):
-     a = a+1
- ;
- a`
-
+warning: 日本語が入ります.
 今のところif文とwhile文などが使える.
 
+## Lang-K-C#
+A implementation of myLang written in C#.
+Not supported.
 
-lexer
---------------
-古い字句解析器.
+## lexer
+A Lexical analyzer written in Java,
+and it doesn't use any Regular Expressions.
+
