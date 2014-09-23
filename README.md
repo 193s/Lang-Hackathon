@@ -13,14 +13,14 @@ while (a < 10):
  
 ```
 
-warning: 日本語が入ります.
+warning: 日本語が入ります.  
 今のところif文とwhile文などが使える.
 
-## Lang-K-C#
-A implementation of myLang written in C#.
+## Lang-K-C\#
+A implementation of myLang written in C#.  
 Not supported.
 
 ## lexer
-A Lexical analyzer written in Java,
+A Lexical analyzer written in Java,  
 and it doesn't use any Regular Expressions.
 
