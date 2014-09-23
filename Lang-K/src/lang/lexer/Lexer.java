@@ -1,13 +1,13 @@
 package lang.lexer;
-import lang.lexer.Token.*;
 import lang.util.Extension;
 
 import static lang.lexer.TokenKind.*;
+
 public class Lexer {
 	public static String[] reserved;
 	
 	static {
-		reserved = new String[] {"if","else", "while", "end"};
+		reserved = new String[] {"if","else", "while", "print"};
 	}
 	
 	// 字句解析器

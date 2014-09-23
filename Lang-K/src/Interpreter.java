@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Map.Entry;
 
 import lang.debug.Debug;
@@ -38,9 +37,9 @@ public class Interpreter {
 			Debug.out.println("ERROR: input string is empty.");
 			return;
 		}
-		
-		/* ========== 字句解析 ========== */
-		Token[] ls = Lexer.tokenize(s);		// 字句解析
+
+        /* ========== 字句解析 ========== */
+        Token[] ls = Lexer.tokenize(s);		// 字句解析
 		if (ls == null) {
 			Debug.out.println("ERROR: tokenize failed!");
 			return;

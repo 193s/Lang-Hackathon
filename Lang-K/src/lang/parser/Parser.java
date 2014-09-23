@@ -3,42 +3,38 @@ package lang.parser;
 import lang.debug.Debug;
 import lang.lexer.Token;
 import lang.lexer.TokenSet;
-import lang.parser.operator.BinaryOp;
 import lang.parser.operator.BinaryOperatorIF;
 import lang.parser.operator.IntegerBinaryOperator;
 
 import java.util.ArrayList;
 
 public class Parser {
-	static public AST parse(TokenSet ls) {
-		AST ast = new Program(ls);
-		if (ast.ok) {
-			Debug.out.println("--SUCCEED PARSING--");
-		}
-		else {
-	        Debug.out.println("ERROR: Parsing failed!");
-		}
+    // 構文解析
+    static public AST parse(TokenSet ls) {
+        AST ast = new Program(ls);
+        Debug.out.println( ast.succeed ?
+                "--SUCCEED PARSING--":
+                "ERROR: Parsing failed!" );
 		return ast;
 	}
 }
 
-class ASTList extends AST {
-	ArrayList<AST> children;
-	ASTList() {
-		children = new ArrayList<AST>();
-	}
+abstract class ASTList extends AST {
+	ArrayList<AST> children = new ArrayList<>();
 }
 
-class ASTLeaf extends AST { }
+abstract class ASTLeaf extends AST { }
 
-class Operator extends ASTLeaf {
+final class Operator extends ASTLeaf {
 	String string;
 	Operator(Token t) {
 		string = t.string;
 	}
-	Operator (String s) {
-		string = s;
-	}
+
+    @Override
+    public int eval(int k, Environment e) {
+        return 0;
+    }
 }
 
 class Variable extends ASTLeaf {
@@ -62,13 +58,7 @@ class Literal extends ASTLeaf {
 		Token t = ls.next();
 		value = Integer.parseInt(t.string);
 	}
-	Literal(Token token) {
-		value = Integer.parseInt(token.string);
-	}
-	Literal(String str) {
-		value = Integer.parseInt(str);
-	}
-	
+
 	@Override
 	public int eval(int k, Environment e) {
 		Debug.log(k, "Literal: " + value);
@@ -77,17 +67,15 @@ class Literal extends ASTLeaf {
 }
 
 class Expr extends ASTList {
-	ArrayList<BinaryOperatorIF> operators;
+	ArrayList<BinaryOperatorIF> operators = new ArrayList<>();
 	
 	Expr(TokenSet ls) {
-		operators = new ArrayList<BinaryOperatorIF>();
 		Value n = new Value(ls);
-		if (!n.ok) return;
-		children = new ArrayList<AST>();
+		if (!n.succeed) return;
 		children.add(n);
 		
 		while (ls.isOperator()) {
-			String opstr = ls.readOperator().string;
+			String opstr = ls.next().string;
 			
             BinaryOperatorIF binaryOperator = null;
 //            binaryOperator = IntegerBinaryOperatorHashMap.map.get(opstr);
@@ -104,28 +92,28 @@ class Expr extends ASTList {
 			operators.add(binaryOperator);
 			
 			Value n2 = new Value(ls);
-			if (!n2.ok) return;
+			if (!n2.succeed) return;
 			children.add(n2);
 		}
-		ok = true;
+		succeed = true;
 	}
 	
 	@Override
 	public int eval(int k, Environment e) {
 		Debug.log(k, "Expr");
-		ArrayList<Object> vals = new ArrayList<Object>();
+		ArrayList<Object> vals = new ArrayList<>();
 		
 		int count = 0;
 		for (AST v: children) {
-			vals.add(((Value)v).eval(k+1, e));
+			vals.add(v.eval(k + 1, e));
 			if (count >= operators.size()) break;
 			Debug.out.println(operators.get(count).getSign());
 			count++;
 		}
 		
-		ArrayList<BinaryOperatorIF> ops_cpy = new ArrayList<BinaryOperatorIF>(operators);
-		ArrayList<BinaryOperatorIF> ops_cpy2 = new ArrayList<BinaryOperatorIF>();
-		ArrayList<Object> vals_ = new ArrayList<Object>();
+		ArrayList<BinaryOperatorIF> ops_cpy = new ArrayList<>(operators);
+		ArrayList<BinaryOperatorIF> ops_cpy2 = new ArrayList<>();
+		ArrayList<Object> vals_ = new ArrayList<>();
 		
 		int max_level = 5;
 		for (int il=0; il<max_level; il++) {
@@ -141,8 +129,8 @@ class Expr extends ASTList {
 					ops_cpy2.add(ops_cpy.get(i));
 				}
 			}
-			ops_cpy = new ArrayList<BinaryOperatorIF>(ops_cpy2);
-			vals = new ArrayList<Object>(vals_);
+			ops_cpy = new ArrayList<>(ops_cpy2);
+			vals = new ArrayList<>(vals_);
 		}
 		return (Integer) vals.get(0);
 	}
@@ -156,7 +144,7 @@ class Value extends ASTList {
 			Debug.out.println("( expression )");
 			if (!ls.read("(")) return;
 			AST s = new Expr(ls);
-			if (!s.ok) return;
+			if (!s.succeed) return;
 			if (!ls.read(")")) return;
 			children.add(s);
 		}
@@ -176,7 +164,7 @@ class Value extends ASTList {
 		}
 		else return;
 		
-		ok = true;
+		succeed = true;
 	}
 	
 	@Override
@@ -193,11 +181,12 @@ class Statement extends ASTList {
 		AST child = 
 		  ls.isReserved("while")?	new While(ls)
 		: ls.isReserved("if")?		new If(ls)
+		: ls.isReserved("print")?	new Print(ls)
 		: ls.isName()?				new Assign(ls)
 		: 							new Expr(ls)
 		;
 		children.add(child);
-		ok = true;
+		succeed = true;
 	}
 
 	@Override
@@ -212,7 +201,7 @@ class Statement extends ASTList {
 class Program extends ASTList {
 	Program(TokenSet ls) {
 		AST s = new Statement(ls);
-		if (!s.ok) return;
+		if (!s.succeed) return;
 		children.add(s);
 
 		while (true) {
@@ -221,12 +210,12 @@ class Program extends ASTList {
 			Token operator = ls.next();
 			
 			AST right = new Statement(ls);
-			if (!right.ok) continue;
+			if (!right.succeed) continue;
 
 			children.add(new Operator(operator));
 			children.add(right);
 		}
-		ok = true;
+		succeed = true;
 	}
 	
 	@Override
@@ -244,6 +233,20 @@ class Program extends ASTList {
 	}
 }
 
+class Print extends ASTList {
+    Print(TokenSet ls) {
+        Debug.out.println("print");
+        ls.read("print");
+        AST ast = new Value(ls);
+        if (!ast.succeed) return;
+        children.add(ast);
+    }
+    @Override
+    public int eval(int k, Environment e) {
+        Debug.out.println(children.get(0).eval(k+1, e));
+        return 0;
+    }
+}
 
 class Assign extends ASTList {
 	Assign(TokenSet ls) {
@@ -256,19 +259,19 @@ class Assign extends ASTList {
 		if (!"=".equals(operator.string)) return;
 		
 		AST right = new Statement(ls);
-		if (!right.ok) return;
+		if (!right.succeed) return;
 		
 		children.add(left);
 		children.add(new Operator(operator));
 		children.add(right);
 
-		ok = true;
+		succeed = true;
 	}
 	
 	@Override
 	public int eval(int k, Environment e) {
 		Debug.log(k, "Assign");
-		int ret = ((Statement)children.get(2)).eval(k+1, e);
+		int ret = children.get(2).eval(k + 1, e);
 		// 代入
 		String identifier = ((Variable)children.get(0)).name;
 		e.hashMap.put(identifier, ret);
@@ -281,16 +284,16 @@ class Condition extends ASTList {
 	Condition(TokenSet ls) {
 		Debug.out.println("condition");
 		AST left = new Expr(ls);
-		if (!left.ok) return;
+		if (!left.succeed) return;
 		children.add(left);
 		
 		if (!ls.isMatch("==", ">", "<")) return;
 		children.add(new Operator(ls.next()));
 		AST right = new Expr(ls);
-		if (!right.ok) return;
+		if (!right.succeed) return;
 		children.add(right);
 		
-		ok = true;
+		succeed = true;
 	}
 	
 	@Override
@@ -316,13 +319,13 @@ class While extends ASTList {
 		Debug.out.println("while");
 		if (!ls.read("while", "(")) return;
 		AST condition = new Condition(ls);
-		if (!condition.ok) return;
+		if (!condition.succeed) return;
 		if (!ls.read(")")) return;
 		AST block = new Block(ls);
 
 		children.add(condition);
 		children.add(block);
-		ok = true;
+		succeed = true;
 	}
 	
 	@Override
@@ -341,18 +344,18 @@ class While extends ASTList {
 }
 class Block extends ASTList {
 	Block(TokenSet ls) {
-	Debug.out.println("block");
+	    Debug.out.println("block");
 		if (!ls.read(":")) return;
 		AST program = new Program(ls);
 		if (!ls.read(";")) return;
 		children.add(program);
-		ok = true;
+		succeed = true;
 	}
 	
 	@Override
 	public int eval(int k, Environment e) {
 		Debug.log(k, "block");
-		return children.get(0).eval(k+1, e);
+		return children.get(0).eval(k + 1, e);
 	}
 }
 
@@ -362,13 +365,13 @@ class If extends ASTList {
 		if (!ls.read("if", "(")) return;
 		
 		AST condition = new Condition(ls);
-		if (!condition.ok) return;
+		if (!condition.succeed) return;
 		if (!ls.read(")")) return;
 		AST block = new Block(ls);
 		
 		children.add(condition);
 		children.add(block);
-		ok = true;
+		succeed = true;
 		}
 	
 	@Override
