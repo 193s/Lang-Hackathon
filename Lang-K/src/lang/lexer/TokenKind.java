@@ -6,3 +6,4 @@ public enum TokenKind {
 	Identifier,
 	Operator,
 }
+
