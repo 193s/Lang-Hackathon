@@ -4,11 +4,13 @@ A JVM-based scripting language.
 ## Lang-K
 A interpreter of 'myLang' written in Java.
   
-## Lang-K-C\# 
+### Lang-K-C\# 
 A implementation of myLang written in C#.  
 Not supported.
   
 ******
+
+# Language Documentation
   
 ###### Example
 ```
@@ -23,12 +25,12 @@ while (a < 10):
 ### Comment
 ##### Single-line comment  
 ```
-\# comment
+# comment
 ``` 
   
 ##### Multi-line comment  
 ```
-\#-- comment
+#-- comment
 comment*
 --#
 ```
