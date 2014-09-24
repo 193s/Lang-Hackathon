@@ -1,6 +1,4 @@
-package lang.lexer;
-
-import java.io.EOFException;
+package lang.token;
 
 
 public class TokenSet {
@@ -21,9 +19,6 @@ public class TokenSet {
 	}
 	public Token next() {
 		return list[offset++];
-	}
-	private Token getNext() {
-		return list[offset+1];
 	}
 	public Token get() {
 		return list[offset];
@@ -70,7 +65,7 @@ public class TokenSet {
 	
 	
 	public boolean isOperator() {
-		return isEOF()? false : get().kind == TokenKind.Operator;
+		return isEOF()? false : get().kind == TokenKind.Operator1;
 	}
 	
 	public boolean isOperator(String str) {
