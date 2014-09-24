@@ -20,7 +20,7 @@ public class Lexer implements ILexer {
 		Token[] ret = new Token[m.length];
 		for (int i=0; i<m.length; i++) {
 			if		(m[i][2] != null) ret[i] = new Token(m[i][2], Reserved);
-			else if	(m[i][3] != null) ret[i] = new Token(m[i][3], Operator1);
+			else if	(m[i][3] != null) ret[i] = new Token(m[i][3], Operator);
 			else if (m[i][4] != null) ret[i] = new Token(m[i][4], Literal);
 			else if (m[i][5] != null) ret[i] = new Token(m[i][5], Identifier);
 		}

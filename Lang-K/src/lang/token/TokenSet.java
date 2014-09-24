@@ -23,7 +23,11 @@ public class TokenSet {
 	public Token get() {
 		return list[offset];
 	}
-	
+
+    public boolean is(String s) {
+        return s.equals(get().string);
+    }
+
 	public boolean isEOF() {
 		return offset >= length;
 	}
@@ -46,49 +50,32 @@ public class TokenSet {
 	public boolean isName() {
 		return isEOF()? false : get().kind == TokenKind.Identifier;
 	}
-	
-	@Deprecated
-	public Token readName() {
-		return isName()? next() : null;
-	}
-	
-	
+
 	public boolean isNumber() {
 		return isEOF()? false : get().kind == TokenKind.Literal;
 	}
-	
-	@Deprecated
-	public Token readNumber() {
-		return isNumber()? next() : null;
-	}
-	
-	
-	
+
+
+    public boolean isSymbol() {
+        return isEOF()? false : get().kind == TokenKind.Symbol;
+    }
+    public boolean isSymbol(SymbolKind kind) {
+        return isSymbol() && is(String.valueOf(kind.charactor));
+    }
+
 	public boolean isOperator() {
-		return isEOF()? false : get().kind == TokenKind.Operator1;
+		return isEOF()? false : get().kind == TokenKind.Operator;
 	}
 	
 	public boolean isOperator(String str) {
 		return isOperator() && isMatch(str);
 	}
-	
-	@Deprecated
-	public Token readOperator() {
-		return isOperator()? next() : null;
-	}
-	
-	
-	
+
 	public boolean isReserved() {
 		return isEOF()? false : get().kind == TokenKind.Reserved;
 	}
 	
 	public boolean isReserved(String str) {
 		return isReserved() && str.equals(get().string);
-	}
-	
-	@Deprecated
-	public Token readReserved() {
-		return isReserved()? next() : null;
 	}
 }

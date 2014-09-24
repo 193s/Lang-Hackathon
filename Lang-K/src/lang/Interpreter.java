@@ -7,23 +7,24 @@ import java.util.Map.Entry;
 
 import lang.debug.Debug;
 import lang.lexer.ILexer;
-import lang.lexer.LegacyLexer;
-import lang.lexer.Lexer;
-import lang.parser.operator.IParser;
+import lang.lexer.NewLexer;
+import lang.parser.IParser;
 import lang.token.Token;
 import lang.token.TokenSet;
 import lang.parser.AST;
 import lang.parser.Environment;
 import lang.parser.Parser;
 
+import static lang.debug.Debug.blank;
+
 
 public class Interpreter {
 	
 	public static void main(String[] args) {
-	/* ========== 入力 ========== */
+	/* ========== Input ========== */
         Debug.out.println("input:");
 		String s = new String();
-		try {
+        try {
 			InputStreamReader isr = new InputStreamReader(System.in);
 			BufferedReader br = new BufferedReader(isr);
             String input;
@@ -34,7 +35,7 @@ public class Interpreter {
 			while (!input.isEmpty());
 		}
 		catch (IOException e) {
-			Debug.blank();
+			blank();
 			Debug.out.println("ERROR: IOException");
 		}
         finally {
@@ -45,8 +46,8 @@ public class Interpreter {
         }
 
 
-    /* ========== 字句解析 ========== */
-        ILexer lexer = new Lexer();
+    /* ========== Lexical Analyze ========== */
+        ILexer lexer = new NewLexer();
         Token[] ls = lexer.tokenize(s);
 		if (ls == null) {
 			Debug.out.println("ERROR: tokenize failed!");
@@ -56,31 +57,35 @@ public class Interpreter {
             Debug.out.println("--SUCCEED TOKENIZE--");
         }
 		
-		for (Token t: ls) Debug.out.printf(" [ %s ]%n", t); // 字句解析の結果を出力
-		Debug.blank(3);
+		for (Token t: ls) Debug.out.printf(" | %s%n", t); // 字句解析の結果を出力
+		Debug.out.printf("%s Tokens.%n", ls.length);
+        blank(3);
 
-	/* ========== 構文解析 ========== */
+
+
+	/* ========== Parse ========== */
         IParser parser = new Parser();
 		AST ast = parser.parse(new TokenSet(ls));
-		Debug.blank(3);
-		
-    /* ========== 実行 ========== */
-		Environment e = new Environment();	// 環境
+		blank(3);
+
+
+    /* ========== Interpret ========== */
+		Environment e = new Environment();
 		try {
 			Debug.out.println("--- RUNNING ---");
-            Debug.blank();
-            Debug.out.println(ast.eval(0, e)); // 実行
+            blank();
+            // Interpret
+            Debug.out.println(ast.eval(0, e));
 
-            Debug.blank(2);
+            blank(2);
 
-            // Environmentに保存されている変数を列挙
+            // print all variables in Environment.
             Debug.out.println("Environment:");
             for (Entry<String, Integer> entry : e.hashMap.entrySet()) {
                 Debug.out.println(entry.getKey() +" : " + entry.getValue());
             }
-			Debug.blank();
-			Debug.out.println(ast.eval(0, e)); // 実行
-		}
+            blank();
+        }
 		catch (Exception ex) {
             Debug.out.println("RUNTIME ERROR:");
             ex.printStackTrace();

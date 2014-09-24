@@ -1,4 +1,4 @@
-package lang.parser.operator;
+package lang.parser;
 
 import lang.parser.AST;
 import lang.token.TokenSet;
