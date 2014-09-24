@@ -1,12 +1,17 @@
+package lang;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Map.Entry;
 
 import lang.debug.Debug;
+import lang.lexer.ILexer;
+import lang.lexer.LegacyLexer;
 import lang.lexer.Lexer;
-import lang.lexer.Token;
-import lang.lexer.TokenSet;
+import lang.parser.operator.IParser;
+import lang.token.Token;
+import lang.token.TokenSet;
 import lang.parser.AST;
 import lang.parser.Environment;
 import lang.parser.Parser;
@@ -32,28 +37,34 @@ public class Interpreter {
 			Debug.blank();
 			Debug.out.println("ERROR: IOException");
 		}
-		
-		if ("\n".equals(s)) {
-			Debug.out.println("ERROR: input string is empty.");
-			return;
-		}
+        finally {
+            if ("\n".equals(s)) {
+                Debug.out.println("ERROR: input string is empty.");
+                return;
+            }
+        }
 
-        /* ========== 字句解析 ========== */
-        Token[] ls = Lexer.tokenize(s);		// 字句解析
+
+    /* ========== 字句解析 ========== */
+        ILexer lexer = new Lexer();
+        Token[] ls = lexer.tokenize(s);
 		if (ls == null) {
 			Debug.out.println("ERROR: tokenize failed!");
 			return;
 		}
-		else Debug.out.println("--SUCCEED TOKENIZING--");
+		else {
+            Debug.out.println("--SUCCEED TOKENIZE--");
+        }
 		
 		for (Token t: ls) Debug.out.printf(" [ %s ]%n", t); // 字句解析の結果を出力
 		Debug.blank(3);
-		
-		/* ========== 構文解析 ========== */
-		AST ast = Parser.parse(new TokenSet(ls));
+
+	/* ========== 構文解析 ========== */
+        IParser parser = new Parser();
+		AST ast = parser.parse(new TokenSet(ls));
 		Debug.blank(3);
 		
-		/* ========== 実行 ========== */
+    /* ========== 実行 ========== */
 		Environment e = new Environment();	// 環境
 		try {
 			Debug.out.println("--- RUNNING ---");
@@ -73,6 +84,9 @@ public class Interpreter {
 		catch (Exception ex) {
             Debug.out.println("RUNTIME ERROR:");
             ex.printStackTrace();
+        }
+        finally {
+            Debug.out.println("Process finished.");
         }
 	}
 }

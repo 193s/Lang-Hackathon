@@ -1,16 +1,17 @@
 package lang.parser;
 
 import lang.debug.Debug;
-import lang.lexer.Token;
-import lang.lexer.TokenSet;
+import lang.parser.operator.IParser;
+import lang.token.Token;
+import lang.token.TokenSet;
 import lang.parser.operator.BinaryOperatorIF;
 import lang.parser.operator.IntegerBinaryOperator;
 
 import java.util.ArrayList;
 
-public class Parser {
+public class Parser implements IParser {
     // 構文解析
-    static public AST parse(TokenSet ls) {
+    public AST parse(TokenSet ls) {
         AST ast = new Program(ls);
         Debug.out.println( ast.succeed ?
                 "--SUCCEED PARSING--":
