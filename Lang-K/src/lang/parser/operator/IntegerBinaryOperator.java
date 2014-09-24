@@ -5,7 +5,7 @@ public enum IntegerBinaryOperator implements BinaryOperatorIF<Integer> {
     Mod		(2, '%', (left, right) -> left % right),
     Plus	(1, '+', (left, right) -> left + right),
     Minus	(1, '-', (left ,right) -> left - right),
-    Mult	(0, '*', (left, right) -> left * right),
+    Multiple(0, '*', (left, right) -> left * right),
     Div		(0, '/', (left, right) -> left / right),
     ;
 
@@ -24,8 +24,8 @@ public enum IntegerBinaryOperator implements BinaryOperatorIF<Integer> {
         this.eval = function;
     }
 
-    @Override public Integer eval(Integer left, Integer right) {
-        return eval.apply(left, right);
+    @Override public Integer eval(Integer a, Integer b) {
+        return eval.apply(a, b);
     }
     @Override public int getLevel() {
         return level;

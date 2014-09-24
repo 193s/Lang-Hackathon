@@ -1,7 +1,6 @@
 package lang.parser;
 
 import lang.debug.Debug;
-import lang.parser.operator.IParser;
 import lang.token.Token;
 import lang.token.TokenSet;
 import lang.parser.operator.BinaryOperatorIF;
@@ -24,7 +23,12 @@ abstract class ASTList extends AST {
 	ArrayList<AST> children = new ArrayList<>();
 }
 
-abstract class ASTLeaf extends AST { }
+abstract class ASTLeaf extends AST {
+    @Override
+    public int eval(int k, Environment e) {
+        return 0;
+    }
+}
 
 final class Operator extends ASTLeaf {
 	String string;
@@ -141,7 +145,7 @@ class Value extends ASTList {
 	Value(TokenSet ls) {
 		Debug.out.println("num");
 		// ( Expression )
-		if (ls.isOperator()) {
+		if (ls.isSymbol()) {
 			Debug.out.println("( expression )");
 			if (!ls.read("(")) return;
 			AST s = new Expr(ls);
@@ -180,11 +184,11 @@ class Value extends ASTList {
 class Statement extends ASTList {
 	Statement(TokenSet ls) {
 		AST child = 
-		  ls.isReserved("while")?	new While(ls)
-		: ls.isReserved("if")?		new If(ls)
-		: ls.isReserved("print")?	new Print(ls)
-		: ls.isName()?				new Assign(ls)
-		: 							new Expr(ls)
+		  ls.is("while")?	new While(ls)
+		: ls.is("if")?		new If(ls)
+		: ls.is("print")?	new Print(ls)
+		: ls.isName()?		new Assign(ls)
+		: 					new Expr(ls)
 		;
 		children.add(child);
 		succeed = true;

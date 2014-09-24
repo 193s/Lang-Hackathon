@@ -1,25 +1,19 @@
 package lang.lexer;
 import java.util.ArrayList;
 
-import lang.debug.Debug;
-import lang.token.Token;
-import lang.token.TokenKind;
-import lang.token.OperatorSign;
-import lang.token.ReservedKind;
+import lang.token.*;
 
 import static lang.token.TokenKind.*;
 
-public class LegacyLexer implements ILexer {
+public class NewLexer implements ILexer {
     @Override
 	public Token[] tokenize(String input) {
-        Debug.out.println("tokenize(string input) -> Token[]:");
-        Debug.out.println(input);
 		ArrayList<Token> ls = new ArrayList<>();
 		int offset = 0;
 		while (offset < input.length()) {
 			Token t = getToken(input, offset);
 			if (t == null) break;
-			// 空白・コメントなら読み飛ばす
+			// Skip if it's space or comment.
 			TokenKind kind = t.kind;
 			if (kind != Space &&
 				kind != OneLineComment &&
@@ -27,13 +21,7 @@ public class LegacyLexer implements ILexer {
 				ls.add(t);
 			offset += t.string.length();
 		}
-        try {
-            return (Token[]) ls.toArray();
-        }
-        catch (ClassCastException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return ls.toArray(new Token[ls.size()]);
 	}
 	
 	
@@ -42,12 +30,12 @@ public class LegacyLexer implements ILexer {
 		if (s.isEmpty()) return null;
 		char c = s.charAt(0);
 		
-		// コメント
+		// Comment
 		if (c == '#') {
 			String comment = "#";
 			String sr = take(str, offset + 1, 2);
 			if (sr.equals("--")) {
-				// 複数行コメント (#-- comment --#)
+				// Multi line comment (#-- comment --#)
 				comment += "--";
 				for (int i=3; ; i++) {
 					String string = take(str, offset + i, 3);
@@ -57,7 +45,7 @@ public class LegacyLexer implements ILexer {
 				}
 			}
 			else {
-				// 一行コメント (# comment)
+				// One line comment (# comment)
 				for (int i=1; ; i++) {
 					String string = take(str, offset + i, 1);
 					comment += string;
@@ -67,49 +55,39 @@ public class LegacyLexer implements ILexer {
 			}
 		}
 		
-		else if (c == ' ' || c == '\t' || c == '\n') return new Token(c, Space);
-		else if (c == '[')  return new Token(c, LeftBracket);
-		else if (c == ']')  return new Token(c, RightBracket);
-		else if (c == '(')  return new Token(c, LeftParentheses);
-		else if (c == ')')  return new Token(c, RightParentheses);
-		else if (c == '{')  return new Token(c, LeftBrace);
-		else if (c == '}')  return new Token(c, RightBrace);
-		else if (c == '\'')	return new Token(c, Quotation);
-		else if (c == '\"')	return new Token(c, DoubleQuotation);
-		
+		else if (c == ' ' || c == '\t' || c == '\n')
+            return new Token(c, Space);
+
+        else if (isSymbol(c)) return new Token(c, Symbol);
+
 		else if (isAlpha(c)) {
 			String ident = c + takeWhileIdent(str, offset + 1);
 			if (isReserved(ident))
-				return new Token(ident, Reserved);	// 予約語
+				return new Token(ident, Reserved);	// Reserved
 			else if (ident.equals("true"))
 				return new Token(ident, True);		// true
 			else if (ident.equals("false"))
 				return new Token(ident, False);		// false
-			else if (ident.equals("null"))
-				return new Token(ident, Null);		// null
 			else
-				return new Token(ident, Identifier);// 識別子
+				return new Token(ident, Identifier);// Identifier
 		}
-		// 整数リテラル
+
+		// Integer Literal
 		else if (isNum(c)) {
 			String ident = c + takeWhileIdent(str, offset + 1);
 			return new Token(ident, Literal);
 		}
-		// 演算子 ($ + 識別子)
-		else if (c == '$') {
-			String ident;
-			ident = c + takeWhileIdent(str, offset + 1);
-			return new Token(ident, Operator2);
-		}
-		// 演算子
+
+		// Operator
 		else if (isOperatorSign(c)) {
 			String ident;
 			ident = c + takeWhileOperatorSign(str, offset + 1);
-			return new Token(ident, Operator1);
+			return new Token(ident, Operator);
 		}
-		// 未定義のトークン
+
+		// Undefined Token
 		else {
-			return new Token(c, Undefined);
+            return null;
 		}
 	}
 	
@@ -163,6 +141,12 @@ public class LegacyLexer implements ILexer {
 			if (str.equals(r.toString())) return true;
 		return false;
 	}
+    private static boolean isSymbol(char c) {
+        for (SymbolKind s : SymbolKind.values()) {
+            if (c == s.charactor) return true;
+        }
+        return false;
+    }
 	
 	private static boolean isAlphaNum(char c) {
 		return isAlpha(c) || isNum(c);
