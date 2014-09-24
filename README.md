@@ -8,7 +8,7 @@ A interpreter of 'myLang' written in Java.
 A implementation of myLang written in C#.  
 Not supported.
   
-  
+******
   
 ###### Example
 ```
@@ -21,12 +21,12 @@ while (a < 10):
   
   
 ### Comment
-1. Single-line comment  
+##### Single-line comment  
 ```
 \# comment
 ``` 
   
-2. Multi-line comment  
+##### Multi-line comment  
 ```
 \#-- comment
 comment*
