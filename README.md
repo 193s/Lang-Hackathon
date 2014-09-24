@@ -13,8 +13,7 @@ while (a < 10):
  
 ```
 
-warning: 日本語が入ります.  
-今のところif文とwhile文などが使える.
+Now you can use if statement, while statement and more.
 
 ## Lang-K-C\#*
 A implementation of myLang written in C#.  
