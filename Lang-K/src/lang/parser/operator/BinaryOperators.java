@@ -3,29 +3,30 @@ import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 
 public enum BinaryOperators {
-    Mod      (2, '%', (left, right) -> left % right),
-    Plus     (1, '+', (left, right) -> left + right),
-    Minus    (1, '-', (left, right) -> left - right),
-    Multiple (0, '*', (left, right) -> left * right),
-    Div      (0, '/', (left, right) -> left / right),
-    Equal    (3, "==", (left, right) -> left == right ? 1 : 0),
-    MoreThan (3, '>', (left, right) -> left > right ? 1 : 0),
-    LessThan (3, '<', (left, right) -> left < right ? 1 : 0),;
+    Multiple (0, "*", (a, b) -> a * b),
+    Div      (0, "/", (a, b) -> a / b),
+    Plus     (1, "+", (a, b) -> a + b),
+    Minus    (1, "-", (a, b) -> a - b),
+    Mod      (2, "%", (a, b) -> a % b),
+    Equal    (3, "==",(a, b) -> a == b? 1 : 0),
+    MoreThan (3, ">", (a, b) -> a > b ? 1 : 0),
+    LessThan (3, "<", (a, b) -> a < b ? 1 : 0),
+    ;
+
 
     public static int maxLevel = 5;
     public int level;
     public BiFunction eval;
     public String string;
 
-    private BinaryOperators(int level, String sign, BinaryOperator<Integer> function) {
+
+    private void init(int level, String string, BiFunction func) {
         this.level = level;
-        this.string = sign;
-        this.eval = function;
+        this.string = string;
+        eval = func;
     }
 
-    private BinaryOperators(int level, char sign, BinaryOperator<Integer> function) {
-        this.level = level;
-        this.string = String.valueOf(sign);
-        this.eval = function;
+    private BinaryOperators(int level, String sign, BinaryOperator<Integer> func) {
+        init(level, sign, (BiFunction)func);
     }
 }

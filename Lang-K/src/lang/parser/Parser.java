@@ -91,25 +91,12 @@ class Expr extends ASTList {
 		children.add(n);
 
 		while (ls.isOperator()) {
-//			String opstr = ls.next().string;
             Operator op = new Operator(ls.next());
-//            IBinaryOperator binaryOperator = null;
-//
-//			for (IBinaryOperator b: BinaryOperators.values()) {
-//				if (b.getSign().equals(opstr)) {
-//					binaryOperator = b;
-//					break;
-//				}
-//			}
-//			if (binaryOperator == null) {
-//				ls.unget();
-//				break;
-//			}
-//			operators.add(binaryOperator);
-			operators.add(op);
 			Value n2 = new Value(ls);
-			if (!n2.succeed) return;
-			children.add(n2);
+            if (!n2.succeed) return;
+
+            operators.add(op);
+            children.add(n2);
 		}
 		succeed = true;
 	}
@@ -126,7 +113,7 @@ class Expr extends ASTList {
 			Debug.out.println(operators.get(count).string);
 			count++;
 		}
-		
+
 		ArrayList<Operator> ops_cpy = new ArrayList<>(operators);
 		ArrayList<Operator> ops_cpy2 = new ArrayList<>();
 		ArrayList<Object> vals_ = new ArrayList<>();
@@ -155,7 +142,7 @@ class Value extends ASTList {
 	Value(TokenSet ls) {
 		Debug.out.println("num");
 		// ( Expression )
-		if (ls.isSymbol()) {
+		if (ls.is("(")) {
 			Debug.out.println("( expression )");
 			if (!ls.read("(")) return;
 			AST s = new Expr(ls);
@@ -222,7 +209,7 @@ class Program extends ASTList {
 
 		while (true) {
 			if (ls.isEOF()) break;
-			if (!ls.isMatch(",")) break;
+			if (!ls.is(",")) break;
 			Token operator = ls.next();
 			
 			AST right = new Statement(ls);
@@ -254,7 +241,7 @@ class Print extends ASTList {
     Print(TokenSet ls) {
         Debug.out.println("print");
         ls.read("print");
-        AST ast = new Value(ls);
+        AST ast = new Expr(ls);
         if (!ast.succeed) return;
         children.add(ast);
     }
