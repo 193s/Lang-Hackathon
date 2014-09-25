@@ -4,7 +4,8 @@ import lang.util.Extension;
 
 import static lang.token.TokenKind.*;
 
-public class Lexer implements ILexer {
+@Deprecated
+public class LegacyLexer implements ILexer {
 	private static String[] reserved
             = new String[] {"if","else", "while", "print"};
 

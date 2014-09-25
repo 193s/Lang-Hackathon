@@ -70,7 +70,7 @@ public class Interpreter {
 
 
     /* ========== Interpret ========== */
-		Environment e = new Environment();
+		Environment e = new Environment(null);
 		try {
 			Debug.out.println("--- RUNNING ---");
             blank();
@@ -81,8 +81,9 @@ public class Interpreter {
 
             // print all variables in Environment.
             Debug.out.println("Environment:");
-            for (Entry<String, Integer> entry : e.hashMap.entrySet()) {
-                Debug.out.println(entry.getKey() +" : " + entry.getValue());
+            for (Entry<String, Object> entry : e.map.entrySet()) {
+                Debug.out.println(entry.getKey() +
+                                 " : " + entry.getValue());
             }
             blank();
         }

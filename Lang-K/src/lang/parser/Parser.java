@@ -61,7 +61,7 @@ class Variable extends ASTLeaf {
 
 	@Override
 	public int eval(int k, Environment e) {
-		Integer v = e.hashMap.get(name);
+		Integer v = (Integer) e.get(name);
 		int value = (v == null)? 0: v;
 		Debug.log(k, "Variable : " + name + '(' + value + ')');
 		return value;
@@ -144,7 +144,7 @@ class Value extends ASTList {
 		// ( Expression )
 		if (ls.is("(")) {
 			Debug.out.println("( expression )");
-			if (!ls.read("(")) return;
+			ls.read("(");
 			AST s = new Expr(ls);
 			if (!s.succeed) return;
 			if (!ls.read(")")) return;
@@ -160,8 +160,8 @@ class Value extends ASTList {
 		// Variable
 		else if (ls.isName()) {
 			Debug.out.println("variable");
-			String ident = ls.next().string;
-			Variable v = new Variable(ident);
+			String id = ls.next().string;
+			Variable v = new Variable(id);
 			children.add(v);
 		}
 		else return;
@@ -278,7 +278,7 @@ class Assign extends ASTList {
 		int ret = children.get(2).eval(k + 1, e);
 		// 代入
 		String identifier = ((Variable)children.get(0)).name;
-		e.hashMap.put(identifier, ret);
+		e.map.put(identifier, ret);
 		return ret;
 	}
 }
