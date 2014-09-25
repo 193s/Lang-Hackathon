@@ -1,10 +1,10 @@
 package lang.parser;
 
 import lang.debug.Debug;
+import lang.parser.operator.BinaryOperators;
+import lang.parser.operator.IBinaryOperator;
 import lang.token.Token;
 import lang.token.TokenSet;
-import lang.parser.operator.BinaryOperatorIF;
-import lang.parser.operator.IntegerBinaryOperator;
 
 import java.util.ArrayList;
 
@@ -72,7 +72,7 @@ class Literal extends ASTLeaf {
 }
 
 class Expr extends ASTList {
-	ArrayList<BinaryOperatorIF> operators = new ArrayList<>();
+	ArrayList<IBinaryOperator> operators = new ArrayList<>();
 	
 	Expr(TokenSet ls) {
 		Value n = new Value(ls);
@@ -82,9 +82,9 @@ class Expr extends ASTList {
 		while (ls.isOperator()) {
 			String opstr = ls.next().string;
 			
-            BinaryOperatorIF binaryOperator = null;
+            IBinaryOperator binaryOperator = null;
 //            binaryOperator = IntegerBinaryOperatorHashMap.map.get(opstr);
-			for (BinaryOperatorIF b: IntegerBinaryOperator.values()) {
+			for (IBinaryOperator b: BinaryOperators.values()) {
 				if (b.getSign().equals(opstr)) {
 					binaryOperator = b;
 					break;
@@ -116,12 +116,11 @@ class Expr extends ASTList {
 			count++;
 		}
 		
-		ArrayList<BinaryOperatorIF> ops_cpy = new ArrayList<>(operators);
-		ArrayList<BinaryOperatorIF> ops_cpy2 = new ArrayList<>();
+		ArrayList<IBinaryOperator> ops_cpy = new ArrayList<>(operators);
+		ArrayList<IBinaryOperator> ops_cpy2 = new ArrayList<>();
 		ArrayList<Object> vals_ = new ArrayList<>();
 		
-		int max_level = 5;
-		for (int il=0; il<max_level; il++) {
+		for (int il=0; il<BinaryOperators.maxLevel; il++) {
 			ops_cpy2.clear();
 			vals_.clear();
 			
@@ -205,7 +204,8 @@ class Statement extends ASTList {
 
 class Program extends ASTList {
 	Program(TokenSet ls) {
-		AST s = new Statement(ls);
+		Debug.out.println("program");
+        AST s = new Statement(ls);
 		if (!s.succeed) return;
 		children.add(s);
 
@@ -229,7 +229,8 @@ class Program extends ASTList {
 		int ret = children.get(0).eval(k+1, e);
 		
 		for (int i=1; i<children.size(); i++) {
-			if (children.get(i) instanceof Statement) ret = children.get(i).eval(k+1, e);
+			if (children.get(i) instanceof Statement)
+                ret = children.get(i).eval(k+1, e);
 			else {
 				Debug.log(k, ((Operator)children.get(i)).string);
 			}
@@ -288,33 +289,16 @@ class Assign extends ASTList {
 class Condition extends ASTList {
 	Condition(TokenSet ls) {
 		Debug.out.println("condition");
-		AST left = new Expr(ls);
-		if (!left.succeed) return;
-		children.add(left);
-		
-		if (!ls.isMatch("==", ">", "<")) return;
-		children.add(new Operator(ls.next()));
-		AST right = new Expr(ls);
-		if (!right.succeed) return;
-		children.add(right);
-		
+		AST expr = new Expr(ls);
+		if (!expr.succeed) return;
+		children.add(expr);
 		succeed = true;
 	}
-	
+
 	@Override
 	public int eval(int k, Environment e) {
-		String op = ((Operator) children.get(1)).string;
-		Debug.log(k, "Condition" + op);
-		
-		int left = children.get(0).eval(k+1, e);
-		int right = children.get(2).eval(k+1, e);
-		
-		int ret = 0;
-		if		(">".equals(op))  ret = left > right ? 1:0;
-		else if ("==".equals(op)) ret = left == right? 1:0;
-		else if ("<".equals(op))  ret = left < right ? 1:0;
-		
-		return ret;
+		Debug.log(k, "Condition");
+		return children.get(0).eval(k + 1, e);
 	}
 }
 
