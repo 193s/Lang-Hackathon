@@ -1,12 +1,13 @@
 package lang.parser;
 
+import lang.debug.Console;
 import lang.debug.Debug;
 import lang.parser.operator.BinaryOperators;
-import lang.parser.operator.IBinaryOperator;
 import lang.token.Token;
 import lang.token.TokenSet;
 
 import java.util.ArrayList;
+import java.util.function.BiFunction;
 
 public class Parser implements IParser {
     // 構文解析
@@ -32,9 +33,19 @@ abstract class ASTLeaf extends AST {
 
 final class Operator extends ASTLeaf {
 	String string;
+    int level;
+    BiFunction eval;
 	Operator(Token t) {
 		string = t.string;
-	}
+
+        for (BinaryOperators b : BinaryOperators.values()) {
+            if (string.equals(b.string)) {
+                level = b.level;
+                eval = b.eval;
+                break;
+            }
+        }
+    }
 
     @Override
     public int eval(int k, Environment e) {
@@ -72,30 +83,30 @@ class Literal extends ASTLeaf {
 }
 
 class Expr extends ASTList {
-	ArrayList<IBinaryOperator> operators = new ArrayList<>();
-	
+	ArrayList<Operator> operators = new ArrayList<>();
+
 	Expr(TokenSet ls) {
 		Value n = new Value(ls);
 		if (!n.succeed) return;
 		children.add(n);
-		
+
 		while (ls.isOperator()) {
-			String opstr = ls.next().string;
-			
-            IBinaryOperator binaryOperator = null;
-//            binaryOperator = IntegerBinaryOperatorHashMap.map.get(opstr);
-			for (IBinaryOperator b: BinaryOperators.values()) {
-				if (b.getSign().equals(opstr)) {
-					binaryOperator = b;
-					break;
-				}
-			}
-			if (binaryOperator == null) {
-				ls.unget();
-				break;
-			}
-			operators.add(binaryOperator);
-			
+//			String opstr = ls.next().string;
+            Operator op = new Operator(ls.next());
+//            IBinaryOperator binaryOperator = null;
+//
+//			for (IBinaryOperator b: BinaryOperators.values()) {
+//				if (b.getSign().equals(opstr)) {
+//					binaryOperator = b;
+//					break;
+//				}
+//			}
+//			if (binaryOperator == null) {
+//				ls.unget();
+//				break;
+//			}
+//			operators.add(binaryOperator);
+			operators.add(op);
 			Value n2 = new Value(ls);
 			if (!n2.succeed) return;
 			children.add(n2);
@@ -112,12 +123,12 @@ class Expr extends ASTList {
 		for (AST v: children) {
 			vals.add(v.eval(k + 1, e));
 			if (count >= operators.size()) break;
-			Debug.out.println(operators.get(count).getSign());
+			Debug.out.println(operators.get(count).string);
 			count++;
 		}
 		
-		ArrayList<IBinaryOperator> ops_cpy = new ArrayList<>(operators);
-		ArrayList<IBinaryOperator> ops_cpy2 = new ArrayList<>();
+		ArrayList<Operator> ops_cpy = new ArrayList<>(operators);
+		ArrayList<Operator> ops_cpy2 = new ArrayList<>();
 		ArrayList<Object> vals_ = new ArrayList<>();
 		
 		for (int il=0; il<BinaryOperators.maxLevel; il++) {
@@ -126,8 +137,8 @@ class Expr extends ASTList {
 			
 			vals_.add(vals.get(0));
 			for (int i=0; i<ops_cpy.size(); i++) {
-				if (ops_cpy.get(i).getLevel() == il) {
-					vals_.add(ops_cpy.get(i).eval(vals_.remove(vals_.size()-1), vals.get(i+1)));
+				if (ops_cpy.get(i).level == il) {
+					vals_.add(ops_cpy.get(i).eval.apply(vals_.remove(vals_.size()-1), vals.get(i+1)));
 				} else {
 					vals_.add(vals.get(i+1));
 					ops_cpy2.add(ops_cpy.get(i));
@@ -249,7 +260,7 @@ class Print extends ASTList {
     }
     @Override
     public int eval(int k, Environment e) {
-        Debug.out.println(children.get(0).eval(k+1, e));
+        Console.out.println(children.get(0).eval(k + 1, e));
         return 0;
     }
 }

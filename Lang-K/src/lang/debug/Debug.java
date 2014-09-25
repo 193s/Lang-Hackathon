@@ -5,16 +5,20 @@ import lang.util.Extension;
 
 
 public class Debug {
-	static public PrintStream out = System.out;
+    public static boolean enabled = true;
+	public static PrintStream out = System.out;
 	
-	static public void log(int k, String string) {
+	public static void log(int k, String string) {
+        if (!enabled) return;
 		out.println(Extension.getChar(' ', k) + string);
 	}
 	
-	static public void blank() {
+	public static void blank() {
+        if (!enabled) return;
 		out.println();
 	}
-	static public void blank(int times) {
+	public static void blank(int times) {
+        if (!enabled) return;
 		out.println(Extension.getChar('\n', times));
 	}
 }
