@@ -3,14 +3,16 @@ import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 
 public enum BinaryOperators {
-    Multiple (0, "*", (a, b) -> a * b),
-    Div      (0, "/", (a, b) -> a / b),
-    Plus     (1, "+", (a, b) -> a + b),
-    Minus    (1, "-", (a, b) -> a - b),
-    Mod      (2, "%", (a, b) -> a % b),
-    Equal    (3, "==",(a, b) -> a == b? 1 : 0),
-    MoreThan (3, ">", (a, b) -> a > b ? 1 : 0),
-    LessThan (3, "<", (a, b) -> a < b ? 1 : 0),
+    Multiple (0, "*",  (a, b) -> a * b),
+    Div      (0, "/",  (a, b) -> a / b),
+    Plus     (1, "+",  (a, b) -> a + b),
+    Minus    (1, "-",  (a, b) -> a - b),
+    Mod      (2, "%",  (a, b) -> a % b),
+
+    NotEqual (3, "!=", (a, b) -> a != b? 1 : 0),
+    Equal    (3, "==", (a, b) -> a == b? 1 : 0),
+    MoreThan (3, ">",  (a, b) -> a > b ? 1 : 0),
+    LessThan (3, "<",  (a, b) -> a < b ? 1 : 0),
     ;
 
 
