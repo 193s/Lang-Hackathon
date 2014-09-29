@@ -11,6 +11,7 @@ import marg.token.TokenSet;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Map;
 
 import static marg.debug.Console.*;
 
@@ -33,6 +34,11 @@ public class imr {
                     out.println("Program will exit.");
                     return;
                 }
+                if ("values".equals(s)) {
+                    out.println("values:");
+                    e.map.entrySet().forEach(out::println);
+                    continue;
+                }
 
                 Token[] ls;
                 try {
@@ -41,8 +47,14 @@ public class imr {
                 catch (NullPointerException ex) {
                     continue;
                 }
-                AST ast = parser.parse(new TokenSet(ls));
-                ast.eval(0, e);
+                try {
+                    AST ast = parser.parse(new TokenSet(ls));
+                    ast.eval(0, e);
+                }
+                catch (Exception ex) {
+                    ex.printStackTrace(out);
+                    continue;
+                }
             }
         }
         catch (IOException ex) {

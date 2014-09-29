@@ -185,7 +185,7 @@ class Statement extends ASTList {
 		AST child
         = ls.is("while")?  new While(ls)
 		: ls.is("if")   ?  new If(ls)
-		: ls.is("print")?  new Print(ls)
+		: ls.is("echo") ?  new Echo(ls)
 		: ls.isName()   ?  new Assign(ls)
 		:                  new Expr(ls)
 		;
@@ -239,16 +239,17 @@ class Program extends ASTList {
 	}
 }
 
-class Print extends ASTList {
-    Print(TokenSet ls) {
-        Debug.log("print");
-        ls.read("print");
+class Echo extends ASTList {
+    Echo(TokenSet ls) {
+        Debug.log("echo");
+        ls.read("echo");
         AST ast = new Expr(ls);
         if (!ast.succeed) return;
         children.add(ast);
     }
     @Override
     public int eval(int k, Environment e) {
+        Debug.log(k, "Echo");
         Console.out.println(children.get(0).eval(k + 1, e));
         return 0;
     }
