@@ -21,6 +21,7 @@ public class CommandLineOption {
                 String str = s.substring(1);
                 switch (str) {
                     case "v":
+                    case "V":
                         type = Version;
                         break;
                 }

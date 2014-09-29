@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import static marg.debug.Console.*;
-public class IMR {
+public class imr {
     // Interactive Marg
     public static void main(String[] args) {
         Debug.setEnabled(false);
@@ -29,11 +29,12 @@ public class IMR {
                 out.print("> ");
                 String s = reader.readLine();
                 if ("exit".equals(s)) {
-                    out.println("exit");
+                    out.println("Program will exit.");
                     return;
                 }
 
                 Token[] ls = lexer.tokenize(s);
+                if (ls.length == 0) continue;
                 AST ast = parser.parse(new TokenSet(ls));
                 ast.eval(0, e);
             }
