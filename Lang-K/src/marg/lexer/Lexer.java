@@ -7,7 +7,8 @@ import static marg.token.TokenKind.*;
 
 public class Lexer implements ILexer {
     @Override
-	public Token[] tokenize(String input) {
+	public Token[] tokenize(String input)
+            throws NullPointerException {
 		ArrayList<Token> ls = new ArrayList<>();
 		int offset = 0;
 		while (offset < input.length()) {
@@ -21,6 +22,7 @@ public class Lexer implements ILexer {
 				ls.add(t);
 			offset += t.string.length();
 		}
+        if (ls.isEmpty()) throw new NullPointerException();
         return ls.toArray(new Token[ls.size()]);
 	}
 	
@@ -80,8 +82,8 @@ public class Lexer implements ILexer {
 
 		// Operator
 		else if (isOperatorSign(c)) {
-			String ident;
-			ident = c + takeWhileOperatorSign(str, offset + 1);
+			String ident =
+                    c + takeWhileOperatorSign(str, offset + 1);
 			return new Token(ident, Operator);
 		}
 

@@ -61,8 +61,8 @@ public class Interpreter {
     /* ========== Lexical Analyze ========== */
         ILexer lexer = new Lexer();
         Token[] ls = lexer.tokenize(s);
-		if (ls == null) {
-			Debug.log("ERROR: tokenize failed!");
+		if (ls.length == 0) {
+			Debug.log("ERROR: no input.");
 			return;
 		}
 		else {
