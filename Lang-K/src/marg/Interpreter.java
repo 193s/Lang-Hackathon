@@ -1,80 +1,65 @@
-package lang;
+package marg;
 
 import java.io.*;
 import java.util.InputMismatchException;
 import java.util.Map.Entry;
 
-import lang.debug.Debug;
-import lang.debug.Console;
-import lang.lexer.ILexer;
-import lang.lexer.NewLexer;
-import lang.parser.IParser;
-import lang.token.Token;
-import lang.token.TokenSet;
-import lang.parser.AST;
-import lang.parser.Environment;
-import lang.parser.Parser;
+import marg.debug.Debug;
+import marg.lexer.ILexer;
+import marg.lexer.Lexer;
+import marg.parser.IParser;
+import marg.token.Token;
+import marg.token.TokenSet;
+import marg.parser.AST;
+import marg.parser.Environment;
+import marg.parser.Parser;
 
+import static marg.debug.Console.*;
 
 public class Interpreter {
-	
+
 	public static void main(String[] args) {
         Debug.setEnabled(true);
-        String s;
-        if (args.length == 0) {
-            Console.out.println("Input mismatch.");
-            return;
-        }
         CommandLineOption option;
         try {
             option = new CommandLineOption(args);
         }
         catch (FileNotFoundException e) {
-            Console.out.println("File not found.");
+            out.println("File not found.");
             return;
         }
         catch (InputMismatchException e) {
-            Console.out.println("Input mismatch.");
+            out.println("No input files.");
             return;
         }
 
+        switch(option.type) {
+            case Run:
+                run(option);
+                break;
+            case Version:
+                out.println("Version: ß");
+                break;
+            default:
+                out.println("Undefined option.");
+                break;
+        }
+    }
+
+
+    public static void run(CommandLineOption option) {
+        String s;
         try {
             s = option.read();
         }
         catch (IOException e) {
-            Console.out.println("ERROR: IOException.");
+            out.println("ERROR: IOException.");
             return;
         }
 
 
-	/* ========== Input ========== */
-        Debug.log(s);
-//        Debug.out.println("input:");
-//		String s = new String();
-//        try {
-//			InputStreamReader isr = new InputStreamReader(System.in);
-//			BufferedReader br = new BufferedReader(isr);
-//            String input;
-//            do {
-//                input = br.readLine();
-//				s += input + '\n';
-//			}
-//			while (!input.isEmpty());
-//		}
-//		catch (IOException e) {
-//			blank();
-//			Debug.out.println("ERROR: IOException");
-//		}
-//        finally {
-//            if ("\n".equals(s)) {
-//                Debug.out.println("ERROR: input string is empty.");
-//                return;
-//            }
-//        }
-
-
     /* ========== Lexical Analyze ========== */
-        ILexer lexer = new NewLexer();
+        ILexer lexer = new Lexer();
         Token[] ls = lexer.tokenize(s);
 		if (ls == null) {
 			Debug.log("ERROR: tokenize failed!");
@@ -99,11 +84,11 @@ public class Interpreter {
 
     /* ========== Interpret ========== */
 		Environment e = new Environment(null);
-		try {
-			Debug.log("--- RUNNING ---");
-            Debug.blank();
+        Debug.log("--- RUNNING ---");
+        Debug.blank();
+        try {
             // interpret
-            Debug.log((int) ast.eval(0, e));
+            ast.eval(0, e);
 
             Debug.blank(2);
 
@@ -116,11 +101,11 @@ public class Interpreter {
             Debug.blank();
         }
 		catch (Exception ex) {
-            Debug.log("RUNTIME ERROR:");
+            out.println("RUNTIME ERROR:");
             ex.printStackTrace(Debug.out);
         }
         finally {
-            Debug.log("Process finished.");
+            out.println("Process finished.");
         }
 	}
 }

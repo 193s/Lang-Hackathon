@@ -1,4 +1,4 @@
-package lang.parser;
+package marg.parser;
 
 import java.util.HashMap;
 

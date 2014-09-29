@@ -1,4 +1,4 @@
-package lang;
+package marg;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -6,8 +6,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.InputMismatchException;
 
+import static marg.CommandLineOptions.*;
+
 public class CommandLineOption {
     private File file;
+    public CommandLineOptions type;
 
     public CommandLineOption(String[] args)
             throws InputMismatchException,
@@ -15,10 +18,19 @@ public class CommandLineOption {
 
         for (String s : args) {
             if (s.startsWith("-")) {
+                String str = s.substring(1);
+                switch (str) {
+                    case "v":
+                        type = Version;
+                        break;
+                }
             }
-            else file = readFile(s);
+            else {
+                type = Run;
+                file = readFile(s);
+            }
         }
-        if (file == null) throw new InputMismatchException();
+        if (type == null) throw new InputMismatchException();
     }
 
     public String read() throws IOException {

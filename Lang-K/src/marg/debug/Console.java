@@ -1,4 +1,4 @@
-package lang.debug;
+package marg.debug;
 
 import java.io.PrintStream;
 

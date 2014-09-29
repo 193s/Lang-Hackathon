@@ -1,4 +1,4 @@
-package lang.parser;
+package marg.parser;
 
 public abstract class AST {
 	// 構文木の構築に成功したかどうか

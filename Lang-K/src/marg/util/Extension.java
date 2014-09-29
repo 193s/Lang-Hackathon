@@ -1,4 +1,4 @@
-package lang.util;
+package marg.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;

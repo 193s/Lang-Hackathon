@@ -1,7 +1,7 @@
-package lang.debug;
+package marg.debug;
 import java.io.PrintStream;
 
-import lang.util.Extension;
+import marg.util.Extension;
 
 
 public class Debug {
