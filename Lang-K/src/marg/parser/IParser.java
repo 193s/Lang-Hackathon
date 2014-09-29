@@ -1,6 +1,6 @@
-package lang.parser;
+package marg.parser;
 
-import lang.token.TokenSet;
+import marg.token.TokenSet;
 
 public interface IParser {
     public AST parse(TokenSet ls);

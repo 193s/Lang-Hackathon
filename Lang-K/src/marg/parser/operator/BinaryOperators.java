@@ -1,4 +1,4 @@
-package lang.parser.operator;
+package marg.parser.operator;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 

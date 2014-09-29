@@ -1,11 +1,11 @@
-package lang.lexer;
+package marg.lexer;
 import java.util.ArrayList;
 
-import lang.token.*;
+import marg.token.*;
 
-import static lang.token.TokenKind.*;
+import static marg.token.TokenKind.*;
 
-public class NewLexer implements ILexer {
+public class Lexer implements ILexer {
     @Override
 	public Token[] tokenize(String input) {
 		ArrayList<Token> ls = new ArrayList<>();

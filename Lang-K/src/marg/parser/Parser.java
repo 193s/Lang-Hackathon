@@ -1,10 +1,10 @@
-package lang.parser;
+package marg.parser;
 
-import lang.debug.Console;
-import lang.debug.Debug;
-import lang.parser.operator.BinaryOperators;
-import lang.token.Token;
-import lang.token.TokenSet;
+import marg.debug.Console;
+import marg.debug.Debug;
+import marg.parser.operator.BinaryOperators;
+import marg.token.Token;
+import marg.token.TokenSet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +14,7 @@ public class Parser implements IParser {
     // 構文解析
     public AST parse(TokenSet ls) {
         AST ast = new Program(ls);
-        Debug.out.println( ast.succeed ?
+        Debug.log( ast.succeed ?
                 "--SUCCEED PARSING--":
                 "ERROR: Parsing failed!" );
 		return ast;
@@ -111,7 +111,7 @@ class Expr extends ASTList {
 		for (AST v: children) {
 			vals.add(v.eval(k + 1, e));
 			if (count >= operators.size()) break;
-			Debug.out.println(operators.get(count).string);
+			Debug.log(operators.get(count).string);
 			count++;
 		}
 
@@ -142,10 +142,10 @@ class Expr extends ASTList {
 
 class Value extends ASTList {
 	Value(TokenSet ls) {
-		Debug.out.println("num");
+		Debug.log("num");
 		// ( Expression )
 		if (ls.is("(")) {
-			Debug.out.println("( expression )");
+			Debug.log("( expression )");
 			ls.read("(");
 			AST s = new Expr(ls);
 			if (!s.succeed) return;
@@ -155,13 +155,13 @@ class Value extends ASTList {
 
 		// Literal
 		else if (ls.isNumber()) {
-			Debug.out.println("literal");
+			Debug.log("literal");
 			children.add(new Literal(ls));
 		}
 		
 		// Variable
 		else if (ls.isName()) {
-			Debug.out.println("variable");
+			Debug.log("variable");
 			String id = ls.next().string;
 			Variable v = new Variable(id);
 			children.add(v);
@@ -181,31 +181,15 @@ class Value extends ASTList {
 
 
 class Statement extends ASTList {
-    static HashMap<String, Class<? extends ASTList>> reservedMap = new HashMap() {
-        {
-            put ("while", While.class);
-            put ("if",    If.class);
-            put ("print", Print.class);
-        }
-    };
 	Statement(TokenSet ls) {
 
-//		AST child
-//        = ls.is("while")?  new While(ls)
-//		: ls.is("if")   ?  new If(ls)
-//		: ls.is("print")?  new Print(ls)
-//		: ls.isName()   ?  new Assign(ls)
-//		:                  new Expr(ls)
-//		;
-        String key = ls.get().string;
-        AST child;
-        if (reservedMap.containsKey(key)) {
-            Class<? extends ASTList> c = reservedMap.get(key);
-            child = null;
-        }
-        else {
-            child = ls.isName()? new Assign(ls) : new Expr(ls);
-        }
+		AST child
+        = ls.is("while")?  new While(ls)
+		: ls.is("if")   ?  new If(ls)
+		: ls.is("print")?  new Print(ls)
+		: ls.isName()   ?  new Assign(ls)
+		:                  new Expr(ls)
+		;
 		children.add(child);
 		succeed = true;
 	}
@@ -221,7 +205,7 @@ class Statement extends ASTList {
 
 class Program extends ASTList {
 	Program(TokenSet ls) {
-		Debug.out.println("program");
+		Debug.log("program");
         AST s = new Statement(ls);
 		if (!s.succeed) return;
 		children.add(s);
@@ -258,7 +242,7 @@ class Program extends ASTList {
 
 class Print extends ASTList {
     Print(TokenSet ls) {
-        Debug.out.println("print");
+        Debug.log("print");
         ls.read("print");
         AST ast = new Expr(ls);
         if (!ast.succeed) return;
@@ -273,7 +257,7 @@ class Print extends ASTList {
 
 class Assign extends ASTList {
 	Assign(TokenSet ls) {
-		Debug.out.println("assign");
+		Debug.log("assign");
         build(ls);
 	}
 
@@ -308,7 +292,7 @@ class Assign extends ASTList {
 
 class Condition extends ASTList {
 	Condition(TokenSet ls) {
-		Debug.out.println("condition");
+		Debug.log("condition");
 		AST expr = new Expr(ls);
 		if (!expr.succeed) return;
 		children.add(expr);
@@ -325,7 +309,7 @@ class Condition extends ASTList {
 
 class While extends ASTList {
 	While(TokenSet ls) {
-		Debug.out.println("while");
+		Debug.log("while");
 		if (!ls.read("while", "(")) return;
 		AST condition = new Condition(ls);
 		if (!condition.succeed) return;
@@ -353,7 +337,7 @@ class While extends ASTList {
 }
 class Block extends ASTList {
 	Block(TokenSet ls) {
-	    Debug.out.println("block");
+	    Debug.log("block");
 		if (!ls.read(":")) return;
 		AST program = new Program(ls);
 		if (!ls.read(";")) return;
@@ -370,7 +354,7 @@ class Block extends ASTList {
 
 class If extends ASTList {
 	If(TokenSet ls) {
-		Debug.out.println("if");
+		Debug.log("if");
 		if (!ls.read("if", "(")) return;
 		
 		AST condition = new Condition(ls);

@@ -1,6 +1,6 @@
-package lang.lexer;
+package marg.lexer;
 
-import lang.token.Token;
+import marg.token.Token;
 
 public interface ILexer {
     public Token[] tokenize(String input);

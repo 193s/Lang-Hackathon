@@ -1,6 +1,6 @@
-import lang.Interpreter;
+import marg.Interpreter;
 
-public class Main {
+public class Marg {
     public static void main(String[] args) {
         Interpreter.main(args);
     }

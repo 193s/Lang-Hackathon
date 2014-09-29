@@ -1,4 +1,4 @@
-package lang.token;
+package marg.token;
 
 public enum SymbolKind {
     LeftBracket('['),
