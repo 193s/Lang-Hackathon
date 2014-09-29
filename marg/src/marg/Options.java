@@ -1,6 +1,7 @@
 package marg;
 
-public enum CommandLineOptions {
+public enum Options {
     Run,
     Version,
+    Help,
 }

@@ -26,7 +26,7 @@ public class imr {
 
         try {
             while (true) {
-                out.print("> ");
+                out.print("Marg> ");
                 String s = reader.readLine();
                 if ("exit".equals(s)) {
                     out.println("Program will exit.");
