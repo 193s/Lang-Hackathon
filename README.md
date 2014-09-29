@@ -1,8 +1,8 @@
-# myLang
+# Marg
 A JVM-based scripting language.
   
-## Lang-K
-A interpreter of 'myLang' written in Java.
+## Marg
+A interpreter of Marg written in Java.
   
 ### Lang-K-C\# 
 A implementation of myLang written in C#.  

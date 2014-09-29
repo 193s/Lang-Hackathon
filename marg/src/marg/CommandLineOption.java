@@ -6,11 +6,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.InputMismatchException;
 
-import static marg.CommandLineOptions.*;
+import static marg.Options.*;
 
 public class CommandLineOption {
     private File file;
-    public CommandLineOptions type;
+    public Options type;
 
     public CommandLineOption(String[] args)
             throws InputMismatchException,
