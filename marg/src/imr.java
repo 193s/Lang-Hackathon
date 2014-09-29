@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import static marg.debug.Console.*;
+
 public class imr {
     // Interactive Marg
     public static void main(String[] args) {
@@ -33,8 +34,13 @@ public class imr {
                     return;
                 }
 
-                Token[] ls = lexer.tokenize(s);
-                if (ls.length == 0) continue;
+                Token[] ls;
+                try {
+                    ls = lexer.tokenize(s);
+                }
+                catch (NullPointerException ex) {
+                    continue;
+                }
                 AST ast = parser.parse(new TokenSet(ls));
                 ast.eval(0, e);
             }
