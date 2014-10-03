@@ -10,15 +10,14 @@ import java.util.ArrayList;
 import java.util.function.BiFunction;
 
 public class Parser implements IParser {
-    // 構文解析
+    @Override
     public AST parse(TokenSet ls) {
         AST ast = new Program(ls);
-        Debug.log( ast.succeed ?
-                "--SUCCEED PARSING--":
-                "ERROR: Parsing failed!" );
 		return ast;
 	}
 }
+
+
 
 abstract class ASTList extends AST {
 	ArrayList<AST> children = new ArrayList<>();

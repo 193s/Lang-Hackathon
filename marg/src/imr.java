@@ -11,7 +11,6 @@ import marg.token.TokenSet;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Map;
 
 import static marg.debug.Console.*;
 
@@ -35,7 +34,7 @@ public class imr {
                     return;
                 }
                 if ("values".equals(s)) {
-                    out.println("values:");
+                    out.println("Values:");
                     e.map.entrySet().forEach(out::println);
                     continue;
                 }
