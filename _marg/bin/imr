@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+echo imr
+java -jar ~/.marg/bin/imr.jar

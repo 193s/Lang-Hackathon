@@ -2,7 +2,6 @@ package marg;
 
 import java.io.*;
 import java.util.InputMismatchException;
-import java.util.Map.Entry;
 
 import marg.debug.Debug;
 import marg.lexer.ILexer;
@@ -51,8 +50,7 @@ public class Interpreter {
         String s;
         try {
             s = option.read();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             out.println("ERROR: IOException.");
             return;
         }
@@ -79,6 +77,13 @@ public class Interpreter {
 	/* ========== Parse ========== */
         IParser parser = new Parser();
 		AST ast = parser.parse(new TokenSet(ls));
+        if (ast.succeed) {
+            Debug.log("--Parse finished--");
+        }
+        else {
+            Debug.log("Failed to parse. Program will exit.");
+            return;
+        }
 		Debug.blank(3);
 
 
@@ -94,10 +99,7 @@ public class Interpreter {
 
             // print all variables in Environment.
             Debug.log("Environment:");
-            for (Entry<String, Object> entry : e.map.entrySet()) {
-                Debug.log(entry.getKey() +
-                                 " : " + entry.getValue());
-            }
+            e.map.entrySet().forEach(entry -> Debug.log(entry.getKey() + " : "  + entry.getValue()));
             Debug.blank();
         }
 		catch (Exception ex) {
