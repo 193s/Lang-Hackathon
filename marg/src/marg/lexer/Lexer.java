@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import marg.token.*;
 
 import static marg.token.TokenKind.*;
+import static marg.util.CharExtension.*;
 
 public class Lexer implements ILexer {
     @Override
@@ -14,7 +15,7 @@ public class Lexer implements ILexer {
 		while (offset < input.length()) {
 			Token t = getToken(input, offset);
 			if (t == null) break;
-			// Skip if it's space or comment.
+            // ignore Space and Comment.
 			TokenKind kind = t.kind;
 			if (kind != Space &&
 				kind != OneLineComment &&
@@ -56,41 +57,40 @@ public class Lexer implements ILexer {
 				}
 			}
 		}
-		
-		else if (c == ' ' || c == '\t' || c == '\n')
+
+        if (isSpace(c))
             return new Token(c, Space);
 
-        else if (isSymbol(c)) return new Token(c, Symbol);
+        if (isSymbol(c))
+            return new Token(c, Symbol);
 
-		else if (isAlpha(c)) {
+		if (isAlpha(c)) {
 			String ident = c + takeWhileIdent(str, offset + 1);
 			if (isReserved(ident))
-				return new Token(ident, Reserved);	// Reserved
-			else if (ident.equals("true"))
-				return new Token(ident, True);		// true
-			else if (ident.equals("false"))
-				return new Token(ident, False);		// false
-			else
-				return new Token(ident, Identifier);// Identifier
+				return new Token(ident, Reserved);   // Reserved
+			if (ident.equals("true"))
+				return new Token(ident, True);       // true
+			if (ident.equals("false"))
+				return new Token(ident, False);      // false
+
+            return new Token(ident, Identifier);     // Identifier
 		}
 
 		// Integer Literal
-		else if (isNum(c)) {
+		if (isNum(c)) {
 			String ident = c + takeWhileIdent(str, offset + 1);
 			return new Token(ident, Literal);
 		}
 
 		// Operator
-		else if (isOperatorSign(c)) {
+		if (isOperatorSign(c)) {
 			String ident =
                     c + takeWhileOperatorSign(str, offset + 1);
 			return new Token(ident, Operator);
-		}
+	    }
 
 		// Undefined Token
-		else {
-            return null;
-		}
+        return null;
 	}
 	
 	
@@ -149,16 +149,4 @@ public class Lexer implements ILexer {
         }
         return false;
     }
-	
-	private static boolean isAlphaNum(char c) {
-		return isAlpha(c) || isNum(c);
-	}
-	
-	private static boolean isNum(char c) { 
-		return c >= '0' && c <= '9';
-	}
-	
-	private static boolean isAlpha(char c) {
-		return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_';
-	}
 }

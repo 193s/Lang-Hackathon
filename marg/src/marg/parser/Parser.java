@@ -11,19 +11,19 @@ import java.util.function.BiFunction;
 
 public class Parser implements IParser {
     @Override
-    public AST parse(TokenSet ls) {
-        AST ast = new Program(ls);
+    public ASTree parse(TokenSet ls) {
+        ASTree ast = new Program(ls);
 		return ast;
 	}
 }
 
 
 
-abstract class ASTList extends AST {
-	ArrayList<AST> children = new ArrayList<>();
+abstract class ASTList extends ASTree {
+	ArrayList<ASTree> children = new ArrayList<>();
 }
 
-abstract class ASTLeaf extends AST {
+abstract class ASTLeaf extends ASTree {
     @Override
     public int eval(int k, Environment e) {
         return 0;
@@ -106,7 +106,7 @@ class Expr extends ASTList {
 		ArrayList<Object> vals = new ArrayList<>();
 		
 		int count = 0;
-		for (AST v: children) {
+		for (ASTree v: children) {
 			vals.add(v.eval(k + 1, e));
 			if (count >= operators.size()) break;
 			Debug.log(operators.get(count).string);
@@ -145,7 +145,7 @@ class Value extends ASTList {
 		if (ls.is("(")) {
 			Debug.log("( expression )");
 			ls.read("(");
-			AST s = new Expr(ls);
+			ASTree s = new Expr(ls);
 			if (!s.succeed) return;
 			if (!ls.read(")")) return;
 			children.add(s);
@@ -172,7 +172,7 @@ class Value extends ASTList {
 	@Override
 	public int eval(int k, Environment e) {
 		Debug.log(k, "Num");
-		AST child = children.get(0);
+		ASTree child = children.get(0);
 		return child.eval(k+1, e);
 	}
 }
@@ -181,7 +181,7 @@ class Value extends ASTList {
 class Statement extends ASTList {
 	Statement(TokenSet ls) {
 
-		AST child
+		ASTree child
         = ls.is("while")?  new While(ls)
 		: ls.is("if")   ?  new If(ls)
 		: ls.is("echo") ?  new Echo(ls)
@@ -195,7 +195,7 @@ class Statement extends ASTList {
 	@Override
 	public int eval(int k, Environment e) {
 		Debug.log(k, "Statement");
-		AST child = children.get(0);
+		ASTree child = children.get(0);
 		return child.eval(k + 1, e);
 	}
 }
@@ -204,7 +204,7 @@ class Statement extends ASTList {
 class Program extends ASTList {
 	Program(TokenSet ls) {
 		Debug.log("program");
-        AST s = new Statement(ls);
+        ASTree s = new Statement(ls);
 		if (!s.succeed) return;
 		children.add(s);
 
@@ -213,7 +213,7 @@ class Program extends ASTList {
 			if (!ls.is(",")) break;
 			Token operator = ls.next();
 			
-			AST right = new Statement(ls);
+			ASTree right = new Statement(ls);
 			if (!right.succeed) continue;
 
 			children.add(new Operator(operator));
@@ -242,7 +242,7 @@ class Echo extends ASTList {
     Echo(TokenSet ls) {
         Debug.log("echo");
         ls.read("echo");
-        AST ast = new Expr(ls);
+        ASTree ast = new Expr(ls);
         if (!ast.succeed) return;
         children.add(ast);
     }
@@ -262,13 +262,13 @@ class Assign extends ASTList {
 
     public void build(TokenSet ls) {
         if (ls.isEOF()) return;
-        AST left = new Variable(ls.next().string);
+        ASTree left = new Variable(ls.next().string);
 
         if (ls.isEOF()) return;
         Token operator = ls.next();
         if (!"=".equals(operator.string)) return;
 
-        AST right = new Statement(ls);
+        ASTree right = new Statement(ls);
         if (!right.succeed) return;
 
         children.add(left);
@@ -292,7 +292,7 @@ class Assign extends ASTList {
 class Condition extends ASTList {
 	Condition(TokenSet ls) {
 		Debug.log("condition");
-		AST expr = new Expr(ls);
+		ASTree expr = new Expr(ls);
 		if (!expr.succeed) return;
 		children.add(expr);
 		succeed = true;
@@ -310,10 +310,10 @@ class While extends ASTList {
 	While(TokenSet ls) {
 		Debug.log("while");
 		if (!ls.read("while", "(")) return;
-		AST condition = new Condition(ls);
+		ASTree condition = new Condition(ls);
 		if (!condition.succeed) return;
 		if (!ls.read(")")) return;
-		AST block = new Block(ls);
+		ASTree block = new Block(ls);
 
 		children.add(condition);
 		children.add(block);
@@ -324,8 +324,8 @@ class While extends ASTList {
 	public int eval(int k, Environment e) {
 		Debug.log(k, "While");
 		
-		AST condition = children.get(0);
-		AST program = children.get(1);
+		ASTree condition = children.get(0);
+		ASTree program = children.get(1);
 		
 		int ret = 0;
 		while (condition.eval(k + 1, e) == 1) {
@@ -338,7 +338,7 @@ class Block extends ASTList {
 	Block(TokenSet ls) {
 	    Debug.log("block");
 		if (!ls.read(":")) return;
-		AST program = new Program(ls);
+		ASTree program = new Program(ls);
 		if (!ls.read(";")) return;
 		children.add(program);
 		succeed = true;
@@ -356,10 +356,10 @@ class If extends ASTList {
 		Debug.log("if");
 		if (!ls.read("if", "(")) return;
 		
-		AST condition = new Condition(ls);
+		ASTree condition = new Condition(ls);
 		if (!condition.succeed) return;
 		if (!ls.read(")")) return;
-		AST block = new Block(ls);
+		ASTree block = new Block(ls);
 		
 		children.add(condition);
 		children.add(block);
@@ -370,10 +370,10 @@ class If extends ASTList {
 	public int eval(int k, Environment e) {
 		Debug.log(k, "If");
 		int ret = 0;
-		AST condition = children.get(0);
-		AST program = children.get(1);
+		ASTree condition = children.get(0);
+		ASTree program = children.get(1);
 		
-		if (condition.eval(k+1, e)== 1) {
+		if (condition.eval(k+1, e) == 1) {
 			ret = program.eval(k+1, e);
 		}
 		return ret;

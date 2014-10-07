@@ -6,10 +6,10 @@ import java.util.InputMismatchException;
 import marg.debug.Debug;
 import marg.lexer.ILexer;
 import marg.lexer.Lexer;
+import marg.parser.ASTree;
 import marg.parser.IParser;
 import marg.token.Token;
 import marg.token.TokenSet;
-import marg.parser.AST;
 import marg.parser.Environment;
 import marg.parser.Parser;
 
@@ -76,7 +76,7 @@ public class Interpreter {
 
 	/* ========== Parse ========== */
         IParser parser = new Parser();
-		AST ast = parser.parse(new TokenSet(ls));
+		ASTree ast = parser.parse(new TokenSet(ls));
         if (ast.succeed) {
             Debug.log("--Parse finished--");
         }

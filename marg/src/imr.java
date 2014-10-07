@@ -1,7 +1,7 @@
 import marg.debug.Debug;
 import marg.lexer.ILexer;
 import marg.lexer.Lexer;
-import marg.parser.AST;
+import marg.parser.ASTree;
 import marg.parser.Environment;
 import marg.parser.IParser;
 import marg.parser.Parser;
@@ -47,7 +47,7 @@ public class imr {
                     continue;
                 }
                 try {
-                    AST ast = parser.parse(new TokenSet(ls));
+                    ASTree ast = parser.parse(new TokenSet(ls));
                     ast.eval(0, e);
                 }
                 catch (Exception ex) {
