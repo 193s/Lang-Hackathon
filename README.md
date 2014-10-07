@@ -2,10 +2,10 @@
 A JVM-based scripting language.
   
 ## Marg
-A interpreter of Marg written in Java.
+An interpreter of Marg written in Java.
   
 ### Marg-Sharp
-A implementation of myLang written in C#.  
+An implementation of Marg written in C#.  
 Not supported.
   
 ******

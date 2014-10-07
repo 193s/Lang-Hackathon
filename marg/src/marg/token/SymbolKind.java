@@ -3,8 +3,8 @@ package marg.token;
 public enum SymbolKind {
     LeftBracket('['),
     RightBracket(']'),
-    LeftParentheses('('),
-    RightParentheses(')'),
+    LeftParenthesis('('),
+    RightParenthesis(')'),
     LeftBrace('{'),
     RightBrace('}'),
     SingleQuotation('\''),
