@@ -17,4 +17,8 @@ public class Token {
 	public String toString() {
 		return string + "\t: " + kind;
 	}
+
+    public boolean isEOF() {
+        return kind == TokenKind.EOF;
+    }
 }

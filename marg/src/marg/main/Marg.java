@@ -1,12 +1,15 @@
-package marg;
+package marg.main;
 
 import java.io.*;
 import java.util.InputMismatchException;
+import java.util.List;
 
+import marg.command.CommandLineOption;
+import marg.exception.ParseException;
 import marg.debug.Debug;
 import marg.lexer.ILexer;
 import marg.lexer.Lexer;
-import marg.parser.ASTree;
+import marg.ast.ASTree;
 import marg.parser.IParser;
 import marg.token.Token;
 import marg.token.TokenSet;
@@ -15,7 +18,7 @@ import marg.parser.Parser;
 
 import static marg.debug.Console.*;
 
-public class Interpreter {
+public class Marg {
 
 	public static void main(String[] args) {
         Debug.setEnabled(true);
@@ -58,32 +61,34 @@ public class Interpreter {
 
     /* ========== Lexical Analyze ========== */
         ILexer lexer = new Lexer();
-        Token[] ls = lexer.tokenize(s);
-		if (ls.length == 0) {
-			Debug.log("ERROR: no input.");
-			return;
-		}
-		else {
-            Debug.log("--SUCCEED TOKENIZE--");
+        List<Token> ls;
+        try {
+            ls = lexer.tokenize(s);
+        }
+        catch (NullPointerException e) {
+            out.println("no input.");
+            return;
         }
 
         // print all tokens in 'ls'
-		for (Token t: ls) Debug.logf(" | %s%n", t);
-		Debug.logf("%s Tokens.%n", ls.length);
+        ls.forEach(t -> Debug.logf(" | %s%n", t));
+		Debug.logf("%s Tokens.%n", ls.size());
         Debug.blank(3);
 
 
 
 	/* ========== Parse ========== */
         IParser parser = new Parser();
-		ASTree ast = parser.parse(new TokenSet(ls));
-        if (ast.succeed) {
-            Debug.log("--Parse finished--");
+        ASTree ast;
+        try {
+            ast = parser.parse(new TokenSet(ls));
         }
-        else {
-            Debug.log("Failed to parse. Program will exit.");
+        catch (ParseException e) {
+            out.println("Failed to parse. Program will exit.");
+            e.printStackTrace();
             return;
         }
+        Debug.log("--Parse finished--");
 		Debug.blank(3);
 
 
@@ -99,7 +104,9 @@ public class Interpreter {
 
             // print all variables in Environment.
             Debug.log("Environment:");
-            e.map.entrySet().forEach(entry -> Debug.log(entry.getKey() + " : "  + entry.getValue()));
+            e.map.entrySet().forEach(
+                entry -> Debug.log(entry.getKey() + " : "  + entry.getValue())
+            );
             Debug.blank();
         }
 		catch (Exception ex) {
