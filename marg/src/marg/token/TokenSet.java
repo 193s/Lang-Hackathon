@@ -1,15 +1,22 @@
 package marg.token;
 
 
+import marg.exception.ParseException;
+
+import java.io.EOFException;
+import java.util.List;
+
+import static marg.token.TokenKind.*;
+
 public class TokenSet {
-	private final Token[] list;
+	private final List<Token> list;
 	private final int length;
 	private int offset = 0;
 	
-	public TokenSet(Token[] tokens) {
-		this.list = tokens;
-		length = tokens.length;
-	}
+    public TokenSet(List<Token> tokens) {
+        list = tokens;
+        length = tokens.size();
+    }
 	
 	public void unget() {
 		if (offset > 0) offset--;
@@ -17,11 +24,12 @@ public class TokenSet {
 	public void unget(int k) {
 		if (offset >= k) offset -= k;
 	}
-	public Token next() {
-		return list[offset++];
+	public Token next() throws EOFException {
+        checkEOF();
+        return list.get(offset++);
 	}
 	public Token get() {
-		return list[offset];
+		return list.get(offset);
 	}
 
     public boolean is(String s) {
@@ -29,53 +37,46 @@ public class TokenSet {
     }
 
 	public boolean isEOF() {
-		return offset >= length;
+        return get().isEOF();
 	}
+    public void checkEOF() throws EOFException {
+        if (isEOF()) throw new EOFException();
+    }
 	
-	public boolean isMatch(String... args) {
-		String t = get().string;
-		for (String str: args) {
-			if (str.equals(t)) return true;
-		}
-		return false;
-	}
-	public boolean read(String... args) {
-		for (String t : args) {
+    public boolean read(String... args) throws EOFException {
+	    for (String t : args) {
 	 		Token next = next();
 	 		if (!t.equals(next.string)) return false;
 		}
 		return true;
 	}
+
+    public void readP(String... args) throws ParseException, EOFException {
+        for (String t : args) {
+            if (isEOF()) throw new EOFException();
+            Token next = next();
+            if (!t.equals(next.string))
+                throw new ParseException();
+        }
+    }
 	
 	public boolean isName() {
-		return isEOF()? false : get().kind == TokenKind.Identifier;
+		return isEOF()? false : get().kind == Identifier;
 	}
 
 	public boolean isNumber() {
-		return isEOF()? false : get().kind == TokenKind.Literal;
+		return isEOF()? false : get().kind == IntLiteral;
 	}
 
-
-    public boolean isSymbol() {
-        return isEOF()? false : get().kind == TokenKind.Symbol;
-    }
-    public boolean isSymbol(SymbolKind kind) {
-        return isSymbol() && is(String.valueOf(kind.charactor));
+    public boolean isBool() {
+        return isEOF()? false : get().kind == BoolLiteral;
     }
 
 	public boolean isOperator() {
-		return isEOF()? false : get().kind == TokenKind.Operator;
-	}
-	
-	public boolean isOperator(String str) {
-		return isOperator() && isMatch(str);
+		return isEOF()? false : get().kind == Operator;
 	}
 
 	public boolean isReserved() {
-		return isEOF()? false : get().kind == TokenKind.Reserved;
-	}
-	
-	public boolean isReserved(String str) {
-		return isReserved() && str.equals(get().string);
+		return isEOF()? false : get().kind == Reserved;
 	}
 }

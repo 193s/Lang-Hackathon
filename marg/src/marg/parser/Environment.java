@@ -1,10 +1,13 @@
 package marg.parser;
 
+import marg.lang.type.IType;
+import marg.lang.type.MNull;
+
 import java.util.HashMap;
 
 public class Environment {
     Environment outer;
-	public HashMap<String, Object> map = new HashMap<>();
+	public HashMap<String, IType> map = new HashMap<>();
 
     public Environment(Environment outer) {
         this.outer = outer;
@@ -15,13 +18,13 @@ public class Environment {
                || ((outer != null) && outer.find(key));
     }
 
-    public Object get(String key) {
+    public IType get(String key) {
         return map.containsKey(key)? map.get(key)
-               : outer != null? outer.get(key)
-               : null;
+               : outer != null?      outer.get(key)
+               : new MNull();
     }
 
-    public void put(String key, Object o) {
+    public void put(String key, IType o) {
         if (find(key)) {
             if (map.containsKey(key))
                 map.put(key, o);

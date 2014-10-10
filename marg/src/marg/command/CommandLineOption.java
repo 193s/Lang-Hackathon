@@ -1,12 +1,10 @@
-package marg;
+package marg.command;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.InputMismatchException;
-
-import static marg.Options.*;
 
 public class CommandLineOption {
     private File file;
@@ -22,12 +20,12 @@ public class CommandLineOption {
                 switch (str) {
                     case "v":
                     case "V":
-                        type = Version;
+                        type = Options.Version;
                         break;
                 }
             }
             else {
-                type = Run;
+                type = Options.Run;
                 file = readFile(s);
             }
         }
