@@ -14,8 +14,8 @@ public enum SymbolKind {
     Semicolon(';'),
     ;
 
-    public char charactor;
+    public char character;
     private SymbolKind(char c) {
-        charactor = c;
+        character = c;
     }
 }
