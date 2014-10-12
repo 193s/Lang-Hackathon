@@ -154,7 +154,7 @@ public class Lexer implements ILexer {
 
     private static boolean isSymbol(char c) {
         for (SymbolKind s : SymbolKind.values())
-            if (c == s.charactor) return true;
+            if (c == s.character) return true;
         return false;
     }
 }
