@@ -40,7 +40,7 @@ public class Marg {
                 run(option);
                 break;
             case Version:
-                out.println("Version: ß");
+                out.println("Version: β");
                 break;
             default:
                 out.println("Undefined option.");
