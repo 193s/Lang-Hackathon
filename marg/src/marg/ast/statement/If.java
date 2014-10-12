@@ -17,9 +17,11 @@ public class If extends ASTree {
 
     public If(TokenSet ls) throws ParseException, EOFException {
         Debug.log("if");
-        if (!ls.read("if", "(")) throw new ParseException();
+        if (!ls.read("if", "("))
+            throw new ParseException("Syntax Error: invalid syntax", ls);
         condition = new Condition(ls);
-        if (!ls.read(")")) throw new ParseException();
+        if (!ls.read(")"))
+            throw new ParseException("Syntax Error: invalid syntax", ls);
         program = new Block(ls);
 
     }

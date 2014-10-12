@@ -22,7 +22,8 @@ public class Value extends ASTList {
             Debug.log("( expression )");
             ls.read("(");
             ASTree s = new Expr(ls);
-            if (!ls.read(")")) throw new ParseException();
+            if (!ls.read(")"))
+                throw new ParseException("Syntax Error: ')' not found", ls);
             child = s;
         }
 
@@ -44,7 +45,7 @@ public class Value extends ASTList {
             String id = ls.next().string;
             child = new Variable(id);
         }
-        else throw new ParseException();
+        else throw new ParseException("Internal Error: invalid <Value>", ls);
     }
 
     @Override

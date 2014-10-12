@@ -9,25 +9,34 @@ import java.util.List;
 import static marg.token.TokenKind.*;
 
 public class TokenSet {
-	private final List<Token> list;
-	private final int length;
-	private int offset = 0;
-	
     public TokenSet(List<Token> tokens) {
         list = tokens;
         length = tokens.size();
     }
-	
+
+
+    private final List<Token> list;
+    private final int length;
+
+	private int offset = 0;
+
+
+    public int getOffset() {
+        return offset;
+    }
+
 	public void unget() {
 		if (offset > 0) offset--;
 	}
-	public void unget(int k) {
+
+    public void unget(int k) {
 		if (offset >= k) offset -= k;
 	}
 	public Token next() throws EOFException {
         checkEOF();
         return list.get(offset++);
 	}
+
 	public Token get() {
 		return list.get(offset);
 	}
@@ -39,6 +48,7 @@ public class TokenSet {
 	public boolean isEOF() {
         return get().isEOF();
 	}
+
     public void checkEOF() throws EOFException {
         if (isEOF()) throw new EOFException();
     }
@@ -56,9 +66,11 @@ public class TokenSet {
             if (isEOF()) throw new EOFException();
             Token next = next();
             if (!t.equals(next.string))
-                throw new ParseException();
+                throw new ParseException("", this);
         }
     }
+
+
 	
 	public boolean isName() {
 		return isEOF()? false : get().kind == Identifier;

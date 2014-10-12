@@ -16,9 +16,11 @@ public class Unless extends ASTree {
 
     public Unless(TokenSet ls) throws ParseException, EOFException {
         Debug.log("unless");
-        if (!ls.read("unless", "(")) throw new ParseException();
+        if (!ls.read("unless", "("))
+            throw new ParseException("Syntax Error: invalid syntax", ls);
         condition = new Condition(ls);
-        if (!ls.read(")")) throw new ParseException();
+        if (!ls.read(")"))
+            throw new ParseException("Syntax Error: invalid syntax", ls);
         program = new Block(ls);
 
     }

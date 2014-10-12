@@ -18,10 +18,16 @@ import java.util.List;
 
 import static marg.debug.Console.*;
 
+import static org.fusesource.jansi.Ansi.*;
+import static org.fusesource.jansi.Ansi.Color.*;
+
 public class IMR {
-    // Interactive Marg
+    // Interactive Shell
     public static void main(String[] args) {
         Debug.setEnabled(false);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            out.print(ansi().reset());
+        }));
 
         Environment e = new Environment(null);
         ILexer lexer = new Lexer();
@@ -32,7 +38,11 @@ public class IMR {
         try {
             while (true) {
                 out.print("Marg> ");
+
+                out.print(ansi().fg(GREEN));
                 String s = reader.readLine();
+                out.print(ansi().reset());
+
                 if ("exit".equals(s)) {
                     out.println("Program will exit...");
                     System.exit(0);
@@ -44,9 +54,7 @@ public class IMR {
                     continue;
                 }
                 if ("clear".equals(s)) {
-                    // TODO: (imr) clear command
-                    out.println("Sorry, not implemented yet.");
-//                    Runtime.getRuntime().exec("clear");
+                    out.println(ansi().eraseScreen());
                     continue;
                 }
 
@@ -65,12 +73,13 @@ public class IMR {
                 }
                 catch (ParseException ex) {
                     out.println("Parse error.");
+                    out.println(ex.getMessage());
                     ex.printStackTrace(out);
                     continue;
                 }
                 catch (Exception ex) {
                     out.println("Unexpected error.");
-                    ex.printStackTrace(out);
+                    out.println(ansi().fg(RED).a(ex.getStackTrace()).reset());
                     continue;
                 }
 

@@ -16,9 +16,11 @@ public class While extends ASTree {
     private ASTree program;
     public While(TokenSet ls) throws ParseException, EOFException {
         Debug.log("while");
-        if (!ls.read("while", "(")) throw new ParseException();
+        if (!ls.read("while", "("))
+            throw new ParseException("Syntax Error: invalid syntax", ls);
         condition = new Condition(ls);
-        if (!ls.read(")")) throw new ParseException();
+        if (!ls.read(")"))
+            throw new ParseException("Syntax Error: invalid syntax", ls);
         program = new Block(ls);
     }
 
