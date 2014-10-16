@@ -20,7 +20,7 @@ import static marg.debug.Console.*;
 
 public class Marg {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
         Debug.setEnabled(true);
         CommandLineOption option;
         try {
@@ -72,7 +72,7 @@ public class Marg {
 
         // print all tokens in 'ls'
         ls.forEach(t -> Debug.logf(" | %s%n", t));
-		Debug.logf("%s Tokens.%n", ls.size());
+        Debug.logf("%s Tokens.%n", ls.size());
         Debug.blank(3);
 
 
@@ -89,11 +89,11 @@ public class Marg {
             return;
         }
         Debug.log("--Parse finished--");
-		Debug.blank(3);
+        Debug.blank(3);
 
 
     /* ========== Interpret ========== */
-		Environment e = new Environment(null);
+        Environment e = new Environment(null);
         Debug.log("--- RUNNING ---");
         Debug.blank();
         try {
@@ -105,16 +105,16 @@ public class Marg {
             // print all variables in Environment.
             Debug.log("Environment:");
             e.map.entrySet().forEach(
-                entry -> Debug.log(entry.getKey() + " : "  + entry.getValue())
+                    entry -> Debug.log(entry.getKey() + " : "  + entry.getValue())
             );
             Debug.blank();
         }
-		catch (Exception ex) {
+        catch (Exception ex) {
             out.println("RUNTIME ERROR:");
             ex.printStackTrace(Debug.out);
         }
         finally {
             out.println("Process finished.");
         }
-	}
+    }
 }

@@ -9,10 +9,9 @@ import marg.token.TokenSet;
 public class Parser implements IParser {
     @Override
     public ASTree parse(TokenSet ls) throws ParseException {
-        ASTree ast;
-        ast = new Program(ls);
+        ASTree ast = new Program(ls);
         return ast;
-	}
+    }
 }
 
 

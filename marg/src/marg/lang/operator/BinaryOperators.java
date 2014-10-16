@@ -1,38 +1,38 @@
 package marg.lang.operator;
-import marg.lang.type.MBool;
-import marg.lang.type.MInt;
+import marg.lang.data.MBool;
+import marg.lang.data.SInt;
 
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 
 public enum BinaryOperators {
-    Multiple (0, "*", (MInt a, MInt b) -> {
-        return new MInt(a.get() * b.get());
+    Multiple (0, "*", (SInt a, SInt b) -> {
+        return new SInt(a.get() * b.get());
     }),
-    Div (0, "/", (MInt a, MInt b) -> {
-        return new MInt(a.get() / b.get());
+    Div (0, "/", (SInt a, SInt b) -> {
+        return new SInt(a.get() / b.get());
     }),
-    Plus (1, "+", (MInt a, MInt b) -> {
-        return new MInt(a.get() + b.get());
+    Plus (1, "+", (SInt a, SInt b) -> {
+        return new SInt(a.get() + b.get());
     }),
-    Minus (1, "-", (MInt a, MInt b) -> {
-        return new MInt(a.get() - b.get());
+    Minus (1, "-", (SInt a, SInt b) -> {
+        return new SInt(a.get() - b.get());
     }),
-    Mod (2, "%", (MInt a, MInt b) -> {
-        return new MInt(a.get() % b.get());
+    Mod (2, "%", (SInt a, SInt b) -> {
+        return new SInt(a.get() % b.get());
     }),
-    Exp (2, "!",  (MInt a, MInt b) -> {
+    Exp (2, "!",  (SInt a, SInt b) -> {
         int ret = 1;
         for (int i = 2; i <= a.get(); i++) {
             ret *= i;
         }
-        return new MInt(ret);
+        return new SInt(ret);
     }),
 
-    Equal    (3, "==", (MInt a, MInt b) -> new MBool(a.get() == b.get())),
-    NotEqual (3, "!=", (MInt a, MInt b) -> new MBool(a.get() != b.get())),
-    MoreThan (3, ">",  (MInt a, MInt b) -> new MBool(a.get() > b.get())),
-    LessThan (3, "<",  (MInt a, MInt b) -> new MBool(a.get() < b.get())),
+    Equal    (3, "==", (SInt a, SInt b) -> new MBool(a.get() == b.get())),
+    NotEqual (3, "!=", (SInt a, SInt b) -> new MBool(a.get() != b.get())),
+    MoreThan (3, ">",  (SInt a, SInt b) -> new MBool(a.get() > b.get())),
+    LessThan (3, "<",  (SInt a, SInt b) -> new MBool(a.get() < b.get())),
     ;
 
 
@@ -48,10 +48,10 @@ public enum BinaryOperators {
         eval = func;
     }
 
-    private BinaryOperators(int level, String sign, BinaryOperator<MInt> func) {
+    private BinaryOperators(int level, String sign, BinaryOperator<SInt> func) {
         init(level, sign, (BiFunction)func);
     }
-    private BinaryOperators(int level, String sign, BiFunction<MInt, MInt, MBool> func) {
+    private BinaryOperators(int level, String sign, BiFunction<SInt, SInt, MBool> func) {
         init(level, sign, func);
     }
 }

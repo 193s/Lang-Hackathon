@@ -4,7 +4,7 @@ import marg.ast.statement.*;
 import marg.debug.Console;
 import marg.exception.ParseException;
 import marg.debug.Debug;
-import marg.lang.type.IType;
+import marg.lang.data.IType;
 import marg.parser.Environment;
 import marg.ast.ASTree;
 import marg.token.TokenSet;

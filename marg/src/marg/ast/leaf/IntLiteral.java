@@ -1,8 +1,8 @@
 package marg.ast.leaf;
 
 import marg.debug.Debug;
-import marg.lang.type.IType;
-import marg.lang.type.MInt;
+import marg.lang.data.IType;
+import marg.lang.data.MInt;
 import marg.parser.Environment;
 import marg.ast.ASTLeaf;
 import marg.token.Token;

@@ -1,7 +1,7 @@
 package marg.parser;
 
-import marg.lang.type.IType;
-import marg.lang.type.MNull;
+import marg.lang.data.IType;
+import marg.lang.data.MNull;
 
 import java.util.HashMap;
 

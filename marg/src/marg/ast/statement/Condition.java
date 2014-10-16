@@ -1,11 +1,10 @@
 package marg.ast.statement;
 
-import marg.ast.ASTLeaf;
 import marg.ast.ASTree;
 import marg.ast.other.Expr;
 import marg.exception.ParseException;
-import marg.lang.type.IType;
-import marg.lang.type.MBool;
+import marg.lang.data.IType;
+import marg.lang.data.MBool;
 import marg.parser.Environment;
 import marg.token.TokenSet;
 

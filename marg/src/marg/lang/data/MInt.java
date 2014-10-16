@@ -1,4 +1,4 @@
-package marg.lang.type;
+package marg.lang.data;
 
 public class MInt implements IType {
     public MInt(){}

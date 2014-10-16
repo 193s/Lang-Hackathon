@@ -1,7 +1,7 @@
 package marg.ast;
 
 
-import marg.lang.type.IType;
+import marg.lang.data.IType;
 import marg.parser.Environment;
 
 public abstract class ASTLeaf extends ASTree {

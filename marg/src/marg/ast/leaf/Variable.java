@@ -1,7 +1,7 @@
 package marg.ast.leaf;
 
 
-import marg.lang.type.IType;
+import marg.lang.data.IType;
 import marg.parser.Environment;
 import marg.ast.ASTLeaf;
 

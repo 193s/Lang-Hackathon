@@ -1,4 +1,4 @@
-package marg.lang.type;
+package marg.lang.data;
 
 public class MBool implements IType {
     public MBool() {}

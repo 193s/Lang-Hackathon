@@ -5,11 +5,13 @@ import marg.debug.Debug;
 import marg.lexer.ILexer;
 import marg.lexer.Lexer;
 import marg.ast.ASTree;
+import marg.lexer.SLexer;
 import marg.parser.Environment;
 import marg.parser.IParser;
 import marg.parser.Parser;
 import marg.token.Token;
 import marg.token.TokenSet;
+import marg.util.Extension;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,16 +23,18 @@ import static marg.debug.Console.*;
 import static org.fusesource.jansi.Ansi.*;
 import static org.fusesource.jansi.Ansi.Color.*;
 
+// Interactive Shell
 public class IMR {
-    // Interactive Shell
+
     public static void main(String[] args) {
         Debug.setEnabled(false);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            out.print(ansi().reset());
+            out.print(ansi().reset().a('\n'));
+            out.println("Program will exit...");
         }));
 
         Environment e = new Environment(null);
-        ILexer lexer = new Lexer();
+        SLexer lexer = new SLexer();
         IParser parser = new Parser();
         InputStreamReader isr = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(isr);
@@ -44,7 +48,6 @@ public class IMR {
                 out.print(ansi().reset());
 
                 if ("exit".equals(s)) {
-                    out.println("Program will exit...");
                     System.exit(0);
                 }
                 if ("values".equals(s)) {
@@ -60,7 +63,8 @@ public class IMR {
 
                 List<Token> ls;
                 try {
-                    ls = lexer.tokenize(s);
+//                    ls = lexer.tokenize(s);
+                    ls = Extension.convertList(lexer.tokenize(s));
                 }
                 catch (NullPointerException ex) {
                     // No input
