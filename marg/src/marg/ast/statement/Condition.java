@@ -11,7 +11,7 @@ import marg.token.TokenSet;
 import java.io.EOFException;
 
 public class Condition {
-    ASTree child;
+    private ASTree child;
     public Condition(TokenSet ls) throws ParseException, EOFException {
         child = new Expr(ls);
     }

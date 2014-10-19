@@ -1,18 +1,19 @@
 package marg.ast.statement
 
 import marg.ast.SASTree
+import marg.ast.other.SExpr
 import marg.lang.data.SType
-import marg.parser.Environment
+import marg.parser.{SEnvironment, Environment}
 import marg.token.TokenSet
 
 class SEcho extends SASTree {
-  var child: SASTree
+  private var child: SASTree = null
 
-  override def build(ls: TokenSet): Unit = {
+  def this(ls: TokenSet) {
+    this()
     ls.read("echo")
-    child = new SExpr()
-    child.build(ls)
+    child = new SExpr(ls)
   }
 
-  override def eval(k: Int, e: Environment): SType = return child.eval(k, e)
+  def eval(e: SEnvironment): SType = child.eval(e)
 }

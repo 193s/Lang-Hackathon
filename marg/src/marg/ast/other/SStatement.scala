@@ -6,22 +6,26 @@ import marg.ast.SASTree
 import marg.ast.statement._
 import marg.debug.Console
 import marg.lang.data.SType
-import marg.parser.Environment
+import marg.parser.{SEnvironment, Environment}
 import marg.token.TokenSet
 
 
 class SStatement extends SASTree {
-  val child: SASTree
+  private var child: SASTree = null
 
-  override def build(ls: TokenSet): Unit = {
+  def this(ls: TokenSet) {
+    this()
     try {
-      child = if (ls.is("while"))       new SWhile(ls)
-              else if (ls.is("if"))     new SIf(ls)
-              else if (ls.is("unless")) new SUnless(ls)
-              else if (ls.is("echo"))   new SEcho(ls)
-              else if (ls.isName)       new SAssign(ls)
-              else new SExpr(ls)
-      child.build(ls)
+      child = ls.get().string match {
+//        case "while" => new SWhile(ls)
+        case "if"    => new SIf(ls)
+//        case "unless"=> new SUnless(ls)
+        case "echo"  => new SEcho(ls)
+        case _ => {
+          if (ls.isName()) new SAssign(ls)
+          else new SExpr(ls)
+        }
+      }
     }
     catch {
       case e: EOFException => {
@@ -34,5 +38,5 @@ class SStatement extends SASTree {
     }
   }
 
-  override def eval(k: Int, e: Environment): SType = child.eval(k, e)
+  def eval(e: SEnvironment): SType = child.eval(e)
 }

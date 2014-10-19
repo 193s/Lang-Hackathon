@@ -13,20 +13,17 @@ import scala.collection.mutable.ListBuffer
 
 class SProgram extends SASTList {
 
-  def build(ls: TokenSet): Unit = {
-    Debug.log("program")
+  def this(ls: TokenSet) {
+    this()
 
-
-    val s = new SStatement
-    s.build(ls)
+    val s = new SStatement(ls)
 
     children += s
 
     try {
       while (!ls.isEOF && ls.is(",")) {
         ls.read(",")
-        val right: SASTree = new SStatement
-        right.build(ls)
+        val right: SASTree = new SStatement(ls)
         children += right
       }
     }
