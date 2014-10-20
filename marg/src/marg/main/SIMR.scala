@@ -2,11 +2,11 @@ package marg.main
 
 import java.io.{BufferedReader, InputStreamReader, IOException}
 
-import marg.ast.ASTree
+import marg.ast.{SASTree, ASTree}
 import marg.debug.Debug
 import marg.lexer.SLexer
 import marg.exception.ParseException
-import marg.parser.{Parser, IParser, Environment}
+import marg.parser._
 import marg.token.{TokenSet, Token}
 import org.fusesource.jansi.Ansi.Color._
 import org.fusesource.jansi.Ansi._
@@ -26,36 +26,37 @@ object SIMR {
       }
     }))
 
-    val e: Environment = new Environment(null)
+    val e: SEnvironment = new SEnvironment(null)
     val lexer: SLexer = new SLexer
-    val parser: IParser = new Parser
+    val parser: SParser = new SParser
     val isr: InputStreamReader = new InputStreamReader(System.in)
     val reader: BufferedReader = new BufferedReader(isr)
 
     while (true) exec(reader, e, lexer, parser)
   }
 
-  def exec(reader: BufferedReader, e: Environment, lexer: SLexer, parser: IParser): Unit = {
+  def exec(reader: BufferedReader, e: SEnvironment, lexer: SLexer, parser: SParser): Unit = {
     print("Marg> ")
     print(ansi.fg(GREEN))
-    var input = reader.readLine()
+    val input = reader.readLine()
+
     print(ansi.reset())
 
-    if (input.last == '\\') {
-      val f = () => {
-        print("\\\t")
-        print(ansi.fg(GREEN))
-        val input_ = reader.readLine()
-        print(ansi.reset())
-
-        if (input_.last == '\\') {
-          input += input_
-          f()
-        }
-        return
-      }
-      f()
-    }
+//    if (input.last == '\\') {
+//      val f = () => {
+//        print("\\\t")
+//        print(ansi.fg(GREEN))
+//        val input_ = reader.readLine()
+//        print(ansi.reset())
+//
+//        if (input_.last == '\\') {
+//          input += input_
+//          f()
+//        }
+//        return
+//      }
+//      f()
+//    }
     input match {
       case "exit" => System.exit(0)
       case "clear" => println(ansi().eraseScreen())
@@ -71,7 +72,7 @@ object SIMR {
       }
     }
   }
-  def execLine(input: String, e: Environment, lexer: SLexer, parser: IParser): Unit = {
+  def execLine(input: String, e: SEnvironment, lexer: SLexer, parser: SParser): Unit = {
     var ls: List[Token] = Nil
     try {
       ls = lexer.tokenize(input)
@@ -82,7 +83,7 @@ object SIMR {
         return
       }
     }
-    var ast: ASTree = null
+    var ast: SASTree = null
     try {
       ast = parser.parse(new TokenSet(ls.asJava))
     }
@@ -100,7 +101,7 @@ object SIMR {
       }
     }
     try {
-      ast.eval(0, e)
+      ast.eval(e)
     }
     catch {
       case ex: Exception => {

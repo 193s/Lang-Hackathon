@@ -1,7 +1,7 @@
 package marg.ast.statement
 
 import marg.ast.SASTree
-import marg.ast.other.SExpr
+import marg.ast.other.{SValue, SExpr}
 import marg.lang.data.SType
 import marg.parser.{SEnvironment, Environment}
 import marg.token.TokenSet
@@ -15,5 +15,9 @@ class SEcho extends SASTree {
     child = new SExpr(ls)
   }
 
-  def eval(e: SEnvironment): SType = child.eval(e)
+  def eval(e: SEnvironment): SType = {
+    val v = child.eval(e)
+    println(v.get)
+    return v
+  }
 }

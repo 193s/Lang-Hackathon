@@ -1,7 +1,7 @@
 package marg.ast.leaf;
 
 import marg.ast.ASTLeaf;
-import marg.lang.operator.BinaryOperators;
+import marg.lang.operator.BiOperator;
 import marg.token.Token;
 import marg.token.TokenSet;
 
@@ -18,8 +18,8 @@ public final class Operator extends ASTLeaf {
         Token t = ls.next();
         string = t.string;
 
-        EnumSet<BinaryOperators> enumSet =
-                EnumSet.allOf(BinaryOperators.class);
+        EnumSet<BiOperator> enumSet =
+                EnumSet.allOf(BiOperator.class);
 
         enumSet.forEach(b -> {
             if (string.equals(b.string)) {

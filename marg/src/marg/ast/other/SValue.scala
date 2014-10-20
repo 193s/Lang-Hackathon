@@ -1,8 +1,9 @@
 package marg.ast.other
 
+import marg.ast.leaf.{SIntLiteral, SBoolLiteral, SVariable}
 import marg.exception.ParseException
 import marg.lang.data.SType
-import marg.parser.{SEnvironment, Environment}
+import marg.parser.SEnvironment
 import marg.ast.{SASTList, SASTree}
 import marg.token.TokenSet
 
@@ -10,7 +11,7 @@ import marg.token.TokenSet
 class SValue extends SASTList {
   private var child: SASTree = null
 
-  private[other] def this(ls: TokenSet) {
+  def this(ls: TokenSet) {
     this()
     if (ls.is("(")) {
       ls.read("(")
@@ -25,14 +26,11 @@ class SValue extends SASTList {
       child = new SBoolLiteral(ls)
     }
     else if (ls.isName) {
-      val id: String = ls.next.string
-      child = new SVariable(id)
+      child = new SVariable(ls)
     }
     else throw new ParseException("Internal Error: invalid <Value>", ls)
   }
 
-  def eval(e: SEnvironment): SType = {
-    return child.eval(e)
-  }
+  def eval(e: SEnvironment): SType = child.eval(e)
 }
 

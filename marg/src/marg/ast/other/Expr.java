@@ -3,11 +3,11 @@ package marg.ast.other;
 import marg.exception.ParseException;
 import marg.debug.Debug;
 import marg.lang.data.IType;
+import marg.lang.operator.BiOperator;
 import marg.parser.Environment;
 import marg.ast.ASTList;
 import marg.ast.ASTree;
 import marg.ast.leaf.Operator;
-import marg.lang.operator.BinaryOperators;
 import marg.token.TokenSet;
 
 import java.io.EOFException;
@@ -46,7 +46,7 @@ public class Expr extends ASTList {
                 ops_cpy2 = new ArrayList<>();
         ArrayList vals_ = new ArrayList();
 
-        for (int il=0; il< BinaryOperators.maxLevel; il++) {
+        for (int il=0; il< BiOperator.maxLevel; il++) {
             ops_cpy2.clear();
             vals_.clear();
 

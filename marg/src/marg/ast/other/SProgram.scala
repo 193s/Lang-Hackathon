@@ -5,7 +5,7 @@ import java.io.EOFException
 import marg.ast.{SASTree, SASTList}
 import marg.debug.Debug
 import marg.lang.data.SType
-import marg.parser.Environment
+import marg.parser.{SEnvironment, Environment}
 import marg.token.TokenSet
 
 import scala.collection.mutable.ListBuffer
@@ -32,7 +32,8 @@ class SProgram extends SASTList {
     }
   }
 
-  override var children: ListBuffer[SASTree] = _
-
-  override def eval(k: Int, e: Environment): SType = ???
+  def eval(e: SEnvironment): SType = {
+    children.foreach(ast => ast.eval(e))
+    return null
+  }
 }

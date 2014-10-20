@@ -1,13 +1,13 @@
 package marg.parser
 
-import marg.ast.ASTree
-import marg.ast.other.Program
+import marg.ast.{SASTree, ASTree}
+import marg.ast.other.{SProgram, Program}
 import marg.token.TokenSet
 
 
 class SParser {
-  def parse(ls: TokenSet): ASTree = {
-    val ast = new Program(ls)
+  def parse(ls: TokenSet): SASTree = {
+    val ast = new SProgram(ls)
     return ast
   }
 }

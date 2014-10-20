@@ -28,12 +28,10 @@ class SStatement extends SASTree {
       }
     }
     catch {
-      case e: EOFException => {
-        return
-      }
+      case e: EOFException => {}
       case e: Exception => {
         Console.out.println("Unexpected error.")
-        e.printStackTrace(Console.out)
+        e.printStackTrace()
       }
     }
   }
