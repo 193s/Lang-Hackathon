@@ -1,12 +1,12 @@
 package marg.ast.leaf
 
-import marg.ast.SASTLeaf
-import marg.lang.data.{SInt, SType, IType, MInt}
+import marg.ast.ASTLeaf
+import marg.lang.data.{SInt, SType}
 import marg.parser.SEnvironment
-import marg.token.{TokenSet, Token}
+import marg.token.TokenSet
 
 
-class SIntLiteral(var string: String) extends SASTLeaf {
+class SIntLiteral(var string: String) extends ASTLeaf {
   var value: SInt = null
 
   def this(ls: TokenSet) {

@@ -1,11 +1,11 @@
 package marg.ast.leaf
 
-import marg.ast.SASTLeaf
+import marg.ast.ASTLeaf
 import marg.lang.data.{SBool, SInt, SType}
 import marg.parser.SEnvironment
 import marg.token.TokenSet
 
-class SOperator(var string: String) extends SASTLeaf {
+class SOperator(var string: String) extends ASTLeaf {
   var level = 0
   var func: (SInt, SInt) => SInt = null
   var assignment: Boolean = false
@@ -18,7 +18,6 @@ class SOperator(var string: String) extends SASTLeaf {
     else if (map_op.contains(string)) {
       val s = map_op(string)
       level = s._1
-//      func = a._2.asInstanceOf[(SType, SType) => SType]
       func = s._2
     }
   }

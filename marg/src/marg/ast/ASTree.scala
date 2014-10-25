@@ -1,8 +1,7 @@
 package marg.ast
 
 import marg.lang.data.SType
-import marg.parser.{SEnvironment, Environment}
-import marg.token.TokenSet
+import marg.parser.SEnvironment
 
 
 abstract class ASTree {

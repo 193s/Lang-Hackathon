@@ -2,16 +2,13 @@ package marg.ast.other
 
 import java.io.EOFException
 
-import marg.ast.{SASTree, SASTList}
-import marg.debug.Debug
+import marg.ast.{ASTree, ASTList}
 import marg.lang.data.SType
-import marg.parser.{SEnvironment, Environment}
+import marg.parser.SEnvironment
 import marg.token.TokenSet
 
-import scala.collection.mutable.ListBuffer
 
-
-class SProgram extends SASTList {
+class SProgram extends ASTList {
 
   def this(ls: TokenSet) {
     this()
@@ -23,17 +20,18 @@ class SProgram extends SASTList {
     try {
       while (!ls.isEOF && ls.is(",")) {
         ls.read(",")
-        val right: SASTree = new SStatement(ls)
+        val right: ASTree = new SStatement(ls)
         children += right
       }
     }
     catch {
-      case e: EOFException => {}
+      case e: EOFException =>
     }
   }
 
   def eval(e: SEnvironment): SType = {
-    children.foreach(ast => ast.eval(e))
-    return null
+    var ret: SType = null
+    children.foreach(ast => ret = ast.eval(e))
+    return ret
   }
 }

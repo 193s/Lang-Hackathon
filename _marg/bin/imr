@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-echo imr
-java -jar ~/.marg/bin/imr.jar
+cwd=`dirname ${0}`
+scala $cwd/simr.jar

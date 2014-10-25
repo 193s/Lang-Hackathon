@@ -1,13 +1,13 @@
 package marg.ast.statement
 
-import marg.ast.SASTree
+import marg.ast.ASTree
 import marg.ast.other.SExpr
 import marg.lang.data.SBool
-import marg.parser.{SEnvironment, Environment}
+import marg.parser.SEnvironment
 import marg.token.TokenSet
 
-class SCondition extends SASTree {
-  private var condition: SASTree = null
+class SCondition extends ASTree {
+  private var condition: ASTree = null
 
   def this(ls: TokenSet) {
     this()
@@ -15,6 +15,6 @@ class SCondition extends SASTree {
   }
 
   def eval(e: SEnvironment): SBool = {
-    condition.eval(e).get.asInstanceOf[SBool]
+    condition.eval(e).asInstanceOf[SBool]
   }
 }

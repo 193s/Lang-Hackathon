@@ -4,18 +4,18 @@ import marg.ast.leaf.{SIntLiteral, SBoolLiteral, SVariable}
 import marg.exception.ParseException
 import marg.lang.data.SType
 import marg.parser.SEnvironment
-import marg.ast.{SASTList, SASTree}
+import marg.ast.{ASTList, ASTree}
 import marg.token.TokenSet
 
 
-class SValue extends SASTList {
-  private var child: SASTree = null
+class SValue extends ASTList {
+  private var child: ASTree = null
 
   def this(ls: TokenSet) {
     this()
     if (ls.is("(")) {
       ls.read("(")
-      val s: SASTree = new SExpr(ls)
+      val s: ASTree = new SExpr(ls)
       if (!ls.read(")")) throw new ParseException("Syntax Error: ')' not found", ls)
       child = s
     }

@@ -1,27 +1,24 @@
 package marg.ast.other
 
-import java.util
-
 import marg.ast.leaf.SOperator
-import marg.ast.{SASTList, SASTree}
+import marg.ast.{ASTList, ASTree}
 import marg.lang.data.{SInt, SType}
-import marg.lang.operator.BiOperator
 import marg.parser.SEnvironment
 import marg.token.TokenSet
 
 import scala.collection.mutable.ListBuffer
 
 
-class SExpr extends SASTList {
+class SExpr extends ASTList {
   private val operators = ListBuffer[SOperator]()
 
   def this(ls: TokenSet) {
     this()
-    val n: SASTree = new SValue(ls)
+    val n: ASTree = new SValue(ls)
     children += n
     while (ls.isOperator) {
       val op: SOperator = new SOperator(ls)
-      val n2: SASTree = new SValue(ls)
+      val n2: ASTree = new SValue(ls)
       operators += op
       children += n2
     }
@@ -38,7 +35,7 @@ class SExpr extends SASTList {
     val vals_ = ListBuffer[SType]()
 
 
-    for (il <- 0 to BiOperator.maxLevel - 1) {
+    for (il <- 0 to 3) {
       ops_cpy2.clear()
       vals_.clear()
       vals_ += vals.head

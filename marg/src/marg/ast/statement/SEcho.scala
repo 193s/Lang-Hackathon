@@ -1,13 +1,13 @@
 package marg.ast.statement
 
-import marg.ast.SASTree
-import marg.ast.other.{SValue, SExpr}
+import marg.ast.ASTree
+import marg.ast.other.SExpr
 import marg.lang.data.SType
-import marg.parser.{SEnvironment, Environment}
+import marg.parser.SEnvironment
 import marg.token.TokenSet
 
-class SEcho extends SASTree {
-  private var child: SASTree = null
+class SEcho extends ASTree {
+  private var child: ASTree = null
 
   def this(ls: TokenSet) {
     this()

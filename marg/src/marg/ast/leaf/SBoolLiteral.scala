@@ -1,13 +1,12 @@
 package marg.ast.leaf
 
-import marg.ast.SASTLeaf
-import marg.debug.Debug
-import marg.lang.data.{SBool, SType, IType, MBool}
-import marg.parser.{SEnvironment, Environment}
-import marg.token.{TokenSet, Token}
+import marg.ast.ASTLeaf
+import marg.lang.data.{SBool, SType}
+import marg.parser.SEnvironment
+import marg.token.TokenSet
 
 
-class SBoolLiteral extends SASTLeaf {
+class SBoolLiteral extends ASTLeaf {
   var string: String = ""
   private var value: SBool = null
 

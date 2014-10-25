@@ -2,11 +2,10 @@ package marg.lexer
 
 import java.lang.Character._
 
-import marg.debug.Console
 import marg.token.TokenKind._
 import marg.token._
 
-class SLexer {
+class SLexer extends ILexer {
 
   def tokenize(input: String): List[Token] = {
     var ls = List[Token]()

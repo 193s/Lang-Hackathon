@@ -1,13 +1,13 @@
 package marg.ast.statement
 
-import marg.ast.{SASTLeaf, SASTree, SASTList}
+import marg.ast.{ASTLeaf, ASTree, ASTList}
 import marg.lang.data.SType
 import marg.parser.SEnvironment
 import marg.ast.other.SStatement
-import marg.ast.leaf.{SOperator, SVariable, Variable}
+import marg.ast.leaf.{SOperator, SVariable}
 import marg.token.TokenSet
 
-class SAssign extends SASTList {
+class SAssign extends ASTList {
   def this(ls: TokenSet) {
     this()
     val left = new SVariable(ls.next().string)
@@ -17,7 +17,7 @@ class SAssign extends SASTList {
   }
 
   def eval(e: SEnvironment): SType = {
-    val identifier = children.head.asInstanceOf[SASTLeaf].string
+    val identifier = children.head.asInstanceOf[ASTLeaf].string
     val ret: SType = children.last.eval(e)
     e.put(identifier, ret)
     return ret
