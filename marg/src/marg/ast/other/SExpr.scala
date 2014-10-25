@@ -4,7 +4,7 @@ import java.util
 
 import marg.ast.leaf.SOperator
 import marg.ast.{SASTList, SASTree}
-import marg.lang.data.SType
+import marg.lang.data.{SInt, SType}
 import marg.lang.operator.BiOperator
 import marg.parser.SEnvironment
 import marg.token.TokenSet
@@ -31,22 +31,23 @@ class SExpr extends SASTList {
     if (children.length == 1) return children.head.eval(e)
 
     var vals = ListBuffer[SType]()
-
     children.foreach(o => vals += o.eval(e))
 
     var ops_cpy: ListBuffer[SOperator] = operators.clone
     val ops_cpy2 = ListBuffer[SOperator]()
     val vals_ = ListBuffer[SType]()
 
-    for (il <- 0 to BiOperator.maxLevel) {
+
+    for (il <- 0 to BiOperator.maxLevel - 1) {
       ops_cpy2.clear()
       vals_.clear()
       vals_ += vals.head
 
-      for (i <- 0 to ops_cpy.size) {
+      for (i <- 0 to ops_cpy.size - 1) {
         if (ops_cpy(i).level == il) {
-          vals_ += ops_cpy(i).eval(
-            vals_.remove(vals_.size - 1), vals(i + 1))
+          vals_ += ops_cpy(i)(
+            vals_.remove(vals_.size - 1).asInstanceOf[SInt],
+            vals(i + 1).asInstanceOf[SInt])
         }
         else {
           vals_ += vals(i + 1)
