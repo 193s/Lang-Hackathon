@@ -14,7 +14,7 @@ import scala.collection.JavaConverters._
 
 
 object IMR {
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]) {
     Debug.setEnabled(false)
 
     // Shutdown Hook
