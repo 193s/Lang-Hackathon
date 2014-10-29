@@ -4,12 +4,13 @@ import java.io.{IOException, FileNotFoundException}
 import java.util.InputMismatchException
 
 import marg.ast.ASTree
-import marg.command.CommandLineOption
-import marg.command.Options._
+import marg.util.{Options, CommandLineOption}
+import Options._
 import marg.exception.ParseException
 import marg.lexer.{SLexer, ILexer}
 import marg.parser.{SEnvironment, SParser, IParser}
 import marg.token.{Token, TokenSet}
+import marg.util.CommandLineOption
 
 
 object Marg {

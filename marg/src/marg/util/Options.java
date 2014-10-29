@@ -1,4 +1,4 @@
-package marg.command;
+package marg.util;
 
 public enum Options {
     Run,

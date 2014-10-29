@@ -1,4 +1,4 @@
-package marg.command;
+package marg.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;

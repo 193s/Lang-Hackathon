@@ -1,5 +1,0 @@
-/Users/ikumi/git/Lang-K/Lang-K_C#/myLang/myLang/obj/x86/Debug/.NETFramework,Version=v4.0.AssemblyAttribute.cs
-/Users/ikumi/git/Lang-K/Lang-K_C#/myLang/myLang/bin/Debug/myLang.exe.mdb
-/Users/ikumi/git/Lang-K/Lang-K_C#/myLang/myLang/bin/Debug/myLang.exe
-/Users/ikumi/git/Lang-K/Lang-K_C#/myLang/myLang/obj/x86/Debug/myLang.exe
-/Users/ikumi/git/Lang-K/Lang-K_C#/myLang/myLang/obj/x86/Debug/myLang.exe.mdb
