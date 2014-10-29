@@ -6,18 +6,15 @@ import java.util.InputMismatchException
 import marg.ast.ASTree
 import marg.command.CommandLineOption
 import marg.command.Options._
-import marg.debug.Debug
 import marg.exception.ParseException
 import marg.lexer.{SLexer, ILexer}
 import marg.parser.{SEnvironment, SParser, IParser}
 import marg.token.{Token, TokenSet}
 
-import scala.collection.JavaConverters._
-
 
 object Marg {
+
   def main(args: Array[String]) {
-    Debug.setEnabled(false)
     var option: CommandLineOption = null
     try {
       option = new CommandLineOption(args)
@@ -62,7 +59,7 @@ object Marg {
     val parser: IParser = new SParser
     var ast: ASTree = null
     try {
-      ast = parser.parse(new TokenSet(ls.asJava))
+      ast = parser.parse(new TokenSet(ls))
     }
     catch {
       case e: ParseException =>
@@ -70,15 +67,10 @@ object Marg {
         e.printStackTrace()
         sys.exit(-1)
     }
-    Debug.log("--Parse finished--")
     val e: SEnvironment = new SEnvironment(null)
-    Debug.log("--- RUNNING ---")
 
     try {
       ast.eval(e)
-
-      Debug.log("Environment:")
-      e.map.foreach(entry => Debug.log(entry._1 + " : " + entry._2))
     }
     catch {
       case ex: Exception =>

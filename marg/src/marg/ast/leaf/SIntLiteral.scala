@@ -10,7 +10,7 @@ class SIntLiteral(var string: String) extends ASTLeaf {
   var value: SInt = null
 
   def this(ls: TokenSet) {
-    this(ls.next.string)
+    this(ls.next.getString)
     value = new SInt(Integer.parseInt(string))
   }
 

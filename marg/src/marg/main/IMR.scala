@@ -1,22 +1,17 @@
 package marg.main
 
-import java.io.{BufferedReader, InputStreamReader}
-
 import marg.ast.ASTree
-import marg.debug.Debug
 import marg.lexer.{ILexer, SLexer}
 import marg.exception.ParseException
 import marg.parser._
 import marg.token.{TokenSet, Token}
 import marg.util.AnsiExtension
 
-import scala.collection.JavaConverters._
+import scala.io.StdIn
 
 
 object IMR {
   def main(args: Array[String]) {
-    Debug.setEnabled(false)
-
     // Shutdown Hook
     sys addShutdownHook {
       println(Console.RESET)
@@ -26,46 +21,49 @@ object IMR {
     val e: SEnvironment = new SEnvironment(null)
     val lexer: ILexer = new SLexer
     val parser: IParser = new SParser
-    val isr: InputStreamReader = new InputStreamReader(System.in)
-    val reader: BufferedReader = new BufferedReader(isr)
 
-    while (true) exec(reader, e, lexer, parser)
+    while (true) exec(e, lexer, parser)
   }
 
-  def exec(reader: BufferedReader, e: SEnvironment, lexer: ILexer, parser: IParser): Unit = {
+  def exec(e: SEnvironment, lexer: ILexer, parser: IParser): Unit = {
     print("Marg> ")
     print(Console.GREEN)
-    val input = reader.readLine()
+    var input = StdIn.readLine()
 
     print(Console.RESET)
 
-//    if (input.last == '\\') {
-//      val f = () => {
-//        print("\\\t")
-//        print(Console.GREEN)
-//        val input_ = reader.readLine()
-//        print(ansi.reset())
-//
-//        if (input_.last == '\\') {
-//          input += input_
-//          f()
-//        }
-//        return
-//      }
-//      f()
-//    }
-    input match {
-      case "exit" => sys.exit()
-      case "clear" =>
-        print(AnsiExtension.CLEAR)
-        return
-      case "values" =>
-        e.map.foreach(p => println(p._1 + " := " + p._2.get))
-      case _ =>
-        execLine(input, e, lexer, parser)
+    if (input.last == '\\') {
+      input = input.init
+      print("\\\t")
+      print(Console.GREEN)
+      val input_ = StdIn.readLine()
+      print(Console.RESET)
+      input += input_
     }
+
+    if (input.head == ':')
+      input.tail match {
+        case "?" | "h" | "help" => println(":?")
+        case "q" | "quit" => sys.exit()
+        case "c" | "clear" =>
+          print(AnsiExtension.CLEAR)
+          return
+        case "v" | "values" =>
+          e.map.foreach(p => println(p._1 + " := " + p._2.get))
+        case s =>
+          print(Console.RED)
+          println("Command not found: " + s)
+          print(Console.RESET)
+      }
+
+    else {
+      execLine(input, e, lexer, parser)
+    }
+
     println()
   }
+
+
   def execLine(input: String, e: SEnvironment, lexer: ILexer, parser: IParser): Unit = {
     var ls: List[Token] = Nil
     try {
@@ -78,15 +76,17 @@ object IMR {
 
     var ast: ASTree = null
     try {
-      ast = parser.parse(new TokenSet(ls.asJava))
+      ast = parser.parse(new TokenSet(ls))
     }
     catch {
       case ex: ParseException =>
-        println("Parse error")
         print(Console.RED)
         println(ex.getMessage)
-        ex.printStackTrace()
         print(Console.RESET)
+
+        val offset = ex.getErrorOffset
+        val list = ls.slice(offset - 3, offset + 3).init
+        list.foreach(t => print(t.getString))
         return
       case ex: Exception =>
         println("Unexpected error")

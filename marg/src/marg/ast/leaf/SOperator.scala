@@ -11,7 +11,7 @@ class SOperator(var string: String) extends ASTLeaf {
   var assignment: Boolean = false
 
   def this(ls: TokenSet) {
-    this(ls.next().string)
+    this(ls.next.getString)
 
     if (string == "=")
       assignment = true

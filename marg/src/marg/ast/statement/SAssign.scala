@@ -10,17 +10,18 @@ import marg.token.TokenSet
 class SAssign extends ASTList {
   def this(ls: TokenSet) {
     this()
-    val left = new SVariable(ls.next().string)
-    val operator = new SOperator(ls.next().string)
+    val left = new SVariable(ls.next.getString)
+    val operator = new SOperator(ls.next.getString)
     val right = new SStatement(ls)
     children ++= List(left, operator, right)
   }
 
   def eval(e: SEnvironment): SType = {
     val identifier = children.head.asInstanceOf[ASTLeaf].string
-    val ret: SType = children.last.eval(e)
+    val ret = children.last.eval(e)
     e.put(identifier, ret)
-    return ret
+
+    ret
   }
 }
 

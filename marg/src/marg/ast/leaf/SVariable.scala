@@ -7,7 +7,7 @@ import marg.token.TokenSet
 
 class SVariable(var string: String) extends ASTLeaf {
   def this(ls: TokenSet) {
-    this(ls.next.string)
+    this(ls.next.getString)
     ls.checkEOF()
   }
   def eval(e: SEnvironment): SType = e.get(string)

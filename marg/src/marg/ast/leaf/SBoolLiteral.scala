@@ -12,7 +12,7 @@ class SBoolLiteral extends ASTLeaf {
 
   def this(ls: TokenSet) {
     this()
-    val t = ls.next.string
+    val t = ls.next.getString
     string = t
     value = new SBool("o" == string)
   }

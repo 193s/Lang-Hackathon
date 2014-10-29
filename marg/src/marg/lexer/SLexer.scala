@@ -17,11 +17,11 @@ class SLexer extends ILexer {
       val t = getToken(input, offset)
       if (t == null) flag = false
       else {
-        val kind: TokenKind = t.kind
+        val kind: TokenKind = t.getKind
 
         if ((kind ne Space) && (kind ne OneLineComment) && (kind ne MultiLineComment))
           ls =  ls :+ t
-        offset += t.string.length
+        offset += t.getString.length
       }
     }
 

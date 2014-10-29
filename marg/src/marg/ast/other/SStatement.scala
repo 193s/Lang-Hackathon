@@ -15,7 +15,8 @@ class SStatement extends ASTree {
   def this(ls: TokenSet) {
     this()
     try {
-      child = ls.get.string match {
+      child = ls.get.getString match {
+        case "var"    => new SDefine(ls)
         case "while"  => new SWhile(ls)
         case "if"     => new SIf(ls)
         case "unless" => new SUnless(ls)
@@ -30,5 +31,5 @@ class SStatement extends ASTree {
     }
   }
 
-  def eval(e: SEnvironment): SType = child.eval(e)
+  override def eval(e: SEnvironment) = child.eval(e)
 }

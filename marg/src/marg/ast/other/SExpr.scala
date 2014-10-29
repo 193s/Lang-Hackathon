@@ -30,7 +30,7 @@ class SExpr extends ASTList {
     var vals = ListBuffer[SType]()
     children.foreach(o => vals += o.eval(e))
 
-    var ops_cpy: ListBuffer[SOperator] = operators.clone
+    var ops_cpy: ListBuffer[SOperator] = operators.clone()
     val ops_cpy2 = ListBuffer[SOperator]()
     val vals_ = ListBuffer[SType]()
 
@@ -51,10 +51,10 @@ class SExpr extends ASTList {
           ops_cpy2 += ops_cpy(i)
         }
       }
-      ops_cpy = ops_cpy2.clone
-      vals = vals_.clone
+      ops_cpy = ops_cpy2.clone()
+      vals = vals_.clone()
     }
 
-    return vals.head
+    vals.head
   }
 }
