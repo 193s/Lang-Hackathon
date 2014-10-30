@@ -1,21 +1,20 @@
 package marg.main
 
-import marg.ast.ASTree
 import marg.lexer.{ILexer, SLexer}
 import marg.exception.ParseException
 import marg.parser._
-import marg.token.{TokenSet, Token}
-import marg.util.AnsiExtension
+import marg.token.TokenSet
 
 import scala.io.StdIn
 
+import scala.Console._
+import marg.util.AnsiExtension._
 
 object IMR {
   def main(args: Array[String]) {
     // Shutdown Hook
     sys addShutdownHook {
-      println(Console.RESET)
-      println("Program will exit...")
+      println(RESET + "Program will exit...")
     }
 
     val e: SEnvironment = new SEnvironment(null)
@@ -25,87 +24,70 @@ object IMR {
     while (true) exec(e, lexer, parser)
   }
 
+
+  def readLine(first: String, str: String): String = {
+    print(if (first == null) str else first)
+    print(GREEN)
+    val input = StdIn.readLine()
+    print(RESET)
+
+    if (!input.isEmpty && input.last == '\\')
+      input.init + '\n' + readLine(null, str)
+    else input
+  }
+
+
   def exec(e: SEnvironment, lexer: ILexer, parser: IParser): Unit = {
-    print("Marg> ")
-    print(Console.GREEN)
-    var input = StdIn.readLine()
+    val input = readLine("Marg> ", "    > ")
 
-    print(Console.RESET)
+    if (input.isEmpty) return
+    else if (input.head != ':') execLine(input, e, lexer, parser)
+    else input.tail match {
+      case "?" | "h" | "help" => println(" <statement> : run <statement>")
+      case "v" | "version" => println("Interactive Marg v0.1")
+      case "q" | "quit" | "exit" => sys.exit()
+      case "c" | "cls" | "clear" => print(CLEAR)
+      case "e" | "env" | "environment" =>
+        e.map.foreach(p => println(s"${p._1} := ${p._2.get}"))
 
-    if (input.last == '\\') {
-      input = input.init
-      print("\\\t")
-      print(Console.GREEN)
-      val input_ = StdIn.readLine()
-      print(Console.RESET)
-      input += input_
-    }
-
-    if (input.head == ':')
-      input.tail match {
-        case "?" | "h" | "help" => println(":?")
-        case "q" | "quit" => sys.exit()
-        case "c" | "clear" =>
-          print(AnsiExtension.CLEAR)
-          return
-        case "v" | "values" =>
-          e.map.foreach(p => println(p._1 + " := " + p._2.get))
-        case s =>
-          print(Console.RED)
-          println("Command not found: " + s)
-          print(Console.RESET)
-      }
-
-    else {
-      execLine(input, e, lexer, parser)
+      case str => println(RED + s"${RED}Unknown command \'$str\'" + RESET)
     }
 
     println()
   }
 
 
-  def execLine(input: String, e: SEnvironment, lexer: ILexer, parser: IParser): Unit = {
-    var ls: List[Token] = Nil
+  def execLine(input: String, e: SEnvironment, lexer: ILexer, parser: IParser) {
     try {
-      ls = lexer.tokenize(input)
+      val ls = lexer.tokenize(input)
+
+      try {
+        val ast = parser.parse(new TokenSet(ls))
+
+        try ast.eval(e)
+        catch {
+          case ex: Exception =>
+            println("Runtime error")
+            print(RED + ex.getStackTrace.mkString("\n ") + RESET)
+            return
+        }
+      }
+      catch {
+        case ex: ParseException =>
+          println(RED + ex.getMessage + RESET)
+
+          val offset = ex.getErrorOffset
+          val list = ls.slice(offset - 3, offset + 3).init
+          println(list.mkString("\n"))
+          return
+        case ex: Exception =>
+          println("Unexpected error")
+          print(RED + ex.getStackTrace.mkString("\n ") + RESET)
+          return
+      }
     }
     catch {
-      // No input
-      case ex: NullPointerException => return
-    }
-
-    var ast: ASTree = null
-    try {
-      ast = parser.parse(new TokenSet(ls))
-    }
-    catch {
-      case ex: ParseException =>
-        print(Console.RED)
-        println(ex.getMessage)
-        print(Console.RESET)
-
-        val offset = ex.getErrorOffset
-        val list = ls.slice(offset - 3, offset + 3).init
-        list.foreach(t => print(t.getString))
-        return
-      case ex: Exception =>
-        println("Unexpected error")
-        print(Console.RED)
-        ex.printStackTrace()
-        print(Console.RESET)
-        return
-    }
-
-    try {
-      ast.eval(e)
-    }
-    catch {
-      case ex: Exception =>
-        println("Runtime error")
-        print(Console.RED)
-        ex.printStackTrace()
-        print(Console.RESET)
-        return
+      case ex: Exception => println("An unexpected error has occurred.")
     }
   }
 }

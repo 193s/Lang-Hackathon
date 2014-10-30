@@ -35,7 +35,8 @@ class SLexer extends ILexer {
   private def getToken(str: String, offset: Int): Token = {
     val s: String = take(str, offset, 1)
     if (s.isEmpty) return null
-    val c: Char = s.charAt(0)
+
+    val c = s.head
     if (c == '#') {
       var comment: String = "#"
       val sr: String = take(str, offset + 1, 2)
@@ -45,7 +46,8 @@ class SLexer extends ILexer {
         while (true) {
           val string: String = take(str, offset + i, 3)
           comment += take(string, 0, 1)
-          if (("--#" == string) || string.isEmpty) return new Token(comment + "--#", MultiLineComment)
+          if (("--#" == string) || string.isEmpty)
+            return new Token(comment + "--#", MultiLineComment)
           i += 1
         }
       }
@@ -54,34 +56,37 @@ class SLexer extends ILexer {
         while (true) {
           val string: String = take(str, offset + i, 1)
           comment += string
-          if (("\n" == string) || string.isEmpty) return new Token(comment, OneLineComment)
+          if (("\n" == string) || string.isEmpty)
+            return new Token(comment, OneLineComment)
           i += 1
         }
       }
     }
+
+    if (c == '\n') return new Token(c, EOL)
     if (isWhitespace(c)) return new Token(c, Space)
 
     if (isSymbol(c)) return new Token(c, Symbol)
 
     if (isOperatorSign(c)) {
-      val ident: String = c + takeWhileOperatorSign(str, offset + 1)
+      val ident = c + takeWhileOperatorSign(str, offset + 1)
       return new Token(ident, Operator)
     }
 
     if (isDigit(c)) {
-      val ident: String = c + takeWhileIdent(str, offset + 1)
+      val ident = c + takeWhileIdent(str, offset + 1)
       return new Token(ident, IntLiteral)
     }
 
     if (isLetter(c)) {
-      val ident: String = c + takeWhileIdent(str, offset + 1)
+      val ident = c + takeWhileIdent(str, offset + 1)
       if (("o" == ident) || ("x" == ident)) return new Token(ident, BoolLiteral)
       if (isReserved(ident)) return new Token(ident, Reserved)
       return new Token(ident, Identifier)
     }
 
-    Console.out.println("Undefined token : " + c)
-    return null
+    println("Undefined token : " + c)
+    null
   }
 
   private def takeWhileOperatorSign(str: String, offset: Int): String = {
@@ -94,7 +99,7 @@ class SLexer extends ILexer {
         flag = false
       }
       else {
-        val c: Char = s.charAt(0)
+        val c = s.head
         if (isOperatorSign(c)) string += c
         else flag = false
         i += 1
@@ -113,7 +118,7 @@ class SLexer extends ILexer {
         flag = false
       }
       else {
-        val c: Char = s.charAt(0)
+        val c: Char = s.head
         if (isLetterOrDigit(c)) string += c
         else flag = false
         i += 1
@@ -124,7 +129,9 @@ class SLexer extends ILexer {
 
 
   private def take(str: String, offset: Int, num: Int): String = {
-    var s: String = ""
+    var s = ""
+
+    // FIXME
     var i = 0
     while ((i < num) && (str.length > offset + i)) {
       s += str.charAt(offset + i)
@@ -133,18 +140,12 @@ class SLexer extends ILexer {
     return s
   }
 
-  private def isOperatorSign(c: Char): Boolean = {
-    for (t <- OperatorSign.values if c == t.character) return true
-    return false
-  }
+  private def isOperatorSign(c: Char) =
+    OperatorSign.values.exists(_.character == c)
 
-  private def isReserved(str: String): Boolean = {
-    for (t <- ReservedKind.values if str == t.toString) return true
-    return false
-  }
+  private def isReserved(str: String) =
+    ReservedKind.values.exists(_.string == str)
 
-  private def isSymbol(c: Char): Boolean = {
-    for (t <- SymbolKind.values if c == t.character) return true
-    return false
-  }
+  private def isSymbol(c: Char) =
+    SymbolKind.values.exists(_.character == c)
 }

@@ -7,15 +7,13 @@ import marg.token.TokenKind._
 
 class TokenSet(ls: List[Token]) {
 
-  def getOffset: Int = offset
+  def getOffset = offset
 
-  def unget(): Unit = {
+  def unget(): Unit =
     if (offset > 0) offset -= 1
-  }
 
-  def unget(k: Int): Unit = {
+  def unget(k: Int): Unit =
     if (offset >= k) offset -= k
-  }
 
   def next: Token = {
     checkEOF()
@@ -39,13 +37,16 @@ class TokenSet(ls: List[Token]) {
     true
   }
 
-  def readP(args: String*) {
-    for (t <- args) {
-      if (isEOF) throw new EOFException
-      val n: Token = next
-      if (!(t == n.getString)) throw new ParseException("", this)
-    }
+  def readP(message: String, args: String*) {
+    args.foreach(t => {
+      checkEOF()
+      if (next.getString != t)
+        throw new ParseException(s"Syntax Error: $message", this)
+    })
   }
+
+
+  def isEOL = !isEOF && (get.getKind eq EOL)
 
   def isName = !isEOF && (get.getKind eq Identifier)
 

@@ -16,7 +16,8 @@ class SDefine extends ASTree {
     this()
     ls.read("var")
     string = ls.next.getString
-    if (!ls.read("=")) throw new ParseException( """Syntax Error: '=' not found.""", ls)
+    if (!ls.read("="))
+      throw new ParseException( """Syntax Error: '=' not found.""", ls)
     child = new SExpr(ls)
   }
 

@@ -2,6 +2,7 @@ package marg.token;
 
 public enum TokenKind {
   EOF,              // End of file
+  EOL,              // End of Line
   Space,            // space (space, tab, ...)
   OneLineComment,   // one line comment
   MultiLineComment, // multiline comment

@@ -4,7 +4,7 @@ import java.io.{IOException, FileNotFoundException}
 import java.util.InputMismatchException
 
 import marg.ast.ASTree
-import marg.util.{Options, CommandLineOption}
+import marg.util.Options
 import Options._
 import marg.exception.ParseException
 import marg.lexer.{SLexer, ILexer}
@@ -37,45 +37,36 @@ object Marg {
   }
 
   def run(option: CommandLineOption) {
-    var s: String = null
-    try {
-      s = option.read
-    }
+    val s = try option.read
     catch {
       case e: IOException =>
         println("Failed to read Input File.")
         sys.exit(-1)
     }
 
+
     val lexer: ILexer = new SLexer()
-    var ls: List[Token] = null
-    try {
-      ls = lexer.tokenize(s)
-    }
+    val ls: List[Token] = try lexer.tokenize(s)
     catch {
       case e: NullPointerException =>
         println("No input files.")
         sys.exit(-1)
     }
     val parser: IParser = new SParser
-    var ast: ASTree = null
-    try {
-      ast = parser.parse(new TokenSet(ls))
-    }
+
+    val ast = try parser.parse(new TokenSet(ls))
     catch {
       case e: ParseException =>
         println("Failed to parse. Program will exit.")
-        e.printStackTrace()
+        println(e.getStackTrace.slice(0, 10).mkString("\n "))
         sys.exit(-1)
     }
     val e: SEnvironment = new SEnvironment(null)
 
-    try {
-      ast.eval(e)
-    }
+    try ast.eval(e)
     catch {
       case ex: Exception =>
-        println("RUNTIME ERROR:")
+        println("Runtime error")
         ex.printStackTrace()
     }
     finally {

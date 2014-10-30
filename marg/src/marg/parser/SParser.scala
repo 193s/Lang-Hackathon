@@ -7,8 +7,5 @@ import marg.token.TokenSet
 
 class SParser extends IParser {
 
-  def parse(ls: TokenSet): ASTree = {
-    val ast = new SProgram(ls)
-    return ast
-  }
+  def parse(ls: TokenSet): ASTree = new SProgram(ls)
 }

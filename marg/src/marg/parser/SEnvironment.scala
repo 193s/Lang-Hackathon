@@ -1,6 +1,6 @@
 package marg.parser
 
-import marg.lang.data.{MNull, IType, SType}
+import marg.lang.data.SType
 
 import scala.collection.mutable.Map
 
@@ -8,15 +8,13 @@ class SEnvironment(outer: SEnvironment) {
   var map = Map[String, SType]()
 
 
-  def find(key: String): Boolean = {
-    return map.contains(key) || ((outer != null) && outer.find(key))
-  }
+  def find(key: String): Boolean =
+    map.contains(key) || ((outer != null) && outer.find(key))
 
   def get(key: String): SType = {
     if (map.contains(key)) map(key)
     else if (outer != null) outer.get(key)
     else null
-//    else new SNull()
   }
 
   def put(key: String, o: SType) {

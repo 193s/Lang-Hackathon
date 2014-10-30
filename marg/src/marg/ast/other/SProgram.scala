@@ -13,13 +13,11 @@ class SProgram extends ASTList {
   def this(ls: TokenSet) {
     this()
 
-    val s = new SStatement(ls)
-
-    children += s
+    children += new SStatement(ls)
 
     try {
-      while (!ls.isEOF && ls.is(",")) {
-        ls.read(",")
+      while (!ls.isEOF && ls.isEOL) {
+        ls.next
         val right: ASTree = new SStatement(ls)
         children += right
       }
@@ -32,6 +30,6 @@ class SProgram extends ASTList {
   def eval(e: SEnvironment): SType = {
     var ret: SType = null
     children.foreach(ast => ret = ast.eval(e))
-    return ret
+    ret
   }
 }

@@ -7,7 +7,7 @@ import marg.token.TokenSet
 
 
 class SBoolLiteral extends ASTLeaf {
-  var string: String = ""
+  var string = ""
   private var value: SBool = null
 
   def this(ls: TokenSet) {
