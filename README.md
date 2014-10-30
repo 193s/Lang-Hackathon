@@ -3,10 +3,7 @@ A JVM-based scripting language.
   
 ## Marg
 An interpreter of Marg written in Java.
-  
-## Marg-Sharp
-An implementation of Marg written in C#.  
-Not supported.
+
   
 <!--
 ******
@@ -38,13 +35,9 @@ while (a < 10):
   
   
 ### Comment
-##### Single-line comment  
 ```
 # comment
-``` 
-  
-##### Multi-line comment  
-```
+
 #-- comment
 comment*
 --#
@@ -57,6 +50,17 @@ Reserved (Condition):
     Statements
 ;
 ```
+
+For example:
+```
+var a = 1000
+if (a == 0):
+  echo a
+;
+```
+
+
+
 
 
 
