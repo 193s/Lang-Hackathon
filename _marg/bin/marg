@@ -1,3 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
-echo marg
+cwd=`dirname ${0}`
+scala $cwd/marg.jar $1 $2 $3

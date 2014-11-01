@@ -1,16 +1,17 @@
 package marg.main
 
-import java.io.{IOException, FileNotFoundException}
+import java.io.{File, IOException, FileNotFoundException}
 import java.util.InputMismatchException
 
-import marg.ast.ASTree
 import marg.util.Options
 import Options._
 import marg.exception.ParseException
 import marg.lexer.{SLexer, ILexer}
 import marg.parser.{SEnvironment, SParser, IParser}
-import marg.token.{Token, TokenSet}
+import marg.token.Token
 import marg.util.CommandLineOption
+
+import scala.io.Source
 
 
 object Marg {
@@ -30,14 +31,14 @@ object Marg {
     }
 
     option.`type` match {
-      case Run => run(option)
+      case Run => run(option, debug = true)
       case Version => println("Version: β")
       case _ => println("Undefined option.")
     }
   }
 
-  def run(option: CommandLineOption) {
-    val s = try option.read
+  def run(option: CommandLineOption, debug: Boolean) {
+    val s = try Source.fromFile(new File("example.mg")).getLines().reduceLeft(_+_)
     catch {
       case e: IOException =>
         println("Failed to read Input File.")
@@ -52,9 +53,11 @@ object Marg {
         println("No input files.")
         sys.exit(-1)
     }
+
+    if (debug) println(ls.mkString("\n "))
     val parser: IParser = new SParser
 
-    val ast = try parser.parse(new TokenSet(ls))
+    val ast = try parser.parse(ls)
     catch {
       case e: ParseException =>
         println("Failed to parse. Program will exit.")
@@ -67,7 +70,7 @@ object Marg {
     catch {
       case ex: Exception =>
         println("Runtime error")
-        ex.printStackTrace()
+        println(ex.getStackTrace.slice(0, 10).mkString("\n "))
     }
     finally {
       println("Process finished.")

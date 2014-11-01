@@ -8,14 +8,11 @@ import marg.token.TokenSet
 class SOperator(var string: String) extends ASTLeaf {
   var level = 0
   var func: (SInt, SInt) => SInt = null
-  var assignment: Boolean = false
 
   def this(ls: TokenSet) {
-    this(ls.next.getString)
+    this(ls.next.String)
 
-    if (string == "=")
-      assignment = true
-    else if (map_op.contains(string)) {
+    if (map_op.contains(string)) {
       val s = map_op(string)
       level = s._1
       func = s._2
@@ -31,7 +28,8 @@ class SOperator(var string: String) extends ASTLeaf {
     "/" -> (0, (a: SInt, b: SInt) => new SInt(a.g / b.g)),
     "+" -> (1, (a: SInt, b: SInt) => new SInt(a.g + b.g)),
     "-" -> (1, (a: SInt, b: SInt) => new SInt(a.g - b.g)),
-    "%" -> (2, (a: SInt, b: SInt) => new SInt(a.g % b.g))
+    "%" -> (2, (a: SInt, b: SInt) => new SInt(a.g % b.g)
+  )
 
 //    "==" -> (3, (a: SInt, b: SInt) => new SBool(a.g == b.g)),
 //    "!=" -> (3, (a: SInt, b: SInt) => new SBool(a.g != b.g)),

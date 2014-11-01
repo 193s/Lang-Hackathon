@@ -1,1 +1,2 @@
-echo 123
+echo 1;
+echo 321

@@ -15,9 +15,9 @@ class SDefine extends ASTree {
   def this(ls: TokenSet) {
     this()
     ls.read("var")
-    string = ls.next.getString
+    string = ls.next.String
     if (!ls.read("="))
-      throw new ParseException( """Syntax Error: '=' not found.""", ls)
+      throw new ParseException("""Syntax Error: '=' not found.""", ls)
     child = new SExpr(ls)
   }
 

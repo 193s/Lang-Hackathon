@@ -2,10 +2,10 @@ package marg.parser
 
 import marg.lang.data.SType
 
-import scala.collection.mutable.Map
+import scala.collection.mutable
 
 class SEnvironment(outer: SEnvironment) {
-  var map = Map[String, SType]()
+  val map = mutable.Map[String, SType]()
 
 
   def find(key: String): Boolean =
@@ -22,8 +22,6 @@ class SEnvironment(outer: SEnvironment) {
       if (map.contains(key)) map.put(key, o)
       else outer.put(key, o)
     }
-    else {
-      map.put(key, o)
-    }
+    else map.put(key, o)
   }
 }

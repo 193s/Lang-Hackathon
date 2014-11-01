@@ -23,7 +23,7 @@ class TokenSet(ls: List[Token]) {
 
   def get: Token = ls(offset)
 
-  def is(s: String): Boolean = { s == get.getString }
+  def is(s: String): Boolean = { s == get.String }
 
   def isEOF: Boolean = get.isEOF
 
@@ -32,7 +32,7 @@ class TokenSet(ls: List[Token]) {
   def read(args: String*): Boolean = {
     for (t <- args) {
       val n: Token = next
-      if (t != n.getString) return false
+      if (t != n.String) return false
     }
     true
   }
@@ -40,23 +40,23 @@ class TokenSet(ls: List[Token]) {
   def readP(message: String, args: String*) {
     args.foreach(t => {
       checkEOF()
-      if (next.getString != t)
+      if (next.String != t)
         throw new ParseException(s"Syntax Error: $message", this)
     })
   }
 
 
-  def isEOL = !isEOF && (get.getKind eq EOL)
+  def isEOL = !isEOF && (get.Kind eq EOL)
 
-  def isName = !isEOF && (get.getKind eq Identifier)
+  def isName = !isEOF && (get.Kind eq Identifier)
 
-  def isNumber = !isEOF && (get.getKind eq IntLiteral)
+  def isNumber = !isEOF && (get.Kind eq IntLiteral)
 
-  def isBool = !isEOF && (get.getKind eq BoolLiteral)
+  def isBool = !isEOF && (get.Kind eq BoolLiteral)
 
-  def isOperator = !isEOF && (get.getKind eq Operator)
+  def isOperator = !isEOF && (get.Kind eq Operator)
 
-  def isReserved = !isEOF && (get.getKind eq Reserved)
+  def isReserved = !isEOF && (get.Kind eq Reserved)
 
   private var offset = 0
 }

@@ -1,9 +1,8 @@
 package marg.ast
 
-import scala.collection.mutable.ListBuffer
 
 abstract class ASTList extends ASTree {
-  var children: ListBuffer[ASTree] = ListBuffer()
+  var children = List[ASTree]()
 
-  def get(i: Int): ASTree = children(i)
+  def get(i: Int) = children(i)
 }

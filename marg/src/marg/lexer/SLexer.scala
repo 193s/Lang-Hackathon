@@ -8,7 +8,8 @@ import marg.token._
 class SLexer extends ILexer {
 
   def tokenize(input: String): List[Token] = {
-    var ls = List[Token]()
+    println(input)//FIXME
+    var ret = List[Token]()
 
     var offset = 0
     var flag = true
@@ -17,18 +18,18 @@ class SLexer extends ILexer {
       val t = getToken(input, offset)
       if (t == null) flag = false
       else {
-        val kind: TokenKind = t.getKind
+        val kind: TokenKind = t.Kind
 
-        if ((kind ne Space) && (kind ne OneLineComment) && (kind ne MultiLineComment))
-          ls =  ls :+ t
-        offset += t.getString.length
+        if ((kind ne Space) && (kind ne Comment))
+          ret = ret :+ t
+        offset += t.String.length
       }
     }
 
-    if (ls.isEmpty) throw new NullPointerException
-    ls = ls :+ new Token(null, EOF)
+    if (ret.isEmpty) throw new NullPointerException
+    ret = ret :+ new Token(null, EOF)
 
-    return ls.toList
+    return ret
   }
 
 
@@ -37,27 +38,28 @@ class SLexer extends ILexer {
     if (s.isEmpty) return null
 
     val c = s.head
+
     if (c == '#') {
-      var comment: String = "#"
-      val sr: String = take(str, offset + 1, 2)
-      if ("--" == sr) {
+      var comment = "#"
+      val string = take(str, offset + 1, 2)
+      if ("--" == string) {
         comment += "--"
         var i = 3
         while (true) {
-          val string: String = take(str, offset + i, 3)
-          comment += take(string, 0, 1)
-          if (("--#" == string) || string.isEmpty)
-            return new Token(comment + "--#", MultiLineComment)
+          val sr = take(str, offset + i, 3)
+          comment += take(sr, 0, 1)
+          if (("--#" == sr) || sr.isEmpty)
+            return new Token(comment + "--#", Comment)
           i += 1
         }
       }
       else {
         var i = 1
         while (true) {
-          val string: String = take(str, offset + i, 1)
-          comment += string
-          if (("\n" == string) || string.isEmpty)
-            return new Token(comment, OneLineComment)
+          val sr = take(str, offset + i, 1)
+          comment += sr
+          if (("\n" == sr) || sr.isEmpty)
+            return new Token(comment, Comment)
           i += 1
         }
       }
@@ -89,63 +91,59 @@ class SLexer extends ILexer {
     null
   }
 
-  private def takeWhileOperatorSign(str: String, offset: Int): String = {
-    var string: String = ""
-    var i = 0
-    var flag = true
-    while (flag) {
-      val s: String = take(str, offset + i, 1)
-      if (s.isEmpty) {
-        flag = false
-      }
-      else {
-        val c = s.head
-        if (isOperatorSign(c)) string += c
-        else flag = false
-        i += 1
-      }
-    }
-    return string
-  }
+  private def takeWhileOperatorSign(str: String, offset: Int): String =
+    takeWhile(str, offset, TokenDefinition.operators)
 
   private def takeWhileIdent(str: String, offset: Int): String = {
-    var string: String = ""
+    var string = ""
     var i = 0
-    var flag = true
-    while (flag) {
-      val s: String = take(str, offset + i, 1)
-      if (s.isEmpty) {
-        flag = false
-      }
-      else {
-        val c: Char = s.head
-        if (isLetterOrDigit(c)) string += c
-        else flag = false
-        i += 1
-      }
+    while (true) {
+      val s = take(str, offset + i, 1)
+      if (s.isEmpty) return string
+      val c = s.head
+      if (!isLetterOrDigit(c)) return string
+      string += c
+      i += 1
     }
     return string
   }
 
+  private def takeWhile(str: String, offset: Int, chars: Seq[Char]): String = {
+    var string = ""
+
+    var i = 0
+    while (true) {
+      val s = take(str, offset + i, 1)
+      if (s.isEmpty) return string
+
+      val c = s.head
+      if (!chars.contains(c)) return string
+      string += c
+      i += 1
+    }
+
+    return string
+  }
 
   private def take(str: String, offset: Int, num: Int): String = {
     var s = ""
 
-    // FIXME
     var i = 0
-    while ((i < num) && (str.length > offset + i)) {
-      s += str.charAt(offset + i)
+    val string = str.substring(offset)
+    while ((i < num) && (string.length > i)) {
+      s += string.charAt(i)
       i += 1
     }
+
     return s
   }
 
   private def isOperatorSign(c: Char) =
-    OperatorSign.values.exists(_.character == c)
+    TokenDefinition.operators.contains(c)
 
   private def isReserved(str: String) =
-    ReservedKind.values.exists(_.string == str)
+    TokenDefinition.reserved.contains(str)
 
   private def isSymbol(c: Char) =
-    SymbolKind.values.exists(_.character == c)
+    TokenDefinition.symbols.contains(c)
 }

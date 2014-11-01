@@ -2,10 +2,10 @@ package marg.parser
 
 import marg.ast.ASTree
 import marg.ast.other.SProgram
-import marg.token.TokenSet
+import marg.token.{Token, TokenSet}
 
 
 class SParser extends IParser {
 
-  def parse(ls: TokenSet): ASTree = new SProgram(ls)
+  def parse(ls: List[Token]): ASTree = new SProgram(new TokenSet(ls))
 }

@@ -4,12 +4,11 @@ public enum TokenKind {
   EOF,              // End of file
   EOL,              // End of Line
   Space,            // space (space, tab, ...)
-  OneLineComment,   // one line comment
-  MultiLineComment, // multiline comment
+  Comment,          // comment
   Reserved,         // Reserved Token
   Identifier,       // Identifier
   IntLiteral,       // Integer Literal
-  BoolLiteral,      // true
+  BoolLiteral,      // true / false
   Operator,         // Operator Token
   Symbol,           // Symbol Token
 }

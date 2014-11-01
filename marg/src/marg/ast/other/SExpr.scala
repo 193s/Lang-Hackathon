@@ -15,12 +15,11 @@ class SExpr extends ASTList {
   def this(ls: TokenSet) {
     this()
     val n: ASTree = new SValue(ls)
-    children += n
+    children = n :: Nil
     while (ls.isOperator) {
-      val op: SOperator = new SOperator(ls)
-      val n2: ASTree = new SValue(ls)
-      operators += op
-      children += n2
+      operators += new SOperator(ls)
+      children = children :+ new SValue(ls)
+
     }
   }
 

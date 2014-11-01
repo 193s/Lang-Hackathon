@@ -1,8 +1,8 @@
 package marg.parser
 
 import marg.ast.ASTree
-import marg.token.TokenSet
+import marg.token.{Token, TokenSet}
 
 trait IParser {
-  def parse(ls: TokenSet): ASTree
+  def parse(ls: List[Token]): ASTree
 }

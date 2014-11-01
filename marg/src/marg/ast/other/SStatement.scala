@@ -15,7 +15,7 @@ class SStatement extends ASTree {
   def this(ls: TokenSet) {
     this()
     try {
-      child = ls.get.getString match {
+      child = ls.get.String match {
         case "var"    => new SDefine(ls)
         case "while"  => new SWhile(ls)
         case "if"     => new SIf(ls)

@@ -17,9 +17,15 @@ class SIf extends ASTree {
     if (!ls.read("if", "("))
       throw new ParseException("Syntax Error: invalid syntax", ls)
     condition = new SCondition(ls)
-    if (!ls.read(")"))
+    if (!ls.read(")", ":"))
       throw new ParseException("Syntax Error: invalid syntax", ls)
+
+    if (ls.isEOL) ls.next
     program = new SBlock(ls)
+
+    if (ls.isEOL) ls.next
+    if (!ls.read(";"))
+      throw new ParseException("Syntax Error: invalid syntax", ls)
   }
 
   def eval(e: SEnvironment): SType = {

@@ -18,6 +18,6 @@ class SEcho extends ASTree {
   def eval(e: SEnvironment): SType = {
     val v = child.eval(e)
     println(v.get)
-    v
+    null
   }
 }

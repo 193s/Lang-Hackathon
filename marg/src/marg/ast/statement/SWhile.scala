@@ -19,10 +19,13 @@ class SWhile extends ASTree {
 
     condition = new SCondition(ls)
 
-    if (!ls.read(")"))
+    if (!ls.read(")", ":"))
       throw new ParseException("Syntax Error: invalid syntax", ls)
 
     program = new SStatement(ls)
+
+    if (!ls.read(";"))
+      throw new ParseException("Syntax Error: invalid syntax", ls)
   }
 
   def eval(e: SEnvironment): SType = {

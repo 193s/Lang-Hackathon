@@ -8,6 +8,6 @@ class Token(string: String, kind: TokenKind) {
 
   override def toString = string + "\t: " + kind
   def isEOF = kind eq TokenKind.EOF
-  def getString = string
-  def getKind = kind
+  def String = string
+  def Kind = kind
 }
