@@ -22,45 +22,13 @@ $ imr
 
 ******
 
-# Language Documentation
   
 ###### Example
 ```
-a = 0,
+var a = 0
 while (a < 10):
+    echo a
     a = a+1
 ;
  
 ```
-  
-  
-### Comment
-```
-# comment
-
-#-- comment
-comment*
---#
-```
-
-### Statement
-Now you can use If and While statement like this:  
-```
-Reserved (Condition):
-    Statements
-;
-```
-
-For example:
-```
-var a = 1000
-if (a == 0):
-  echo a
-;
-```
-
-
-
-
-
-
