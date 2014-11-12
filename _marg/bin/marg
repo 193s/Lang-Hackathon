@@ -1,4 +1,3 @@
 #!/usr/bin/env sh
 
-cwd=`dirname ${0}`
-scala $cwd/marg.jar $1 $2 $3
+scala `dirname $0`/marg.jar $@

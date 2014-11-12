@@ -1,4 +1,3 @@
 #!/usr/bin/env sh
 
-cwd=`dirname ${0}`
-scala $cwd/simr.jar
+scala `dirname $0`/simr.jar

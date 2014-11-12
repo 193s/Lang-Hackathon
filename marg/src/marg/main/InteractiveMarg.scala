@@ -10,7 +10,8 @@ import scala.io.StdIn
 import scala.Console._
 import marg.util.AnsiExtension._
 
-object IMR {
+
+object InteractiveMarg {
   private var debug = false
 
   def main(args: Array[String]) {
@@ -19,9 +20,9 @@ object IMR {
       println("\n\n" + RESET + "Program will exit...")
     }
 
-    val e: SEnvironment = new SEnvironment(null)
-    val lexer: ILexer = new SLexer
-    val parser: IParser = new SParser
+    val e = new Env(null)
+    val lexer = new SLexer
+    val parser = new SParser
 
     while (true) exec(e, lexer, parser)
   }
@@ -39,7 +40,7 @@ object IMR {
   }
 
 
-  def exec(e: SEnvironment, lexer: ILexer, parser: IParser): Unit = {
+  def exec(e: Env, lexer: ILexer, parser: IParser): Unit = {
     val input = readLine("Marg> ",
                          "    > ")
 
@@ -65,7 +66,7 @@ object IMR {
   }
 
 
-  def execLine(input: String, e: SEnvironment, lexer: ILexer, parser: IParser) {
+  def execLine(input: String, e: Env, lexer: ILexer, parser: IParser) {
     val ls: List[Token] = try lexer.tokenize(input)
     catch {
       case ex: NullPointerException =>

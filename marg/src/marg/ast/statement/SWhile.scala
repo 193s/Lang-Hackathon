@@ -4,7 +4,7 @@ import marg.ast.ASTree
 import marg.ast.other.{SStatement, SProgram}
 import marg.exception.ParseException
 import marg.lang.data.SType
-import marg.parser.SEnvironment
+import marg.parser.Env
 import marg.token.TokenSet
 
 
@@ -28,7 +28,7 @@ class SWhile extends ASTree {
       throw new ParseException("Syntax Error: invalid syntax", ls)
   }
 
-  def eval(e: SEnvironment): SType = {
+  def eval(e: Env): SType = {
     var ret: SType = null
     while (condition.eval(e).g()) {
       ret = program.eval(e)

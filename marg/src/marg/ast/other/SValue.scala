@@ -3,7 +3,7 @@ package marg.ast.other
 import marg.ast.leaf.{SIntLiteral, SBoolLiteral, SVariable}
 import marg.exception.ParseException
 import marg.lang.data.SType
-import marg.parser.SEnvironment
+import marg.parser.Env
 import marg.ast.{ASTList, ASTree}
 import marg.token.TokenSet
 
@@ -31,6 +31,6 @@ class SValue extends ASTList {
     else throw new ParseException("Internal Error: invalid <Value>", ls)
   }
 
-  def eval(e: SEnvironment): SType = child.eval(e)
+  def eval(e: Env): SType = child.eval(e)
 }
 

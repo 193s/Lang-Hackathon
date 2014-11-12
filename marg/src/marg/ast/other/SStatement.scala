@@ -5,7 +5,7 @@ import java.io.EOFException
 import marg.ast.ASTree
 import marg.ast.statement._
 import marg.lang.data.SType
-import marg.parser.SEnvironment
+import marg.parser.Env
 import marg.token.TokenSet
 
 
@@ -31,5 +31,5 @@ class SStatement extends ASTree {
     }
   }
 
-  override def eval(e: SEnvironment) = child.eval(e)
+  override def eval(e: Env) = child.eval(e)
 }

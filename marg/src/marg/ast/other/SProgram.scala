@@ -4,7 +4,7 @@ import java.io.EOFException
 
 import marg.ast.{ASTree, ASTList}
 import marg.lang.data.SType
-import marg.parser.SEnvironment
+import marg.parser.Env
 import marg.token.TokenSet
 
 
@@ -26,7 +26,7 @@ class SProgram extends ASTList {
     }
   }
 
-  override def eval(e: SEnvironment) = {
+  override def eval(e: Env) = {
     children.init.foreach(ast => ast.eval(e))
     children.last.eval(e)
   }

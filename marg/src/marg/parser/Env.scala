@@ -4,7 +4,7 @@ import marg.lang.data.SType
 
 import scala.collection.mutable
 
-class SEnvironment(outer: SEnvironment) {
+class Env(outer: Env) {
   val map = mutable.Map[String, SType]()
 
 

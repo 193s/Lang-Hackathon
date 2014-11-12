@@ -1,7 +1,7 @@
 package marg.token
 
 
-object TokenDefinition {
+object TokenDef {
   val operators = Seq('!', '?', '%', '&', '*', '+', '-', ',', '.', '/', ':', '<', '>', '=', '@', '^', '`', '|', '~')
   val reserved = Seq("return", "if", "unless", "else", "while", "print")
   val symbols = Seq('[', ']', '(', ')', '{', '}', '\'', '\"', ',', ':', ';')

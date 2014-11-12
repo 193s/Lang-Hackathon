@@ -3,7 +3,7 @@ package marg.ast.other
 import marg.ast.leaf.SOperator
 import marg.ast.{ASTList, ASTree}
 import marg.lang.data.{SInt, SType}
-import marg.parser.SEnvironment
+import marg.parser.Env
 import marg.token.TokenSet
 
 import scala.collection.mutable.ListBuffer
@@ -23,7 +23,7 @@ class SExpr extends ASTList {
     }
   }
 
-  def eval(e: SEnvironment): SType = {
+  def eval(e: Env): SType = {
     if (children.length == 1) return children.head.eval(e)
 
     var vals = ListBuffer[SType]()

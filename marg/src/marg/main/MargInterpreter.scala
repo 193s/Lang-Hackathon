@@ -7,14 +7,14 @@ import marg.util.Options
 import Options._
 import marg.exception.ParseException
 import marg.lexer.{SLexer, ILexer}
-import marg.parser.{SEnvironment, SParser, IParser}
+import marg.parser.{Env, SParser, IParser}
 import marg.token.Token
 import marg.util.CommandLineOption
 
 import scala.io.Source
 
 
-object Marg {
+object MargInterpreter {
 
   def main(args: Array[String]) {
     var option: CommandLineOption = null
@@ -64,7 +64,7 @@ object Marg {
         println(e.getStackTrace.slice(0, 10).mkString("\n "))
         sys.exit(-1)
     }
-    val e: SEnvironment = new SEnvironment(null)
+    val e: Env = new Env(null)
 
     try ast.eval(e)
     catch {

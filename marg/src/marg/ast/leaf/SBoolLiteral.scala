@@ -2,7 +2,7 @@ package marg.ast.leaf
 
 import marg.ast.ASTLeaf
 import marg.lang.data.{SBool, SType}
-import marg.parser.SEnvironment
+import marg.parser.Env
 import marg.token.TokenSet
 
 
@@ -12,10 +12,9 @@ class SBoolLiteral extends ASTLeaf {
 
   def this(ls: TokenSet) {
     this()
-    val t = ls.next.String
-    string = t
+    string = ls.next.String
     value = new SBool("o" == string)
   }
 
-  def eval(e: SEnvironment): SType = value.asInstanceOf[SType]
+  override def eval(e: Env) = value.asInstanceOf[SType]
 }

@@ -3,7 +3,7 @@ package marg.ast.other
 import marg.exception.ParseException
 import marg.lang.data.SType
 import marg.ast.{ASTree, ASTList}
-import marg.parser.SEnvironment
+import marg.parser.Env
 import marg.token.TokenSet
 
 class SBlock extends ASTree {
@@ -17,6 +17,6 @@ class SBlock extends ASTree {
     child = program
   }
 
-  def eval(e: SEnvironment): SType = child.eval(e)
+  def eval(e: Env): SType = child.eval(e)
 }
 

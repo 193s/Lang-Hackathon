@@ -1,3 +1,3 @@
 Manifest-Version: 1.0
-Main-Class: marg.main.Marg
+Main-Class: marg.main.MargInterpreter
 

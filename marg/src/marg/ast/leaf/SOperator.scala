@@ -2,7 +2,7 @@ package marg.ast.leaf
 
 import marg.ast.ASTLeaf
 import marg.lang.data.{SBool, SInt, SType}
-import marg.parser.SEnvironment
+import marg.parser.Env
 import marg.token.TokenSet
 
 class SOperator(var string: String) extends ASTLeaf {
@@ -21,7 +21,7 @@ class SOperator(var string: String) extends ASTLeaf {
 
   def apply(a: SInt, b: SInt): SInt = func(a, b)
 
-  def eval(e: SEnvironment): SType = null
+  def eval(e: Env): SType = null
 
   val map_op = Map[String, (Int, (SInt, SInt) => SInt)] (
     "*" -> (0, (a: SInt, b: SInt) => new SInt(a.g * b.g)),

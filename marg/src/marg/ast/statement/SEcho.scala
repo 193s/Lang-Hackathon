@@ -3,7 +3,7 @@ package marg.ast.statement
 import marg.ast.ASTree
 import marg.ast.other.SExpr
 import marg.lang.data.SType
-import marg.parser.SEnvironment
+import marg.parser.Env
 import marg.token.TokenSet
 
 class SEcho extends ASTree {
@@ -15,7 +15,7 @@ class SEcho extends ASTree {
     child = new SExpr(ls)
   }
 
-  def eval(e: SEnvironment): SType = {
+  def eval(e: Env): SType = {
     val v = child.eval(e)
     println(v.get)
     null

@@ -3,7 +3,7 @@ package marg.ast.statement
 import marg.exception.ParseException
 import marg.ast.ASTree
 import marg.lang.data.SType
-import marg.parser.SEnvironment
+import marg.parser.Env
 import marg.ast.other.SBlock
 import marg.token.TokenSet
 
@@ -28,7 +28,7 @@ class SIf extends ASTree {
       throw new ParseException("Syntax Error: invalid syntax", ls)
   }
 
-  def eval(e: SEnvironment): SType = {
+  def eval(e: Env): SType = {
     val cond = condition.eval(e).g()
     if (cond) program.eval(e)
     else null

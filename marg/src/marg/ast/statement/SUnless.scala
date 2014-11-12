@@ -4,7 +4,7 @@ import marg.ast.ASTree
 import marg.ast.other.SBlock
 import marg.exception.ParseException
 import marg.lang.data.SType
-import marg.parser.SEnvironment
+import marg.parser.Env
 import marg.token.TokenSet
 
 
@@ -22,7 +22,7 @@ class SUnless extends ASTree {
     program = new SBlock(ls)
   }
 
-  def eval(e: SEnvironment): SType = {
+  def eval(e: Env): SType = {
     val cond = condition.eval(e).g()
     if (!cond) program.eval(e)
     else null

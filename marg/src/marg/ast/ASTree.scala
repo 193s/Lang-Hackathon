@@ -1,9 +1,9 @@
 package marg.ast
 
 import marg.lang.data.SType
-import marg.parser.SEnvironment
+import marg.parser.Env
 
 
 abstract class ASTree {
-  def eval(e: SEnvironment): SType
+  def eval(e: Env): SType
 }
