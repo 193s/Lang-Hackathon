@@ -1,12 +1,12 @@
 package marg.util
 
-import java.io.{IOException, FileNotFoundException, FileReader, File}
-import java.util.{Scanner, InputMismatchException}
+import java.io.{File, FileNotFoundException, FileReader, IOException}
+import java.util.InputMismatchException
 
 
 class CommandLineOption {
   private var file: File = null
-  var `type`: Options = null
+  var kind: Options = null
 
   def this(args: Array[String]) {
     this()
@@ -15,17 +15,17 @@ class CommandLineOption {
         val str: String = s.init
         str match {
           case "v" | "V" =>
-            `type` = Options.Version
+            kind = Options.Version
           case _ =>
             println("Undefined option")
         }
       }
       else {
-        `type` = Options.Run
+        kind = Options.Run
         file = readFile(s)
       }
     }
-    if (`type` == null) throw new InputMismatchException
+    if (kind == null) throw new InputMismatchException
   }
 
   def read: String = {

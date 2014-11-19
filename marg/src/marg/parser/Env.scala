@@ -11,17 +11,15 @@ class Env(outer: Env) {
   def find(key: String): Boolean =
     map.contains(key) || ((outer != null) && outer.find(key))
 
-  def get(key: String): SType = {
+  def get(key: String): SType =
     if (map.contains(key)) map(key)
     else if (outer != null) outer.get(key)
     else null
-  }
 
-  def put(key: String, o: SType) {
-    if (find(key)) {
-      if (map.contains(key)) map.put(key, o)
-      else outer.put(key, o)
-    }
-    else map.put(key, o)
-  }
+  def +=(t: (String, SType)): Unit =
+    if (find(t._1))
+      if (map.contains(t._1)) map += t
+      else outer += t
+    else map += t
 }
+

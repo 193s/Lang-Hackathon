@@ -24,6 +24,7 @@ class SLexer extends ILexer {
   }
 
 
+
   private def getToken(str: String, offset: Int): Token = str(offset) match {
     case '#' =>
       // Block Comment
@@ -41,8 +42,6 @@ class SLexer extends ILexer {
       else Token('#' + str.substring(offset + 1).takeWhile(_ != '\n'), Comment)
 
     case '\n' => Token('\n', EOL)
-    case 'o' => Token('o', BoolLiteral)
-    case 'x' => Token('x', BoolLiteral)
 
     case c if c.isWhitespace => Token(c, Space)
     case c if isSymbol(c) => Token(c, Symbol)
@@ -57,7 +56,8 @@ class SLexer extends ILexer {
 
     case c if c.isLetter =>
       val id = c + takeWhileIdent(str, offset + 1)
-      if (isReserved(id)) Token(id, Reserved)
+      if (id == "o" | id == "x") Token(id, BoolLiteral)
+      else if (isReserved(id)) Token(id, Reserved)
       else Token(id, Identifier)
 
     case c => sys error s"Undefined token : $c"

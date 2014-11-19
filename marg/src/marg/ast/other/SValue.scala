@@ -1,10 +1,10 @@
 package marg.ast.other
 
+import marg.ast.base.{ASTree, ASTList}
 import marg.ast.leaf.{SIntLiteral, SBoolLiteral, SVariable}
 import marg.exception.ParseException
 import marg.lang.data.SType
 import marg.parser.Env
-import marg.ast.{ASTList, ASTree}
 import marg.token.TokenSet
 
 
@@ -15,7 +15,7 @@ class SValue extends ASTList {
     this()
     if (ls.is("(")) {
       ls.read("(")
-      val s: ASTree = new SExpr(ls)
+      val s: ASTree = new Expr(ls)
       if (!ls.read(")")) throw new ParseException("Syntax Error: ')' not found", ls)
       child = s
     }

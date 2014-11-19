@@ -1,6 +1,6 @@
 package marg.parser
 
-import marg.ast.ASTree
+import marg.ast.base.ASTree
 import marg.token.{Token, TokenSet}
 
 trait IParser {

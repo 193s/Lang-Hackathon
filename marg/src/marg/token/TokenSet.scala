@@ -5,44 +5,43 @@ import java.io.EOFException
 import marg.exception.ParseException
 import marg.token.TokenKind._
 
-class TokenSet(ls: List[Token]) {
+class TokenSet(ls: List[Token]) extends Iterator[Token] {
 
-  def getOffset = offset
-
-  def unget(): Unit =
-    if (offset > 0) offset -= 1
-
-  def unget(k: Int): Unit =
-    if (offset >= k) offset -= k
-
-  def next: Token = {
+  override def next() = {
     checkEOF()
     offset += 1
     ls(offset - 1)
   }
 
-  def get: Token = ls(offset)
+  override def hasNext = !isEOF
 
-  def is(s: String): Boolean = { s == get.String }
 
-  def isEOF: Boolean = get.isEOF
+  def getOffset = offset
+
+  def unget() = if (offset > 0) offset -= 1
+
+  def unget(k: Int) = if (offset >= k) offset -= k
+
+
+  def get = ls(offset)
+
+  def is(s: String) = s == get.String
+
+  def isEOF = get.isEOF
 
   def checkEOF() = if (isEOF) throw new EOFException
 
   def read(args: String*): Boolean = {
-    for (t <- args) {
-      val n: Token = next
-      if (t != n.String) return false
-    }
+    for (t <- args) if (t != next().String) return false
     true
   }
 
   def readP(message: String, args: String*) {
-    args.foreach(t => {
+    for (t <- args) {
       checkEOF()
-      if (next.String != t)
-        throw new ParseException(s"Syntax Error: $message", this)
-    })
+      if (next().String != t)
+        throw new ParseException("Syntax Error: " + message, this)
+    }
   }
 
 

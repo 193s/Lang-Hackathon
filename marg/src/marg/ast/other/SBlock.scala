@@ -1,8 +1,8 @@
 package marg.ast.other
 
+import marg.ast.base.ASTree
 import marg.exception.ParseException
 import marg.lang.data.SType
-import marg.ast.{ASTree, ASTList}
 import marg.parser.Env
 import marg.token.TokenSet
 

@@ -1,19 +1,19 @@
 package marg.ast.leaf
 
-import marg.ast.ASTLeaf
-import marg.lang.data.{SBool, SInt, SType}
+import marg.ast.base.ASTLeaf
+import marg.lang.data.SInt
 import marg.parser.Env
 import marg.token.TokenSet
 
-class SOperator(var string: String) extends ASTLeaf {
+class SOperator private(var string: String) extends ASTLeaf {
   var level = 0
   var func: (SInt, SInt) => SInt = null
 
-  def this(ls: TokenSet) {
-    this(ls.next.String)
+  def this(ls: TokenSet) = {
+    this(ls.next().String)
 
-    if (map_op.contains(string)) {
-      val s = map_op(string)
+    if (SOperator.map_op.contains(string)) {
+      val s = SOperator.map_op(string)
       level = s._1
       func = s._2
     }
@@ -21,15 +21,16 @@ class SOperator(var string: String) extends ASTLeaf {
 
   def apply(a: SInt, b: SInt): SInt = func(a, b)
 
-  def eval(e: Env): SType = null
+  override def eval(e: Env) = null
+}
 
-  val map_op = Map[String, (Int, (SInt, SInt) => SInt)] (
+object SOperator {
+  private val map_op = Map[String, (Int, (SInt, SInt) => SInt)] (
     "*" -> (0, (a: SInt, b: SInt) => new SInt(a.g * b.g)),
     "/" -> (0, (a: SInt, b: SInt) => new SInt(a.g / b.g)),
     "+" -> (1, (a: SInt, b: SInt) => new SInt(a.g + b.g)),
     "-" -> (1, (a: SInt, b: SInt) => new SInt(a.g - b.g)),
-    "%" -> (2, (a: SInt, b: SInt) => new SInt(a.g % b.g)
-  )
+    "%" -> (2, (a: SInt, b: SInt) => new SInt(a.g % b.g))
 
 //    "==" -> (3, (a: SInt, b: SInt) => new SBool(a.g == b.g)),
 //    "!=" -> (3, (a: SInt, b: SInt) => new SBool(a.g != b.g)),

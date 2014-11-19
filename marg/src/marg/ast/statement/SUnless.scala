@@ -1,6 +1,6 @@
 package marg.ast.statement
 
-import marg.ast.ASTree
+import marg.ast.base.ASTree
 import marg.ast.other.SBlock
 import marg.exception.ParseException
 import marg.lang.data.SType

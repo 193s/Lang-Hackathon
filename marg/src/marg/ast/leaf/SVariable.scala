@@ -1,6 +1,6 @@
 package marg.ast.leaf
 
-import marg.ast.ASTLeaf
+import marg.ast.base.ASTLeaf
 import marg.parser.Env
 import marg.token.TokenSet
 

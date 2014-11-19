@@ -1,9 +1,8 @@
 package marg.token
 
-
 class Token private(string: String, kind: TokenKind) {
 
-  override def toString = string.reverse.padTo(10, ' ').reverse.mkString + " : " + kind.toString
+  override def toString = string + " : " + kind.toString
   def isEOF = kind eq TokenKind.EOF
   def String = string
   def Kind = kind

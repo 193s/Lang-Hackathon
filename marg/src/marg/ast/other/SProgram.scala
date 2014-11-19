@@ -1,9 +1,7 @@
 package marg.ast.other
 
 import java.io.EOFException
-
-import marg.ast.{ASTree, ASTList}
-import marg.lang.data.SType
+import marg.ast.base.ASTList
 import marg.parser.Env
 import marg.token.TokenSet
 
@@ -13,12 +11,12 @@ class SProgram extends ASTList {
   def this(ls: TokenSet) {
     this()
 
-    children = List(new SStatement(ls))
+    children = List(new Statement(ls))
 
     try {
       while (!ls.isEOF && (ls.isEOL || ls.is(";"))) {
-        ls.next
-        children = children :+ new SStatement(ls)
+        ls.next()
+        children = children :+ new Statement(ls)
       }
     }
     catch {
@@ -27,7 +25,7 @@ class SProgram extends ASTList {
   }
 
   override def eval(e: Env) = {
-    children.init.foreach(ast => ast.eval(e))
+    for (ast <- children.init) ast.eval(e)
     children.last.eval(e)
   }
 }

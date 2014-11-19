@@ -1,20 +1,20 @@
 package marg.ast.leaf
 
-import marg.ast.ASTLeaf
-import marg.lang.data.{SBool, SType}
+import marg.ast.base.ASTLeaf
+import marg.lang.data.SBool
 import marg.parser.Env
 import marg.token.TokenSet
 
 
-class SBoolLiteral extends ASTLeaf {
-  var string = ""
+class SBoolLiteral private(str: String) extends ASTLeaf {
   private var value: SBool = null
 
   def this(ls: TokenSet) {
-    this()
-    string = ls.next.String
-    value = new SBool("o" == string)
+    this(ls.next.String)
+    value = new SBool("o" == str)
   }
 
-  override def eval(e: Env) = value.asInstanceOf[SType]
+  override def eval(e: Env) = value
+
+  override var string: String = str
 }

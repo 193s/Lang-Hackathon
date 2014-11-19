@@ -1,7 +1,7 @@
 package marg.ast.statement
 
-import marg.ast.ASTree
-import marg.ast.other.{SStatement, SProgram}
+import marg.ast.base.ASTree
+import marg.ast.other.{Statement, SProgram}
 import marg.exception.ParseException
 import marg.lang.data.SType
 import marg.parser.Env
@@ -22,7 +22,7 @@ class SWhile extends ASTree {
     if (!ls.read(")", ":"))
       throw new ParseException("Syntax Error: invalid syntax", ls)
 
-    program = new SStatement(ls)
+    program = new Statement(ls)
 
     if (!ls.read(";"))
       throw new ParseException("Syntax Error: invalid syntax", ls)
