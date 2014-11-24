@@ -1,21 +1,18 @@
 # Marg
 A JVM-based scripting language.
-  
-## Marg
-An interpreter of Marg written in Java.
 
   
 <!--
 ******
 
-# Installation
+# Install
 ```
 $ wget http://github.com/193s/marg
 $ mkdir ~/.marg/
 $ export PATH="$PATH:$HOME/.marg/bin"
 ```
 
-# How to Use
+# Usage
 ```
 $ imr
 ``` -->
