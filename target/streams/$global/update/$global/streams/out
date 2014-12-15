@@ -7,7 +7,7 @@
 [0m[[0mdebug[0m] [0m== resolving dependencies for default#marg_2.11;0.1.0 [compile][0m
 [0m[[0mdebug[0m] [0m== resolving dependencies default#marg_2.11;0.1.0->org.scala-lang#scala-library;2.11.4 [compile->default(compile)][0m
 [0m[[0minfo[0m] [0mResolving org.scala-lang#scala-library;2.11.4 ...[0m
-[0m[[0mdebug[0m] [0msbt-chain: Checking cache for: sbt.ivyint.MergedDescriptors@216c2b35[0m
+[0m[[0mdebug[0m] [0msbt-chain: Checking cache for: sbt.ivyint.MergedDescriptors@5d0cc2aa[0m
 [0m[[0mdebug[0m] [0msbt-chain: module revision found in cache: org.scala-lang#scala-library;2.11.4[0m
 [0m[[0mdebug[0m] [0m	found org.scala-lang#scala-library;2.11.4 in sbt-chain[0m
 [0m[[0mdebug[0m] [0m	[2.11.4] org.scala-lang#scala-library;2.11.4[0m
@@ -220,7 +220,7 @@
 [0m[[0mdebug[0m] [0m	[NOT REQUIRED] org.scala-lang.modules#scala-xml_2.11;1.0.2!scala-xml_2.11.jar(bundle)[0m
 [0m[[0mdebug[0m] [0m	[NOT REQUIRED] org.scala-lang.modules#scala-parser-combinators_2.11;1.0.2!scala-parser-combinators_2.11.jar(bundle)[0m
 [0m[[0mdebug[0m] [0m	[NOT REQUIRED] jline#jline;2.12!jline.jar[0m
-[0m[[0mdebug[0m] [0m:: resolution report :: resolve 119ms :: artifacts dl 8ms[0m
+[0m[[0mdebug[0m] [0m:: resolution report :: resolve 361ms :: artifacts dl 18ms[0m
 [0m[[0mdebug[0m] [0m	report for default#marg_2.11;0.1.0 compile produced in /Users/193s/git/marg/target/resolution-cache/reports/default-marg_2.11-compile.xml[0m
 [0m[[0mdebug[0m] [0m	report for default#marg_2.11;0.1.0 runtime produced in /Users/193s/git/marg/target/resolution-cache/reports/default-marg_2.11-runtime.xml[0m
 [0m[[0mdebug[0m] [0m	report for default#marg_2.11;0.1.0 test produced in /Users/193s/git/marg/target/resolution-cache/reports/default-marg_2.11-test.xml[0m
@@ -234,5 +234,5 @@
 [0m[[0mdebug[0m] [0m	report for default#marg_2.11;0.1.0 docs produced in /Users/193s/git/marg/target/resolution-cache/reports/default-marg_2.11-docs.xml[0m
 [0m[[0mdebug[0m] [0m	report for default#marg_2.11;0.1.0 pom produced in /Users/193s/git/marg/target/resolution-cache/reports/default-marg_2.11-pom.xml[0m
 [0m[[0mdebug[0m] [0m	report for default#marg_2.11;0.1.0 scala-tool produced in /Users/193s/git/marg/target/resolution-cache/reports/default-marg_2.11-scala-tool.xml[0m
-[0m[[0mdebug[0m] [0m	resolve done (119ms resolve - 8ms download)[0m
+[0m[[0mdebug[0m] [0m	resolve done (361ms resolve - 18ms download)[0m
 [0m[[0minfo[0m] [0mDone updating.[0m
