@@ -1,9 +1,10 @@
-# Marg A JVM-based scripting language.  
+# Marg
+A JVM-based scripting language.  
 
 ******
 
 
-# Usage
+## Usage
 ```sh
 $ git clone https://github.com/193s/marg.git
 $ cd marg
