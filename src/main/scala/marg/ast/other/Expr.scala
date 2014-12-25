@@ -6,7 +6,7 @@ import marg.lang.data.{SInt, SType}
 import marg.parser.Env
 import marg.token.TokenSet
 
-
+// <Expr> := <expr> <operator> <expr>
 class Expr extends ASTList {
   private var operators = List[SOperator]()
 
@@ -20,10 +20,12 @@ class Expr extends ASTList {
     }
   }
 
+  // FIXME: so dirty...
   override def eval(e: Env): SType = {
     if (children.length == 1) return children.head.eval(e)
 
     var vals = for (o <- children) yield o.eval(e)
+    // OR var vals = children.map(_.eval(e))
 
     var ops_cpy = operators
 

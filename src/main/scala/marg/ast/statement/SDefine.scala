@@ -8,21 +8,23 @@ import marg.parser.Env
 import marg.token.TokenSet
 
 
-class SDefine extends ASTree {
-  var string = ""
-  var child: ASTree = null
+class SDefine(id: String, child: ASTree) extends ASTree {
 
-  def this(ls: TokenSet) {
-    this()
-    ls.read("var")
-    string = ls.next().String
-    if (!ls.read("="))
-      throw new ParseException("""Syntax Error: '=' not found.""", ls)
-    child = new Expr(ls)
-  }
+  def this(ls: TokenSet) =
+    this ({
+      ls.read("let")
+      ls.next().String
+    },
+    {
+      if (!ls.read("="))
+        throw new ParseException( """Syntax Error: '=' not found.""", ls)
+      new Expr(ls)
+    })
 
-  def eval(e: Env): SType = {
-    e += (string -> child.eval(e))
+  override def eval(e: Env): SType = {
+    println(s"debug: $id, $child")
+    e += (id -> child.eval(e))
+    println(s"debug: ${e.map.mkString(", ")}")
     null
   }
 }

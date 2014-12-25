@@ -7,14 +7,14 @@ import marg.token.TokenSet
 
 
 class SBoolLiteral private(str: String) extends ASTLeaf {
-  private var value: SBool = null
+  private var value: SBool = _
 
   def this(ls: TokenSet) {
-    this(ls.next.String)
+    this(ls.next().String)
     value = new SBool("o" == str)
   }
 
   override def eval(e: Env) = value
 
-  override var string: String = str
+  override var string = str
 }

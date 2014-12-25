@@ -1,38 +1,30 @@
 package marg.ast.statement
 
 import marg.ast.base.ASTree
-import marg.ast.other.{Statement, SProgram}
+import marg.ast.other.SBlock
 import marg.exception.ParseException
 import marg.lang.data.SType
 import marg.parser.Env
 import marg.token.TokenSet
 
 
-class SWhile extends ASTree {
-  private var condition: SCondition = null
-  private var program: ASTree = null
+class SWhile(cond: BoolExpr, prog: ASTree) extends ASTree {
 
-  def this(ls: TokenSet) {
-    this()
-    if (!ls.read("while", "("))
-      throw new ParseException("Syntax Error: invalid syntax", ls)
+  def this(ls: TokenSet) =
+    this ({
+      if (!ls.read("while", "("))
+        throw new ParseException("Syntax Error: invalid syntax", ls)
+      new BoolExpr(ls)
+    }, {
+      if (!ls.read(")"))
+        throw new ParseException("Syntax Error: invalid syntax", ls)
 
-    condition = new SCondition(ls)
+      new SBlock(ls)
+    })
 
-    if (!ls.read(")", ":"))
-      throw new ParseException("Syntax Error: invalid syntax", ls)
-
-    program = new Statement(ls)
-
-    if (!ls.read(";"))
-      throw new ParseException("Syntax Error: invalid syntax", ls)
-  }
-
-  def eval(e: Env): SType = {
+  override def eval(e: Env) = {
     var ret: SType = null
-    while (condition.eval(e).g()) {
-      ret = program.eval(e)
-    }
-    return ret
+    while (cond.eval(e).g) ret = prog.eval(e)
+    ret
   }
 }

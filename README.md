@@ -1,4 +1,5 @@
-# Marg A JVM-based scripting language.  
+# Marg
+A JVM-based scripting language.
 
 ******
 

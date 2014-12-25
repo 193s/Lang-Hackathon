@@ -13,21 +13,16 @@ class SValue extends ASTList {
 
   def this(ls: TokenSet) {
     this()
+    child =
     if (ls.is("(")) {
       ls.read("(")
       val s: ASTree = new Expr(ls)
       if (!ls.read(")")) throw new ParseException("Syntax Error: ')' not found", ls)
-      child = s
+      s
     }
-    else if (ls.isNumber) {
-      child = new SIntLiteral(ls)
-    }
-    else if (ls.isBool) {
-      child = new SBoolLiteral(ls)
-    }
-    else if (ls.isName) {
-      child = new SVariable(ls)
-    }
+    else if (ls.isNumber)  new SIntLiteral(ls)
+    else if (ls.isBool) new SBoolLiteral(ls)
+    else if (ls.isName) new SVariable(ls)
     else throw new ParseException("Internal Error: invalid <Value>", ls)
   }
 

@@ -6,17 +6,14 @@ import marg.lang.data.SType
 import marg.parser.Env
 import marg.token.TokenSet
 
-class SBlock extends ASTree {
-  private var child: ASTree = null
-  def this(ls: TokenSet) {
-    this()
-    // FIXME
-    if (!ls.read(":")) throw new ParseException("Syntax Error", ls)
-    val program: ASTree = new SProgram(ls)
-    if (!ls.read(";")) throw new ParseException("Syntax Error", ls)
-    child = program
-  }
+class SBlock private(child: ASTree) extends ASTree {
+  def this(ls: TokenSet) =
+    this({
+      if (!ls.read("{")) throw new ParseException("Syntax Error", ls)
+      val program = new SProgram(ls)
+      if (!ls.read("}")) throw new ParseException("Syntax Error", ls)
+      program
+    })
 
-  def eval(e: Env): SType = child.eval(e)
+  override def eval(e: Env): SType = child.eval(e)
 }
-

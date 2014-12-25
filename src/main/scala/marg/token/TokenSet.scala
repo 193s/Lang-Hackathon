@@ -5,6 +5,7 @@ import java.io.EOFException
 import marg.exception.ParseException
 import marg.token.TokenKind._
 
+@Deprecated
 class TokenSet(ls: List[Token]) extends Iterator[Token] {
   private var offset = 0
 
