@@ -3,6 +3,7 @@ A JVM-based scripting language.
 
 ******
 
+Language Specification(Japanese): <https://github.com/193s/marg/wiki/Language-Specification>
 
 ## Usage
 ```sh
