@@ -1,4 +1,9 @@
+
+301 Moved Permanently  
+Location: <https://github.com/193s/margn>
+
 # Marg
+
 A JVM-based scripting language.
 
 ******
